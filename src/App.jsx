@@ -1,14 +1,11 @@
-
+import Layout from "./ui/Layout";
 
 function App() {
-
   return (
     <>
-   <p className="text-3xl font-bold underline">
-      Hello world!
-    </p>
+      <Layout>Hello</Layout>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

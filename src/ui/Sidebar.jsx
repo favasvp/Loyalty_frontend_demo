@@ -1,0 +1,145 @@
+import {
+  ArrowLeftCircleIcon,
+  ChartBarIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  CurrencyDollarIcon,
+  SparklesIcon,
+} from "@heroicons/react/16/solid";
+import { useEffect, useRef, useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+
+const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
+  const location = useLocation();
+  const { pathname } = location;
+
+  const trigger = useRef(null);
+  const sidebar = useRef(null);
+
+  const storedSidebarExpanded = localStorage.getItem("sidebar-expanded");
+  const [sidebarExpanded, setSidebarExpanded] = useState(
+    storedSidebarExpanded === null ? false : storedSidebarExpanded === "true"
+  );
+
+  const [expandedNav, setExpandedNav] = useState(null);
+
+  useEffect(() => {
+    localStorage.setItem("sidebar-expanded", sidebarExpanded.toString());
+  }, [sidebarExpanded]);
+
+  const toggleNav = (label) => {
+    setExpandedNav(expandedNav === label ? null : label);
+  };
+
+  const navItems = [
+    {
+      label: "Dashboard",
+      path: "/dashboard",
+      icon: ChartBarIcon,
+    },
+    {
+      label: "Points Management",
+      type: "dropdown",
+      icon: CurrencyDollarIcon,
+      subItems: [
+        { label: "Points Criteria", path: "/reports/sales", icon: SparklesIcon },
+        { label: "Transactions", path: "/reports/users", icon: SparklesIcon },
+      ],
+    },
+  ];
+
+  return (
+    <aside
+      ref={sidebar}
+      className={`absolute left-0 top-0 z-9999 flex h-screen w-62.5 flex-col overflow-y-hidden bg-[#2B5C3F] duration-300 ease-linear lg:static lg:translate-x-0 ${
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+      }`}
+    >
+      <div className="flex items-center justify-between px-6 py-5.5">
+        <NavLink to="/dashboard" className="text-xl font-semibold text-white">
+          Khedmah Loyalty
+        </NavLink>
+        <button
+          ref={trigger}
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          aria-controls="sidebar"
+          aria-expanded={sidebarOpen}
+          className="block lg:hidden"
+        >
+          <ArrowLeftCircleIcon className="h-5 w-5 text-white" />
+        </button>
+      </div>
+      <nav className="flex-1 overflow-y-auto py-4">
+        {navItems.map((item) =>
+          item.type === "dropdown" ? (
+            <div key={item.label}>
+              <button
+                onClick={() => toggleNav(item.label)}
+                className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                  expandedNav === item.label
+                    ? "text-white bg-green-700/90"
+                    : "text-gray-300 hover:bg-green-700/50 hover:text-white"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <item.icon className="w-5 h-5" />
+                  {item.label}
+                </div>
+                {expandedNav === item.label ? (
+                  <ChevronDownIcon className="w-4 h-4" />
+                ) : (
+                  <ChevronRightIcon className="w-4 h-4" />
+                )}
+              </button>
+
+              {expandedNav === item.label && (
+                <div className="ml-4 mt-2 space-y-1">
+                  {item.subItems.map((subItem) => (
+                    <NavLink
+                      key={subItem.path}
+                      to={subItem.path}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-4 py-2 text-sm font-medium rounded-lg ${
+                          isActive
+                            ? "text-white bg-green-800"
+                            : "text-gray-200 hover:bg-green-700/30 hover:text-white"
+                        }`
+                      }
+                    >
+                      {subItem.icon && <subItem.icon className="w-4 h-4" />}
+                      {subItem.label}
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={({ isActive }) =>
+                `flex items-center px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                  isActive && expandedNav === null
+                    ? "text-white bg-green-700/90 border-r-4 border-white"
+                    : "text-gray-300 hover:bg-green-700/50 hover:text-white"
+                }`
+              }
+            >
+              <item.icon className="w-5 h-5 " />
+              <span className="ml-3">{item.label}</span>
+            </NavLink>
+          )
+        )}
+      </nav>
+
+
+      <div className="mt-auto flex flex-col items-center justify-center py-4 px-0">
+        <button className="text-sm font-medium hover:bg-green-700/50 hover:text-white text-white w-full p-2">
+          Logout
+        </button>
+      </div>
+    </aside>
+  );
+};
+
+export default Sidebar;

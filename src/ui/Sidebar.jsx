@@ -81,8 +81,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
               <button
                 onClick={() => toggleNav(item.label)}
                 className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium transition-all duration-200 ${
-                  expandedNav === item.label
-                    ? "text-white bg-green-700/90"
+                    item.subItems.some(subItem => pathname === subItem.path)
+                    ? "text-white bg-green-700/90 border-r-4 border-white"
                     : "text-gray-300 hover:bg-green-700/50 hover:text-white"
                 }`}
               >
@@ -103,13 +103,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                     <NavLink
                       key={subItem.path}
                       to={subItem.path}
-                      className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-2 text-sm font-medium rounded-lg ${
-                          isActive
-                            ? "text-white bg-green-800"
-                            : "text-gray-200 hover:bg-green-700/30 hover:text-white"
-                        }`
-                      }
+                      className={`flex items-center gap-3 px-4 py-2 text-sm font-medium rounded-lg ${
+                        pathname.startsWith(subItem.path)
+                          ? "text-white bg-green-800"
+                          : "text-gray-200 hover:bg-green-700/30 hover:text-white"
+                      }`}
                     >
                       {subItem.icon && <subItem.icon className="w-4 h-4" />}
                       {subItem.label}
@@ -122,15 +120,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             <NavLink
               key={item.path}
               to={item.path}
-              className={({ isActive }) =>
-                `flex items-center px-4 py-3 text-sm font-medium transition-all duration-200 ${
-                  isActive && expandedNav === null
-                    ? "text-white bg-green-700/90 border-r-4 border-white"
-                    : "text-gray-300 hover:bg-green-700/50 hover:text-white"
-                }`
-              }
+              className={`flex items-center px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                pathname.startsWith(item.path)
+                  ? "text-white bg-green-700/90 border-r-4 border-white"
+                  : "text-gray-300 hover:bg-green-700/50 hover:text-white"
+              }`}
             >
-              <item.icon className="w-5 h-5 " />
+              <item.icon className="w-5 h-5" />
               <span className="ml-3">{item.label}</span>
             </NavLink>
           )

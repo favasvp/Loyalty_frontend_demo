@@ -81,7 +81,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
               <button
                 onClick={() => toggleNav(item.label)}
                 className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium transition-all duration-200 ${
-                    item.subItems.some(subItem => pathname === subItem.path)
+                  item.subItems.some((subItem) => pathname === subItem.path)
                     ? "text-white bg-green-700/90 border-r-4 border-white"
                     : "text-gray-300 hover:bg-green-700/50 hover:text-white"
                 }`}

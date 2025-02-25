@@ -1,5 +1,6 @@
 import {
   ArrowLeftCircleIcon,
+  ArrowLeftEndOnRectangleIcon,
   ChartBarIcon,
   ChevronDownIcon,
   ChevronRightIcon,
@@ -42,7 +43,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       type: "dropdown",
       icon: CurrencyDollarIcon,
       subItems: [
-        { label: "Points Criteria", path: "/reports/sales", icon: SparklesIcon },
+        {
+          label: "Points Criteria",
+          path: "/reports/sales",
+          icon: SparklesIcon,
+        },
         { label: "Transactions", path: "/reports/users", icon: SparklesIcon },
       ],
     },
@@ -132,10 +137,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         )}
       </nav>
 
-
-      <div className="mt-auto flex flex-col items-center justify-center py-4 px-0">
-        <button className="text-sm font-medium hover:bg-green-700/50 hover:text-white text-white w-full p-2">
-          Logout
+      <div className="mt-auto flex justify-center py-4 w-full">
+        <button className="text-sm font-medium hover:bg-green-700/50 hover:text-white text-white w-full px-4 py-2 flex items-center gap-2 justify-center">
+          <ArrowLeftEndOnRectangleIcon className="w-5 h-5" /> Logout
         </button>
       </div>
     </aside>

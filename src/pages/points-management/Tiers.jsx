@@ -1,4 +1,4 @@
-import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { ChevronLeftIcon, ChevronRightIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import StyledButton from "../../ui/StyledButton";
 import StyledSearchInput from "../../ui/StyledSearchInput";
 import { useState } from "react";
@@ -99,10 +99,8 @@ const Tiers = () => {
               </tbody>
             </table>
 
-            {/* Responsive pagination section */}
             <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                {/* Items per page selector - stacks on mobile */}
                 <div className="flex items-center space-x-2 w-full sm:w-auto">
                   <span className="text-gray-700 text-xs">Items per page:</span>
                   <select
@@ -116,79 +114,33 @@ const Tiers = () => {
                   </select>
                 </div>
 
-                {/* Pagination controls - responsive layout */}
                 <div className="flex flex-wrap items-center justify-center gap-2 w-full sm:w-auto">
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
                     className={`px-3 py-1 rounded-lg transition-all text-xs ${
                       currentPage === 1
-                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        ? " text-gray-500 cursor-not-allowed"
                         : "bg-blue-500 text-white hover:bg-blue-600"
                     }`}
                   >
-                    Previous
+                 <ChevronLeftIcon className="w-4 h-4" />
                   </button>
 
                   <div className="flex flex-wrap items-center justify-center gap-1">
-                    {totalPages <= 5 ? (
-                      // Show all page numbers if 5 or fewer pages
-                      [...Array(totalPages)].map((_, index) => (
-                        <button
-                          key={index + 1}
-                          onClick={() => handlePageChange(index + 1)}
-                          className={`px-2 py-1 rounded-lg transition-all text-xs min-w-6 text-center ${
-                            index + 1 === currentPage
-                              ? "bg-green-600 text-white font-semibold"
-                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                          }`}
-                        >
-                          {index + 1}
-                        </button>
-                      ))
-                    ) : (
-                      // Show limited page numbers with ellipsis for many pages
-                      <>
-                        <button
-                          onClick={() => handlePageChange(1)}
-                          className={`px-2 py-1 rounded-lg transition-all text-xs min-w-6 text-center ${
-                            1 === currentPage
-                              ? "bg-green-600 text-white font-semibold"
-                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                          }`}
-                        >
-                          1
-                        </button>
-
-                        {currentPage > 3 && (
-                          <span className="text-gray-500">...</span>
-                        )}
-
-                        {currentPage > 2 && currentPage < totalPages && (
-                          <button
-                            onClick={() => handlePageChange(currentPage)}
-                            className="px-2 py-1 rounded-lg transition-all text-xs min-w-6 text-center bg-green-600 text-white font-semibold"
-                          >
-                            {currentPage}
-                          </button>
-                        )}
-
-                        {currentPage < totalPages - 2 && (
-                          <span className="text-gray-500">...</span>
-                        )}
-
-                        <button
-                          onClick={() => handlePageChange(totalPages)}
-                          className={`px-2 py-1 rounded-lg transition-all text-xs min-w-6 text-center ${
-                            totalPages === currentPage
-                              ? "bg-green-600 text-white font-semibold"
-                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                          }`}
-                        >
-                          {totalPages}
-                        </button>
-                      </>
-                    )}
+                    {[...Array(totalPages)].map((_, index) => (
+                      <button
+                        key={index + 1}
+                        onClick={() => handlePageChange(index + 1)}
+                        className={`px-3 py-1 rounded-lg transition-all text-xs ${
+                          index + 1 === currentPage
+                            ? "bg-green-600 text-white font-semibold"
+                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                        }`}
+                      >
+                        {index + 1}
+                      </button>
+                    ))}
                   </div>
 
                   <button
@@ -196,11 +148,11 @@ const Tiers = () => {
                     disabled={currentPage === totalPages}
                     className={`px-3 py-1 rounded-lg transition-all text-xs ${
                       currentPage === totalPages
-                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        ? " text-gray-500 cursor-not-allowed"
                         : "bg-blue-500 text-white hover:bg-blue-600"
                     }`}
                   >
-                    Next
+                  <ChevronRightIcon className="w-4 h-4" />
                   </button>
                 </div>
               </div>

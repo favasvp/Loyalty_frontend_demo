@@ -7,6 +7,8 @@ import {
   CurrencyDollarIcon,
   SparklesIcon,
   TrophyIcon,
+  UserGroupIcon,
+  UsersIcon,
 } from "@heroicons/react/24/outline";
 import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
@@ -52,6 +54,19 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         { label: "Tiers", path: "/tiers", icon: TrophyIcon },
       ],
     },
+    {
+      label: "Customer Management",
+      type: "dropdown",
+      icon: UserGroupIcon,
+      subItems: [
+        {
+          label: "Customers",
+          path: "/customers",
+          icon: UsersIcon,
+        },
+        
+      ],
+    },
   ];
 
   return (
@@ -83,7 +98,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                 onClick={() => toggleNav(item.label)}
                 className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium transition-all duration-200 ${
                   item.subItems.some((subItem) => pathname === subItem.path)
-                    ? "text-white bg-green-700/90 border-r-4 border-white"
+                    ? "text-white bg-green-700/90"
                     : "text-gray-300 hover:bg-green-700/50 hover:text-white"
                 }`}
               >
@@ -123,7 +138,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
               to={item.path}
               className={`flex items-center px-4 py-3 text-sm font-medium transition-all duration-200 ${
                 pathname.startsWith(item.path)
-                  ? "text-white bg-green-700/90 border-r-4 border-white"
+                  ? "text-white bg-green-700/90 "
                   : "text-gray-300 hover:bg-green-700/50 hover:text-white"
               }`}
             >

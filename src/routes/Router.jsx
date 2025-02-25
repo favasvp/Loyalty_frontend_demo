@@ -16,7 +16,7 @@ const router = createBrowserRouter([
     path: "/points-criteria",
     element: (
       <Layout>
-        <PointsCriteria/>
+        <PointsCriteria />
       </Layout>
     ),
   },
@@ -24,10 +24,18 @@ const router = createBrowserRouter([
     path: "/tiers",
     element: (
       <Layout>
-      <Tiers/>
+        <Tiers />
       </Layout>
     ),
-  }
+  },
+  {
+    path: "/customers",
+    element: (
+      <Layout>
+        <h1>Users</h1>
+      </Layout>
+    ),
+  },
 ]);
 
 export default router;

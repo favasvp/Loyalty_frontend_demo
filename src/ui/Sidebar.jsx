@@ -6,7 +6,8 @@ import {
   ChevronRightIcon,
   CurrencyDollarIcon,
   SparklesIcon,
-} from "@heroicons/react/16/solid";
+  TrophyIcon,
+} from "@heroicons/react/24/outline";
 import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 
@@ -45,10 +46,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       subItems: [
         {
           label: "Points Criteria",
-          path: "/reports/sales",
-          icon: SparklesIcon,
+          path: "/points-criteria",
+          icon: CurrencyDollarIcon,
         },
-        { label: "Transactions", path: "/reports/users", icon: SparklesIcon },
+        { label: "Tiers", path: "/tiers", icon: TrophyIcon },
       ],
     },
   ];
@@ -98,7 +99,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
               </button>
 
               {expandedNav === item.label && (
-                <div className="ml-4 mt-2 space-y-1">
+                <div className="ml-4 mt-2 space-y-1 mr-2">
                   {item.subItems.map((subItem) => (
                     <NavLink
                       key={subItem.path}

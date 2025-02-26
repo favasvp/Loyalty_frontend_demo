@@ -7,13 +7,13 @@ import {
   CodeBracketIcon,
   DocumentTextIcon,
   PencilIcon,
-  XCircleIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import AddPointsCriteria from "../../components/points-management/AddPointsCriteria";
+import RefreshButton from "../../ui/RefreshButton";
 const PointsCriteria = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-const[addOpen,setAddOpen]= useState(false);
+  const [addOpen, setAddOpen] = useState(false);
   const pointsCriteria = [
     {
       id: 1,
@@ -139,12 +139,18 @@ const[addOpen,setAddOpen]= useState(false);
     <>
       <div>
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-semibold text-gray-900">
-            Points Criteria
-          </h1>
+          <div>
+            {" "}
+            <h1 className="text-2xl font-semibold text-gray-900">
+              Points Criteria
+            </h1>
+            <p className="text-xs text-gray-500 mt-1">Last updated:</p>
+          </div>
           <div className="flex items-center gap-4">
+            <RefreshButton />
             <StyledSearchInput placeholder={"Search by name"} />
-            <StyledButton onClick={() => setAddOpen(true)}
+            <StyledButton
+              onClick={() => setAddOpen(true)}
               name={
                 <>
                   <span className="text-lg leading-none">+</span>
@@ -333,7 +339,11 @@ const[addOpen,setAddOpen]= useState(false);
             </div>
           </div>
         )}
-        <AddPointsCriteria isOpen={addOpen} onClose={() => setAddOpen(false)} onSuccess={() => setAddOpen(false)} />
+        <AddPointsCriteria
+          isOpen={addOpen}
+          onClose={() => setAddOpen(false)}
+          onSuccess={() => setAddOpen(false)}
+        />
       </div>
     </>
   );

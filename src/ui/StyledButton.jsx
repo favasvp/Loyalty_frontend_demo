@@ -19,7 +19,7 @@ const StyledButton = ({
       onClick={onClick}
       type={type}
       disabled={disabled}
-      className={`px-4 py-2.5 rounded-lg text-xs font-medium flex items-center gap-2 ${
+      className={`px-4 py-2.5 rounded-lg text-xs font-medium flex items-center cursor-pointer gap-2 ${
         variants[variant] || variants.primary
       } ${className}`}
     >

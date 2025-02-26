@@ -11,6 +11,7 @@ const StyledButton = ({
     secondary: "bg-gray-600 hover:bg-gray-700 text-white",
     delete: "bg-red-600 hover:bg-red-700 text-white",
     tertiary: "bg-transparent text-black hover:bg-gray-100",
+    download:"text-gray-600 hover:text-gray-800 border border-gray-300 hover:bg-gray-50"
   };
 
   return (

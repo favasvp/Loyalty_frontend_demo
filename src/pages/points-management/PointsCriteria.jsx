@@ -171,12 +171,12 @@ const PointsCriteria = () => {
         </div>
         {isModalOpen && (
           <div className="fixed inset-0 flex items-center justify-center  bg-opacity-50">
-            <div className="relative bg-white rounded-lg shadow-xl w-full max-w-3xl min-h-[500px] max-h-[80vh] overflow-y-auto p-6 mt-17">
-              <div className="flex justify-end">
+            <div className="relative bg-white rounded-lg shadow-xl w-full max-w-3xl min-h-[500px] max-h-[80vh] overflow-y-auto p-6 mt-17 custom-scrollbar">
+              <div className="flex justify-end pb-9">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="text-gray-600 hover:text-gray-900 transition pb-2"
+                  className="absolute  text-gray-600 hover:text-gray-900 transition cursor-pointer"
                 >
                   <XMarkIcon className="w-5 h-5" />
                 </button>

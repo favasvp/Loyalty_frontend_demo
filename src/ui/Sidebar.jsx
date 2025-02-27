@@ -1,6 +1,7 @@
 import {
   ArrowLeftCircleIcon,
   ArrowLeftEndOnRectangleIcon,
+  ArrowPathIcon,
   ChartBarIcon,
   ChevronDownIcon,
   ChevronRightIcon,
@@ -51,6 +52,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           path: "/points-criteria",
           icon: CurrencyDollarIcon,
         },
+        {
+          label: "Transactions",
+          path: "/transactions",
+          icon: ArrowPathIcon,
+        },
         { label: "Tiers", path: "/tiers", icon: TrophyIcon },
       ],
     },
@@ -64,7 +70,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           path: "/customers",
           icon: UsersIcon,
         },
-        
       ],
     },
   ];

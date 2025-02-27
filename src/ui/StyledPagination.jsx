@@ -1,5 +1,4 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
-
 import { TrashIcon } from "@heroicons/react/24/solid";
 import StyledButton from "./StyledButton";
 
@@ -22,7 +21,6 @@ const StyledPagination = ({
   return (
     <div className="w-full bg-gray-50 border-t border-gray-200 px-4 py-3">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-      
         <div className="flex justify-between items-center w-full sm:w-auto gap-3">
           <div className="flex items-center space-x-2">
             <span className="text-gray-700 text-xs">Items per page:</span>
@@ -47,8 +45,7 @@ const StyledPagination = ({
             />
           )}
         </div>
-
-        <div className="flex flex-wrap items-center justify-center gap-2 w-full sm:w-auto">
+        <div className="flex items-center justify-center gap-2">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
@@ -61,21 +58,9 @@ const StyledPagination = ({
             <ChevronLeftIcon className="w-4 h-4" />
           </button>
 
-          <div className="flex flex-wrap items-center justify-center gap-1">
-            {[...Array(totalPages)].map((_, index) => (
-              <button
-                key={index + 1}
-                onClick={() => handlePageChange(index + 1)}
-                className={`px-3 py-1 rounded-lg transition-all text-xs ${
-                  index + 1 === currentPage
-                    ? "bg-green-600 text-white font-semibold"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-              >
-                {index + 1}
-              </button>
-            ))}
-          </div>
+          <span className="text-gray-700 text-xs">
+            Page {currentPage} of {totalPages}
+          </span>
 
           <button
             onClick={() => handlePageChange(currentPage + 1)}

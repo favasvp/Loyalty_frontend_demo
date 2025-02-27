@@ -15,6 +15,8 @@ import CustomerGrowth from "../ui/Dashboard/CustomerGrowth";
 import SegmentAnalaysis from "../ui/Dashboard/SegmentAnalaysis";
 
 const Dashboard = () => {
+  const [loading, setLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState("");
   const dashboardData = [
     {
       title: "Total Points Issued",
@@ -240,10 +242,16 @@ const Dashboard = () => {
           <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
             Dashboard
           </h1>
-          <p className="text-xs text-gray-500 mt-1">Last updated:</p>
+          <p className="text-xs text-gray-500 mt-1">
+            {" "}
+            Last Updated: {lastUpdated ? lastUpdated : "Fetching..."}
+          </p>
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full md:w-auto">
-          <RefreshButton />{" "}
+          <RefreshButton
+            //  onClick={fetchData}
+            isLoading={loading}
+          />
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -262,8 +270,7 @@ const Dashboard = () => {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <CustomerGrowth customerGrowthData={customerGrowthData} />
-        <SegmentAnalaysis
-          segmentAnalysisData={segmentAnalysisData}/>
+        <SegmentAnalaysis segmentAnalysisData={segmentAnalysisData} />
       </div>
     </>
   );

@@ -1,18 +1,39 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import StyledTable from "../../ui/StyledTable";
+import RefreshButton from "../../ui/RefreshButton";
+import Loader from "../../ui/Loader";
 
 const Privacy = () => {
   const [activeTab, setActiveTab] = useState("security-log");
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalCount, setTotalCount] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const data = [
+  const [loading, setLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState("");
+  const [data, setData] = useState([
     { id: 1, name: "John Doe", pointsRequired: 120, status: "Active" },
     { id: 2, name: "Jane Smith", pointsRequired: 90, status: "Inactive" },
     { id: 3, name: "Alice Johnson", pointsRequired: 150, status: "Active" },
     { id: 4, name: "Michael Brown", pointsRequired: 80, status: "Pending" },
     { id: 5, name: "Emily Davis", pointsRequired: 110, status: "Active" },
-  ];
+  ]);
+  // const fetchData = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await
+  //     setData(response?.data || []);
+  //     setLastUpdated(new Date().toLocaleString());
+  //     setTotalCount(response?.data?totalCount || 0);
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchData();
+  // }, []);
   const tableRows = useMemo(() => {
     return data.map((item) => (
       <tr key={item.id} className="hover:bg-gray-50">
@@ -41,6 +62,15 @@ const Privacy = () => {
             Manage privacy settings and security configurations
           </p>
         </div>
+        <div className="flex items-center gap-4">
+          <p className="text-xs text-gray-500 mt-1">
+            Last Updated: {lastUpdated ? lastUpdated : "Fetching..."}
+          </p>
+          <RefreshButton
+            //  onClick={fetchData}
+            isLoading={loading}
+          />
+        </div>
       </div>
 
       <div className="border-b border-gray-200">
@@ -67,43 +97,46 @@ const Privacy = () => {
           </button>
         </div>
       </div>
+      {loading ? (
+        <Loader />
+      ) : (
+        <div className="mt-6">
+          {activeTab === "security-log" && (
+            <StyledTable
+              paginationProps={{
+                currentPage,
+                totalCount,
+                itemsPerPage,
+                setCurrentPage,
+                setItemsPerPage,
+              }}
+            >
+              <thead className="bg-gray-50 w-full">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Points
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {tableRows}
+              </tbody>
+            </StyledTable>
+          )}
 
-      <div className="mt-6">
-        {activeTab === "security-log" && (
-          <StyledTable
-            paginationProps={{
-              currentPage,
-              totalCount,
-              itemsPerPage,
-              setCurrentPage,
-              setItemsPerPage,
-            }}
-          >
-            <thead className="bg-gray-50 w-full">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Points
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {tableRows}
-            </tbody>
-          </StyledTable>
-        )}
-
-        {activeTab === "role-log" && (
-          <div>
-            <h2 className="text-lg font-semibold">Role Audit Log</h2>
-          </div>
-        )}
-      </div>
+          {activeTab === "role-log" && (
+            <div>
+              <h2 className="text-lg font-semibold">Role Audit Log</h2>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

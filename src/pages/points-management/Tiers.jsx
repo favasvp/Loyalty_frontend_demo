@@ -6,6 +6,7 @@ import AddTier from "../../components/points-management/AddTier";
 import StyledTable from "../../ui/StyledTable";
 import DeleteModal from "../../ui/DeleteModal";
 import RefreshButton from "../../ui/RefreshButton";
+import Loader from "../../ui/Loader";
 
 const Tiers = () => {
   const [open, setOpen] = useState(false);
@@ -14,17 +15,36 @@ const Tiers = () => {
   const [totalCount, setTotalCount] = useState(10);
   const [editOpen, setEditOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-
-  const handleEdit = () => {
-    setEditOpen(true);
-  };
-  const data = [
+  const [loading, setLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState("");
+  const [data, setData] = useState([
     { id: 1, name: "John Doe", pointsRequired: 120, status: "Active" },
     { id: 2, name: "Jane Smith", pointsRequired: 90, status: "Inactive" },
     { id: 3, name: "Alice Johnson", pointsRequired: 150, status: "Active" },
     { id: 4, name: "Michael Brown", pointsRequired: 80, status: "Pending" },
     { id: 5, name: "Emily Davis", pointsRequired: 110, status: "Active" },
-  ];
+  ]);
+  const handleEdit = () => {
+    setEditOpen(true);
+  };
+
+  // const fetchData = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await
+  //     setData(response?.data || []);
+  //     setLastUpdated(new Date().toLocaleString());
+  //     setTotalCount(response?.data?totalCount || 0);
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchData();
+  // }, []);
   const tableRows = useMemo(() => {
     return data.map((item) => (
       <tr key={item.id} className="hover:bg-gray-50">
@@ -67,10 +87,16 @@ const Tiers = () => {
             <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
               Tiers
             </h1>
-            <p className="text-xs text-gray-500 mt-1">Last updated:</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {" "}
+              Last Updated: {lastUpdated ? lastUpdated : "Fetching..."}
+            </p>
           </div>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full md:w-auto">
-            <RefreshButton />{" "}
+            <RefreshButton
+              //  onClick={fetchData}
+              isLoading={loading}
+            />
             <StyledSearchInput
               placeholder="Search"
               className="w-full sm:w-auto"
@@ -87,37 +113,39 @@ const Tiers = () => {
             />
           </div>
         </div>
-
-        <StyledTable
-          paginationProps={{
-            currentPage,
-            totalCount,
-            itemsPerPage,
-            setCurrentPage,
-            setItemsPerPage,
-          }}
-        >
-          <thead className="bg-gray-50 w-full">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Points
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {tableRows}
-          </tbody>
-        </StyledTable>
-
+        {loading ? (
+          <Loader />
+        ) : (
+          <StyledTable
+            paginationProps={{
+              currentPage,
+              totalCount,
+              itemsPerPage,
+              setCurrentPage,
+              setItemsPerPage,
+            }}
+          >
+            <thead className="bg-gray-50 w-full">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Points
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {tableRows}
+            </tbody>
+          </StyledTable>
+        )}
         <AddTier
           isOpen={open}
           onClose={() => {

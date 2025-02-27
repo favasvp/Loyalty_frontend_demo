@@ -11,10 +11,13 @@ import {
 } from "@heroicons/react/24/outline";
 import AddPointsCriteria from "../../components/points-management/AddPointsCriteria";
 import RefreshButton from "../../ui/RefreshButton";
+import Loader from "../../ui/Loader";
 const PointsCriteria = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
-  const pointsCriteria = [
+  const [loading, setLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState("");
+  const [pointsCriteria, setPointsCriteria] = useState([
     {
       id: 1,
       name: "Recharge",
@@ -124,7 +127,23 @@ const PointsCriteria = () => {
         ],
       },
     },
-  ];
+  ]);
+  // const fetchData = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await
+  //     setPointsCriteria(response?.data || []);
+  //     setLastUpdated(new Date().toLocaleString());
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchData();
+  // }, []);
   const selectedCriteria = pointsCriteria[0];
   const [isEditing, setIsEditing] = useState(false);
   const [editedFormula, setEditedFormula] = useState(
@@ -144,10 +163,16 @@ const PointsCriteria = () => {
             <h1 className="text-2xl font-semibold text-gray-900">
               Points Criteria
             </h1>
-            <p className="text-xs text-gray-500 mt-1">Last updated:</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {" "}
+              Last Updated: {lastUpdated ? lastUpdated : "Fetching..."}
+            </p>
           </div>
           <div className="flex items-center gap-4">
-            <RefreshButton />
+            <RefreshButton
+              //  onClick={fetchData}
+              isLoading={loading}
+            />
             <StyledSearchInput placeholder={"Search by name"} />
             <StyledButton
               onClick={() => setAddOpen(true)}
@@ -160,15 +185,19 @@ const PointsCriteria = () => {
             />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {pointsCriteria.map((criteria) => (
-            <PointsCard
-              onClick={() => setIsModalOpen(true)}
-              key={criteria.id}
-              criteria={criteria}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <Loader />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {pointsCriteria.map((criteria) => (
+              <PointsCard
+                onClick={() => setIsModalOpen(true)}
+                key={criteria.id}
+                criteria={criteria}
+              />
+            ))}
+          </div>
+        )}
         {isModalOpen && (
           <div className="fixed inset-0 flex items-center justify-center  bg-opacity-50">
             <div className="relative bg-white rounded-lg shadow-xl w-full max-w-3xl min-h-[500px] max-h-[80vh] overflow-y-auto p-6 mt-17 custom-scrollbar">

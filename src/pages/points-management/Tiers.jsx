@@ -1,7 +1,7 @@
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import StyledButton from "../../ui/StyledButton";
 import StyledSearchInput from "../../ui/StyledSearchInput";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import AddTier from "../../components/points-management/AddTier";
 import StyledTable from "../../ui/StyledTable";
 import DeleteModal from "../../ui/DeleteModal";
@@ -25,6 +25,39 @@ const Tiers = () => {
     { id: 4, name: "Michael Brown", pointsRequired: 80, status: "Pending" },
     { id: 5, name: "Emily Davis", pointsRequired: 110, status: "Active" },
   ];
+  const tableRows = useMemo(() => {
+    return data.map((item) => (
+      <tr key={item.id} className="hover:bg-gray-50">
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+          {item.name}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          {item.pointsRequired}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <span className="px-2 py-1 text-xs font-medium rounded-full">
+            {item.status}
+          </span>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          <div className="flex items-center gap-2">
+            <button
+              className="text-green-600 hover:text-green-700 p-1 rounded-lg hover:bg-green-50"
+              onClick={() => handleEdit(item.id)}
+            >
+              <PencilIcon className="w-4 h-4" />
+            </button>
+            <button
+              className="text-red-600 hover:text-red-700 p-1 rounded-lg hover:bg-red-50"
+              onClick={() => setDeleteOpen(true)}
+            >
+              <TrashIcon className="w-4 h-4" />
+            </button>
+          </div>
+        </td>
+      </tr>
+    ));
+  }, [data, handleEdit, setDeleteOpen]);
   return (
     <>
       <div>
@@ -81,37 +114,7 @@ const Tiers = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {data.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item.name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {item.pointsRequired}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 py-1 text-xs font-medium rounded-full">
-                    {item.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <button
-                      className="text-green-600 hover:text-green-700 p-1 rounded-lg hover:bg-green-50"
-                      onClick={() => handleEdit(item.id)}
-                    >
-                      <PencilIcon className="w-4 h-4" />
-                    </button>
-                    <button
-                      className="text-red-600 hover:text-red-700 p-1 rounded-lg hover:bg-red-50"
-                      onClick={() => setDeleteOpen(true)}
-                    >
-                      <TrashIcon className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {tableRows}
           </tbody>
         </StyledTable>
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import StyledButton from "../../ui/StyledButton";
 import StyledSearchInput from "../../ui/StyledSearchInput";
 import RefreshButton from "../../ui/RefreshButton";
@@ -16,7 +16,23 @@ const Transactions = () => {
     { id: 4, name: "Michael Brown", pointsRequired: 80, status: "Pending" },
     { id: 5, name: "Emily Davis", pointsRequired: 110, status: "Active" },
   ];
-
+  const tableRows = useMemo(() => {
+    return data.map((item) => (
+      <tr key={item.id} className="hover:bg-gray-50">
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+          {item.name}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          {item.pointsRequired}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <span className="px-2 py-1 text-xs font-medium rounded-full">
+            {item.status}
+          </span>
+        </td>
+      </tr>
+    ));
+  }, [data]);
   return (
     <>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -65,23 +81,7 @@ const Transactions = () => {
             </th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {data.map((item) => (
-            <tr key={item.id} className="hover:bg-gray-50">
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {item.name}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {item.pointsRequired}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className="px-2 py-1 text-xs font-medium rounded-full">
-                  {item.status}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
+        <tbody className="bg-white divide-y divide-gray-200">{tableRows}</tbody>
       </StyledTable>
     </>
   );

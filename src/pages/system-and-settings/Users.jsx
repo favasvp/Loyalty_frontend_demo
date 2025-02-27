@@ -1,22 +1,23 @@
 import {
   ArrowDownTrayIcon,
+  EyeIcon,
   PencilIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
-import StyledButton from "../../ui/StyledButton";
-import StyledSearchInput from "../../ui/StyledSearchInput";
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import StyledTable from "../../ui/StyledTable";
-import AddCustomer from "../../components/customer-management/AddCustomer.jsx";
 import DeleteModal from "../../ui/DeleteModal";
-import RefreshButton from "../../ui/RefreshButton.jsx";
+import ViewAdmin from "../../components/system-and-settings/ViewAdmin";
+import StyledSearchInput from "../../ui/StyledSearchInput";
+import StyledButton from "../../ui/StyledButton";
 
-const Customer = () => {
+const Users = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalCount, setTotalCount] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [viewOpen, setViewOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
 
   const handleEdit = () => {};
@@ -50,16 +51,17 @@ const Customer = () => {
         <div>
           {" "}
           <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-            Customers
+            User Management
           </h1>
-          <p className="text-xs text-gray-500 mt-1">Last updated:</p>
+          <p className="text-xs text-gray-500 mt-1">
+            Manage system users and their access
+          </p>
         </div>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full md:w-auto">
-          <RefreshButton />{" "}
-          <StyledSearchInput
-            placeholder="Search"
-            className="w-full sm:w-auto"
-          />
+      </div>{" "}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <StyledSearchInput placeholder="Search" className="w-full sm:w-auto" />
+
+        <div className="flex gap-3 ml-auto">
           <StyledButton
             name={
               <>
@@ -74,9 +76,7 @@ const Customer = () => {
                 <span className="text-lg leading-none">+</span> Add Customer
               </>
             }
-            onClick={() => {
-              setAddOpen(true);
-            }}
+            onClick={() => setAddOpen(true)}
           />
         </div>
       </div>
@@ -139,6 +139,12 @@ const Customer = () => {
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 <div className="flex items-center gap-2">
                   <button
+                    className="text-blue-600 hover:text-blue-700 p-1 rounded-lg hover:bg-blue-50"
+                    onClick={() => setViewOpen(true)}
+                  >
+                    <EyeIcon className="w-4 h-4" />
+                  </button>
+                  <button
                     className="text-green-600 hover:text-green-700 p-1 rounded-lg hover:bg-green-50"
                     onClick={() => handleEdit(item.id)}
                   >
@@ -155,20 +161,15 @@ const Customer = () => {
             </tr>
           ))}
         </tbody>
-      </StyledTable>{" "}
-      <AddCustomer
-        isOpen={addOpen}
-        onClose={() => setAddOpen(false)}
-        onSuccess={() => setAddOpen(false)}
-      />
+      </StyledTable>
       <DeleteModal
-        data={"Customer"}
         isOpen={deleteOpen}
         onClose={() => setDeleteOpen(false)}
-        onConfirm={() => setDeleteOpen(false)}
+        data={"User"}
       />
+      <ViewAdmin isOpen={viewOpen} onClose={() => setViewOpen(false)} />
     </>
   );
 };
 
-export default Customer;
+export default Users;

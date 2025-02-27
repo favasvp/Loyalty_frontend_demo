@@ -9,6 +9,8 @@ import {
   CurrencyDollarIcon,
   LockClosedIcon,
   ShieldCheckIcon,
+  TagIcon,
+  TicketIcon,
   TrophyIcon,
   UserGroupIcon,
   UsersIcon,
@@ -71,6 +73,18 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           label: "Customers",
           path: "/customers",
           icon: UsersIcon,
+        },
+      ],
+    },
+    {
+      label: "Offers & Promotions",
+      type: "dropdown",
+      icon: TagIcon,
+      subItems: [
+        {
+          label: "Merchant Offers",
+          path: "/merchant-offers",
+          icon: TicketIcon,
         },
       ],
     },

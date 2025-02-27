@@ -9,6 +9,7 @@ import Transactions from "../pages/points-management/Transactions";
 import Users from "../pages/system-and-settings/Users";
 import Privacy from "../pages/system-and-settings/Privacy";
 import Role from "../pages/system-and-settings/Role";
+import MerchantOfters from "../pages/ofters-and-promotions/MerchantOfters";
 const withLayout = (Component) => (
   <Layout>
     <Component />
@@ -24,7 +25,8 @@ const router = createBrowserRouter([
   { path: "/customers", element: withLayout(Customer) },
   { path: "/users", element: withLayout(Users) },
   { path: "/privacy", element: withLayout(Privacy) },
-  { path: "role", element: withLayout(Role) },
+  { path: "/role", element: withLayout(Role) },
+  { path: "/merchant-offers", element: withLayout(MerchantOfters) },
 ]);
 
 export default router;

@@ -200,7 +200,7 @@ const PointsCriteria = () => {
         )}
         {isModalOpen && (
           <div className="fixed inset-0 flex items-center justify-center  bg-opacity-50">
-            <div className="relative bg-white rounded-lg shadow-xl w-full max-w-3xl min-h-[500px] max-h-[80vh] overflow-y-auto p-6 mt-17 custom-scrollbar">
+            <div className="relative bg-white rounded-lg shadow-xl w-full max-w-3xl min-h-[500px] max-h-[60vh] overflow-y-auto p-6 mt-17 custom-scrollbar">
               <div className="flex justify-end pb-9">
                 <button
                   type="button"

@@ -1,9 +1,11 @@
 import React from "react";
 
-const PointsCard = ({ criteria,onClick }) => {
+const PointsCard = ({ criteria, onClick }) => {
   return (
-    <div className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer flex flex-col h-full"
-    onClick={onClick}>
+    <div
+      className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer flex flex-col h-full"
+      onClick={onClick}
+    >
       <div className="flex items-center gap-4 mb-2">
         <div className="text-3xl">{criteria?.icon}</div>
         <div>

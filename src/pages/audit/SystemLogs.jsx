@@ -3,8 +3,7 @@ import StyledTable from "../../ui/StyledTable";
 import RefreshButton from "../../ui/RefreshButton";
 import Loader from "../../ui/Loader";
 
-const Privacy = () => {
-  const [activeTab, setActiveTab] = useState("security-log");
+const SystemLogs = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalCount, setTotalCount] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
@@ -70,72 +69,40 @@ const Privacy = () => {
         </div>
       </div>
 
-      {/* <div className="border-b border-gray-200">
-        <div className="flex space-x-4">
-          <button
-            className={`px-4 py-2 text-sm font-medium ${
-              activeTab === "security-log"
-                ? "border-b-2 border-green-500 text-green-600"
-                : "text-gray-600"
-            }`}
-            onClick={() => setActiveTab("security-log")}
-          >
-            Security Audit Log
-          </button>
-          <button
-            className={`px-4 py-2 text-sm font-medium ${
-              activeTab === "role-log"
-                ? "border-b-2 border-green-500 text-green-600"
-                : "text-gray-600"
-            }`}
-            onClick={() => setActiveTab("role-log")}
-          >
-            Role Audit Log
-          </button>
-        </div>
-      </div> */}
       {loading ? (
         <Loader />
       ) : (
         <div className="mt-6">
-          {activeTab === "security-log" && (
-            <StyledTable
-              paginationProps={{
-                currentPage,
-                totalCount,
-                itemsPerPage,
-                setCurrentPage,
-                setItemsPerPage,
-              }}
-            >
-              <thead className="bg-gray-50 w-full">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Points
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {tableRows}
-              </tbody>
-            </StyledTable>
-          )}
-
-          {activeTab === "role-log" && (
-            <div>
-              <h2 className="text-lg font-semibold">Role Audit Log</h2>
-            </div>
-          )}
+          <StyledTable
+            paginationProps={{
+              currentPage,
+              totalCount,
+              itemsPerPage,
+              setCurrentPage,
+              setItemsPerPage,
+            }}
+          >
+            <thead className="bg-gray-50 w-full">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Points
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {tableRows}
+            </tbody>
+          </StyledTable>
         </div>
       )}
     </div>
   );
 };
 
-export default Privacy;
+export default SystemLogs;

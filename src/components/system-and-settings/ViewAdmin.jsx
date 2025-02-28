@@ -16,7 +16,7 @@ const ViewAdmin = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 backdrop-blur-xs flex items-center justify-center z-50 mt-10 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 mt-10 overflow-y-auto">
       <div className="bg-white rounded-lg w-full max-w-xl p-6  max-h-[90vh] overflow-y-auto">
         <div className="bg-white rounded-lg w-full max-w-2xl">
           <div className="flex justify-between items-center mb-6">
@@ -66,7 +66,6 @@ const ViewAdmin = ({ isOpen, onClose }) => {
                         {perm}
                       </span>
                     ))}
-                    
                   </div>
                 </div>
               </div>

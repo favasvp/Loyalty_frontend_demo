@@ -13,6 +13,7 @@ import PointsActivity from "../ui/Dashboard/PointsActivity";
 import TierDistribution from "../ui/Dashboard/TierDistribution";
 import CustomerGrowth from "../ui/Dashboard/CustomerGrowth";
 import SegmentAnalaysis from "../ui/Dashboard/SegmentAnalaysis";
+import { useState } from "react";
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(false);

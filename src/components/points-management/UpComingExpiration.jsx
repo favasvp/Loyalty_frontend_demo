@@ -17,8 +17,7 @@ const UpcomingExpiration = () => {
   const [timeframe, setTimeframe] = useState("30");
 
   return (
-    <div className="space-y-8"> {/* Increased spacing */}
-      {/* Header Section */}
+    <div className="space-y-8"> 
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold text-gray-900">
           Upcoming Point Expirations
@@ -34,13 +33,12 @@ const UpcomingExpiration = () => {
         </select>
       </div>
 
-      {/* Loading State */}
       {loading ? (
         <Loader />
       ) : (
         <div className="bg-white shadow-md rounded-lg divide-y divide-gray-200">
           {expirations?.map((exp) => (
-            <div key={exp.customerId} className="p-6 space-y-4"> {/* Increased padding */}
+            <div key={exp.customerId} className="p-6 space-y-4"> 
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <h3 className="text-base font-medium text-gray-900">{exp.customerName}</h3>

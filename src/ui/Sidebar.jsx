@@ -12,6 +12,7 @@ import {
   CommandLineIcon,
   CurrencyDollarIcon,
   DevicePhoneMobileIcon,
+  DocumentChartBarIcon,
   LockClosedIcon,
   TagIcon,
   TicketIcon,
@@ -131,6 +132,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           path: "/role",
           icon: LockClosedIcon,
         },
+        {
+          label: "Theme Settings",
+          path: "/theme",
+          icon: Cog6ToothIcon,
+        },
       ],
     },
     {
@@ -138,6 +144,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       type: "dropdown",
       icon: AdjustmentsHorizontalIcon,
       subItems: [
+        {
+          label: "Reports",
+          path: "/reports",
+          icon: DocumentChartBarIcon,
+        },
         {
           label: "System Logs",
           path: "/system-logs",

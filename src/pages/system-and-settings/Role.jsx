@@ -87,23 +87,25 @@ const Role = () => {
       {loading ? (
         <Loader />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {data?.map((role) => (
             <div
               key={role.id}
-              className="bg-white shadow-md rounded-lg p-4 border border-gray-200"
+              className="bg-white shadow-sm rounded-lg p-5 border border-gray-100 hover:border-indigo-100 hover:shadow transition-all duration-200"
             >
               <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-lg font-semibold">{role.name}</h3>
-                  <p className="text-sm text-gray-500">{role.description}</p>
+                <div className="flex-1">
+                  <h3 className="text-gray-800 font-medium">{role.name}</h3>
+                  <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                    {role.description}
+                  </p>
                 </div>
-                <div className="flex space-x-2">
-                  <button className="text-blue-600 hover:text-blue-700 p-1 rounded-lg hover:bg-blue-50">
+                <div className="flex space-x-1 ml-3">
+                  <button className="text-gray-400 hover:text-indigo-500 p-1.5 rounded-md hover:bg-indigo-50 transition-colors">
                     <PencilIcon className="w-4 h-4" />
                   </button>
                   <button
-                    className="text-red-600 hover:text-red-700 p-1 rounded-lg hover:bg-red-50"
+                    className="text-gray-400 hover:text-red-500 p-1.5 rounded-md hover:bg-red-50 transition-colors"
                     onClick={() => setDeleteOpen(true)}
                   >
                     <TrashIcon className="w-4 h-4" />
@@ -111,20 +113,20 @@ const Role = () => {
                 </div>
               </div>
 
-              <div className="mt-3">
-                <p className="text-xs font-semibold text-gray-700">
-                  Permissions:
+              <div className="mt-4 pt-3 border-t border-gray-50">
+                <p className="text-xs font-medium text-gray-600 mb-2">
+                  Permissions
                 </p>
-                <ul className="text-sm text-gray-600">
+                <div className="flex flex-wrap gap-1.5">
                   {role.permissions.map((perm, index) => (
-                    <li
+                    <span
                       key={index}
-                      className="inline-block bg-gray-100 px-2 py-1 text-xs rounded-md mr-2 mt-1"
+                      className="inline-flex items-center bg-gray-50 text-gray-700 px-2 py-1 text-xs rounded-md"
                     >
                       {perm}
-                    </li>
+                    </span>
                   ))}
-                </ul>
+                </div>
               </div>
             </div>
           ))}

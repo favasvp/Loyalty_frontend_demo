@@ -62,13 +62,13 @@ const Tiers = () => {
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
           <div className="flex items-center gap-2">
             <button
-              className="text-green-600 hover:text-green-700 p-1 rounded-lg hover:bg-green-50"
+              className="text-slate-400 hover:text-green-700 p-1 rounded-lg hover:bg-green-50"
               onClick={() => handleEdit(item.id)}
             >
               <PencilIcon className="w-4 h-4" />
             </button>
             <button
-              className="text-red-600 hover:text-red-700 p-1 rounded-lg hover:bg-red-50"
+              className="text-slate-400 hover:text-rose-600 p-1.5 rounded-md hover:bg-rose-50 transition-colors"
               onClick={() => setDeleteOpen(true)}
             >
               <TrashIcon className="w-4 h-4" />

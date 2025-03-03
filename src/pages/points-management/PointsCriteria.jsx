@@ -174,7 +174,7 @@ const PointsCriteria = () => {
               isLoading={loading}
             />
             <StyledSearchInput placeholder={"Search by name"} />
-            <StyledButton
+            {/* <StyledButton
               onClick={() => setAddOpen(true)}
               name={
                 <>
@@ -182,7 +182,7 @@ const PointsCriteria = () => {
                   Add Points Criteria
                 </>
               }
-            />
+            /> */}
           </div>
         </div>
         {loading ? (

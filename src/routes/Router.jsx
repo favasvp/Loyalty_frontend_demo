@@ -16,6 +16,8 @@ import Apps from "../pages/reference-data/Apps";
 import Brands from "../pages/reference-data/Brands";
 import Categories from "../pages/reference-data/Categories";
 import Rules from "../pages/points-management/Rules";
+import Reports from "../pages/audit/Reports";
+import Theme from "../pages/system-and-settings/Theme";
 const withLayout = (Component) => (
   <Layout>
     <Component />
@@ -39,6 +41,8 @@ const router = createBrowserRouter([
   { path: "/brands", element: withLayout(Brands) },
   { path: "/categories", element: withLayout(Categories) },
   { path: "/rules", element: withLayout(Rules) },
+  { path: "/reports", element: withLayout(Reports) },
+  { path: "/theme", element: withLayout(Theme) },
 ]);
 
 export default router;

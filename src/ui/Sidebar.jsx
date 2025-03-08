@@ -103,6 +103,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           path: "/apps",
           icon: DevicePhoneMobileIcon,
         },
+        {
+          label: "Trigger Events",
+          path: "/trigger-events",
+          icon: DevicePhoneMobileIcon,
+        }, {
+          label: "Trigger Services",
+          path: "/trigger-services",
+          icon: DevicePhoneMobileIcon,
+        },
       ],
     },
     {

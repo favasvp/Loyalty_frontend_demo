@@ -18,6 +18,8 @@ import Categories from "../pages/reference-data/Categories";
 import Rules from "../pages/points-management/Rules";
 import Reports from "../pages/audit/Reports";
 import Theme from "../pages/system-and-settings/Theme";
+import TriggerEvents from "../pages/reference-data/TriggerEvents";
+import TriggerServices from "../pages/reference-data/TriggerServices";
 const withLayout = (Component) => (
   <Layout>
     <Component />
@@ -43,6 +45,8 @@ const router = createBrowserRouter([
   { path: "/rules", element: withLayout(Rules) },
   { path: "/reports", element: withLayout(Reports) },
   { path: "/theme", element: withLayout(Theme) },
+  { path: "/trigger-events", element: withLayout(TriggerEvents) },
+  { path: "/trigger-services", element: withLayout(TriggerServices) },
 ]);
 
 export default router;

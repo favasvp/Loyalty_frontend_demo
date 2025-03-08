@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import offersApi from "../api/offers";
 import useOffersStore, {
@@ -7,7 +8,9 @@ import useOffersStore, {
   selectSelectedOfferId,
 } from "../store/offers";
 
-// Custom hook for offers management
+/**
+ * Custom hook for offers management using TanStack Query
+ */
 export function useOffers() {
   const queryClient = useQueryClient();
 
@@ -24,20 +27,8 @@ export function useOffers() {
   // Get selected offer ID
   const selectedOfferId = useOffersStore(selectSelectedOfferId);
 
-  // Merchant offers queries and mutations
-  const useMerchantOffers = (customParams = {}) => {
-    // Use selectors directly in the hook
-    const filters = useOffersStore(selectFilters("merchantOffers"));
-    const sorting = useOffersStore(selectSorting("merchantOffers"));
-    const pagination = useOffersStore(selectPagination("merchantOffers"));
-
-    const params = {
-      ...pagination,
-      ...sorting,
-      ...filters,
-      ...customParams,
-    };
-
+  // Get all merchant offers
+  const useGetMerchantOffers = (params = {}) => {
     return useQuery({
       queryKey: ["merchantOffers", params],
       queryFn: () => offersApi.getMerchantOffers(params),
@@ -45,7 +36,8 @@ export function useOffers() {
     });
   };
 
-  const useMerchantOfferById = (id = selectedOfferId) => {
+  // Get merchant offer by ID
+  const useGetMerchantOfferById = (id) => {
     return useQuery({
       queryKey: ["merchantOffers", id],
       queryFn: () => offersApi.getMerchantOfferById(id),
@@ -54,6 +46,7 @@ export function useOffers() {
     });
   };
 
+  // Create merchant offer
   const useCreateMerchantOffer = () => {
     return useMutation({
       mutationFn: (offerData) => offersApi.createMerchantOffer(offerData),
@@ -64,6 +57,7 @@ export function useOffers() {
     });
   };
 
+  // Update merchant offer
   const useUpdateMerchantOffer = () => {
     return useMutation({
       mutationFn: ({ id, offerData }) =>
@@ -78,61 +72,47 @@ export function useOffers() {
     });
   };
 
+  // Delete merchant offer
   const useDeleteMerchantOffer = () => {
     return useMutation({
       mutationFn: (id) => offersApi.deleteMerchantOffer(id),
-      onSuccess: (data, variables) => {
+      onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["merchantOffers"] });
         queryClient.invalidateQueries({ queryKey: ["activeOffers"] });
-        if (selectedOfferId === variables) {
-          setSelectedOfferId(null);
-        }
       },
     });
   };
 
-  // Active offers queries
-  const useActiveOffers = (customParams = {}) => {
-    // Use selectors directly in the hook
-    const filters = useOffersStore(selectFilters("activeOffers"));
-    const sorting = useOffersStore(selectSorting("activeOffers"));
-    const pagination = useOffersStore(selectPagination("activeOffers"));
-
-    const params = {
-      ...pagination,
-      ...sorting,
-      ...filters,
-      ...customParams,
-    };
-
+  // Get active offers
+  const useGetActiveOffers = () => {
     return useQuery({
-      queryKey: ["activeOffers", params],
-      queryFn: () => offersApi.getActiveOffers(params),
+      queryKey: ["activeOffers"],
+      queryFn: () => offersApi.getActiveOffers(),
       staleTime: 2 * 60 * 1000, // 2 minutes
     });
   };
 
-  // Offers by category queries
-  const useOffersByCategory = (categoryId, customParams = {}) => {
+  // Get offers by category
+  const useGetOffersByCategory = (categoryId) => {
     return useQuery({
-      queryKey: ["offersByCategory", categoryId, customParams],
-      queryFn: () => offersApi.getOffersByCategory(categoryId, customParams),
+      queryKey: ["offersByCategory", categoryId],
+      queryFn: () => offersApi.getOffersByCategory(categoryId),
       enabled: !!categoryId,
       staleTime: 2 * 60 * 1000, // 2 minutes
     });
   };
 
-  // Offers by brand queries
-  const useOffersByBrand = (brandId, customParams = {}) => {
+  // Get offers by brand
+  const useGetOffersByBrand = (brandId) => {
     return useQuery({
-      queryKey: ["offersByBrand", brandId, customParams],
-      queryFn: () => offersApi.getOffersByBrand(brandId, customParams),
+      queryKey: ["offersByBrand", brandId],
+      queryFn: () => offersApi.getOffersByBrand(brandId),
       enabled: !!brandId,
       staleTime: 2 * 60 * 1000, // 2 minutes
     });
   };
 
-  // Redeem offer mutation
+  // Redeem offer
   const useRedeemOffer = () => {
     return useMutation({
       mutationFn: ({ offerId, customerData }) =>
@@ -145,23 +125,8 @@ export function useOffers() {
     });
   };
 
-  // Offer redemptions queries
-  const useOfferRedemptions = (
-    offerId = selectedOfferId,
-    customParams = {}
-  ) => {
-    // Use selectors directly in the hook
-    const filters = useOffersStore(selectFilters("redemptions"));
-    const sorting = useOffersStore(selectSorting("redemptions"));
-    const pagination = useOffersStore(selectPagination("redemptions"));
-
-    const params = {
-      ...pagination,
-      ...sorting,
-      ...filters,
-      ...customParams,
-    };
-
+  // Get offer redemption history
+  const useGetOfferRedemptionHistory = (offerId, params = {}) => {
     return useQuery({
       queryKey: ["offerRedemptions", offerId, params],
       queryFn: () => offersApi.getOfferRedemptionHistory(offerId, params),
@@ -181,21 +146,21 @@ export function useOffers() {
     selectedOfferId,
 
     // Merchant offers hooks
-    useMerchantOffers,
-    useMerchantOfferById,
+    useGetMerchantOffers,
+    useGetMerchantOfferById,
     useCreateMerchantOffer,
     useUpdateMerchantOffer,
     useDeleteMerchantOffer,
 
     // Active offers hooks
-    useActiveOffers,
+    useGetActiveOffers,
 
     // Offers by category/brand hooks
-    useOffersByCategory,
-    useOffersByBrand,
+    useGetOffersByCategory,
+    useGetOffersByBrand,
 
     // Redemption hooks
     useRedeemOffer,
-    useOfferRedemptions,
+    useGetOfferRedemptionHistory,
   };
 }

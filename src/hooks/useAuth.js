@@ -1,99 +1,103 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import authApi from "../api/auth";
-import useAuthStore, { selectUser, selectIsAuthenticated } from "../store/auth";
 
-// Custom hook for authentication
+/**
+ * Custom hook for authentication using TanStack Query
+ */
 export function useAuth() {
-  const user = useAuthStore(selectUser);
-  const isAuthenticated = useAuthStore(selectIsAuthenticated);
-  const { setAuth, clearAuth, updateUser } = useAuthStore();
+  const queryClient = useQueryClient();
 
-  // Login mutation
-  const loginMutation = useMutation({
-    mutationFn: (credentials) => authApi.login(credentials),
-    onSuccess: (data) => {
-      setAuth(data.user, data.token);
-      localStorage.setItem("token", data.token);
-    },
-  });
-
-  // Register mutation
-  const registerMutation = useMutation({
-    mutationFn: (userData) => authApi.register(userData),
-  });
-
-  // Logout mutation
-  const logoutMutation = useMutation({
-    mutationFn: () => authApi.logout(),
-    onSettled: () => {
-      clearAuth();
-      localStorage.removeItem("token");
-    },
-  });
-
-  // Update profile mutation
-  const updateProfileMutation = useMutation({
-    mutationFn: (userData) => authApi.updateProfile(userData),
-    onSuccess: (updatedUser) => {
-      updateUser(updatedUser);
-    },
-  });
-
-  // Change password mutation
-  const changePasswordMutation = useMutation({
-    mutationFn: (passwordData) => authApi.changePassword(passwordData),
-  });
-
-  // Current user query
-  const { refetch: refetchUser } = useQuery({
-    queryKey: ["currentUser"],
-    queryFn: async () => {
-      try {
-        const user = await authApi.getCurrentUser();
-        setAuth(user, localStorage.getItem("token"));
-        return user;
-      } catch (error) {
-        if (error.response?.status === 401) {
-          clearAuth();
-          localStorage.removeItem("token");
+  // Login user
+  const useLogin = () => {
+    return useMutation({
+      mutationFn: (credentials) => authApi.login(credentials),
+      onSuccess: (data) => {
+        // Store token in localStorage
+        if (data.token) {
+          localStorage.setItem("token", data.token);
         }
-        throw error;
-      }
-    },
-    enabled: !!localStorage.getItem("token") && !user,
-    retry: false,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+
+        // Invalidate user query to refetch user data
+        queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+      },
+    });
+  };
+
+  // Register user
+  const useRegister = () => {
+    return useMutation({
+      mutationFn: (userData) => authApi.register(userData),
+    });
+  };
+
+  // Get current user
+  const useGetCurrentUser = (options = {}) => {
+    return useQuery({
+      queryKey: ["currentUser"],
+      queryFn: () => authApi.getCurrentUser(),
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: false,
+      ...options,
+    });
+  };
+
+  // Update profile
+  const useUpdateProfile = () => {
+    return useMutation({
+      mutationFn: (userData) => authApi.updateProfile(userData),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+      },
+    });
+  };
+
+  // Change password
+  const useChangePassword = () => {
+    return useMutation({
+      mutationFn: (passwordData) => authApi.changePassword(passwordData),
+    });
+  };
+
+  // Logout user
+  const useLogout = () => {
+    return useMutation({
+      mutationFn: () => authApi.logout(),
+      onSuccess: () => {
+        // Remove token from localStorage
+        localStorage.removeItem("token");
+
+        // Clear user data from cache
+        queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+        queryClient.setQueryData(["currentUser"], null);
+      },
+    });
+  };
+
+  // Check if user is authenticated
+  const useIsAuthenticated = () => {
+    const { data: user, isLoading } = useGetCurrentUser({
+      enabled: !!localStorage.getItem("token"),
+    });
+
+    return {
+      isAuthenticated: !!user,
+      user,
+      isLoading,
+    };
+  };
 
   return {
-    // State
-    user,
-    isAuthenticated,
-
-    // Actions
-    login: loginMutation.mutate,
-    register: registerMutation.mutate,
-    logout: logoutMutation.mutate,
-    updateProfile: updateProfileMutation.mutate,
-    changePassword: changePasswordMutation.mutate,
-    refetchUser,
-
-    // Loading states
-    isLoggingIn: loginMutation.isPending,
-    isRegistering: registerMutation.isPending,
-    isLoggingOut: logoutMutation.isPending,
-    isUpdatingProfile: updateProfileMutation.isPending,
-    isChangingPassword: changePasswordMutation.isPending,
-
-    // Errors
-    loginError: loginMutation.error,
-    registerError: registerMutation.error,
-    updateProfileError: updateProfileMutation.error,
-    changePasswordError: changePasswordMutation.error,
+    useLogin,
+    useRegister,
+    useGetCurrentUser,
+    useUpdateProfile,
+    useChangePassword,
+    useLogout,
+    useIsAuthenticated,
   };
 }
 
-//write an  example of implementing this is an email login page below 
+//write an  example of implementing this is an email login page below
 /**
 import { useState } from 'react';
 import { useAuth } from './useAuth';

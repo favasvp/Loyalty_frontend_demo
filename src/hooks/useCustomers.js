@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import customersApi from "../api/customers";
 import useCustomersStore, {
@@ -7,7 +8,9 @@ import useCustomersStore, {
   selectSelectedCustomerId,
 } from "../store/customers";
 
-// Custom hook for customer management
+/**
+ * Custom hook for customer management using TanStack Query
+ */
 export function useCustomers() {
   const queryClient = useQueryClient();
 
@@ -24,20 +27,8 @@ export function useCustomers() {
   // Get selected customer ID
   const selectedCustomerId = useCustomersStore(selectSelectedCustomerId);
 
-  // Customers queries and mutations
-  const useCustomersList = (customParams = {}) => {
-    // Use selectors directly in the hook
-    const filters = useCustomersStore(selectFilters("customers"));
-    const sorting = useCustomersStore(selectSorting("customers"));
-    const pagination = useCustomersStore(selectPagination("customers"));
-
-    const params = {
-      ...pagination,
-      ...sorting,
-      ...filters,
-      ...customParams,
-    };
-
+  // Get all customers
+  const useGetCustomers = (params = {}) => {
     return useQuery({
       queryKey: ["customers", params],
       queryFn: () => customersApi.getCustomers(params),
@@ -45,7 +36,8 @@ export function useCustomers() {
     });
   };
 
-  const useCustomerById = (id = selectedCustomerId) => {
+  // Get customer by ID
+  const useGetCustomerById = (id) => {
     return useQuery({
       queryKey: ["customers", id],
       queryFn: () => customersApi.getCustomerById(id),
@@ -54,6 +46,7 @@ export function useCustomers() {
     });
   };
 
+  // Create customer
   const useCreateCustomer = () => {
     return useMutation({
       mutationFn: (customerData) => customersApi.createCustomer(customerData),
@@ -63,6 +56,7 @@ export function useCustomers() {
     });
   };
 
+  // Update customer
   const useUpdateCustomer = () => {
     return useMutation({
       mutationFn: ({ id, customerData }) =>
@@ -76,35 +70,18 @@ export function useCustomers() {
     });
   };
 
+  // Delete customer
   const useDeleteCustomer = () => {
     return useMutation({
       mutationFn: (id) => customersApi.deleteCustomer(id),
-      onSuccess: (data, variables) => {
+      onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["customers"] });
-        if (selectedCustomerId === variables) {
-          setSelectedCustomerId(null);
-        }
       },
     });
   };
 
-  // Customer transactions queries
-  const useCustomerTransactions = (
-    customerId = selectedCustomerId,
-    customParams = {}
-  ) => {
-    // Use selectors directly in the hook
-    const filters = useCustomersStore(selectFilters("transactions"));
-    const sorting = useCustomersStore(selectSorting("transactions"));
-    const pagination = useCustomersStore(selectPagination("transactions"));
-
-    const params = {
-      ...pagination,
-      ...sorting,
-      ...filters,
-      ...customParams,
-    };
-
+  // Get customer transactions
+  const useGetCustomerTransactions = (customerId, params = {}) => {
     return useQuery({
       queryKey: ["customers", customerId, "transactions", params],
       queryFn: () => customersApi.getCustomerTransactions(customerId, params),
@@ -113,23 +90,8 @@ export function useCustomers() {
     });
   };
 
-  // Customer points history queries
-  const useCustomerPointsHistory = (
-    customerId = selectedCustomerId,
-    customParams = {}
-  ) => {
-    // Use selectors directly in the hook
-    const filters = useCustomersStore(selectFilters("pointsHistory"));
-    const sorting = useCustomersStore(selectSorting("pointsHistory"));
-    const pagination = useCustomersStore(selectPagination("pointsHistory"));
-
-    const params = {
-      ...pagination,
-      ...sorting,
-      ...filters,
-      ...customParams,
-    };
-
+  // Get customer points history
+  const useGetCustomerPointsHistory = (customerId, params = {}) => {
     return useQuery({
       queryKey: ["customers", customerId, "points-history", params],
       queryFn: () => customersApi.getCustomerPointsHistory(customerId, params),
@@ -138,23 +100,8 @@ export function useCustomers() {
     });
   };
 
-  // Customer tier history queries
-  const useCustomerTierHistory = (
-    customerId = selectedCustomerId,
-    customParams = {}
-  ) => {
-    // Use selectors directly in the hook
-    const filters = useCustomersStore(selectFilters("tierHistory"));
-    const sorting = useCustomersStore(selectSorting("tierHistory"));
-    const pagination = useCustomersStore(selectPagination("tierHistory"));
-
-    const params = {
-      ...pagination,
-      ...sorting,
-      ...filters,
-      ...customParams,
-    };
-
+  // Get customer tier history
+  const useGetCustomerTierHistory = (customerId, params = {}) => {
     return useQuery({
       queryKey: ["customers", customerId, "tier-history", params],
       queryFn: () => customersApi.getCustomerTierHistory(customerId, params),
@@ -163,29 +110,10 @@ export function useCustomers() {
     });
   };
 
-  // Customer statistics queries
-  const useCustomerStatistics = () => {
-    return useQuery({
-      queryKey: ["customers", "statistics"],
-      queryFn: () => customersApi.getCustomerStatistics(),
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    });
-  };
-
-  // Import customers mutation
-  const useImportCustomers = () => {
+  // Export customers
+  const useExportCustomers = () => {
     return useMutation({
-      mutationFn: (formData) => customersApi.importCustomers(formData),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["customers"] });
-      },
-    });
-  };
-
-  // Export customers query
-  const useExportCustomers = (params = {}) => {
-    return useMutation({
-      mutationFn: () => customersApi.exportCustomers(params),
+      mutationFn: (params) => customersApi.exportCustomers(params),
     });
   };
 
@@ -200,26 +128,21 @@ export function useCustomers() {
     selectedCustomerId,
 
     // Customers hooks
-    useCustomersList,
-    useCustomerById,
+    useGetCustomers,
+    useGetCustomerById,
     useCreateCustomer,
     useUpdateCustomer,
     useDeleteCustomer,
 
     // Customer details hooks
-    useCustomerTransactions,
-    useCustomerPointsHistory,
-    useCustomerTierHistory,
+    useGetCustomerTransactions,
+    useGetCustomerPointsHistory,
+    useGetCustomerTierHistory,
 
-    // Statistics hooks
-    useCustomerStatistics,
-
-    // Import/Export hooks
-    useImportCustomers,
+    // Export hooks
     useExportCustomers,
   };
 }
-
 
 //example for using the useCustomers hook
 /**

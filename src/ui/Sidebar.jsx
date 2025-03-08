@@ -20,30 +20,51 @@ import {
   UserGroupIcon,
   UsersIcon,
 } from "@heroicons/react/24/outline";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
+import useUiStore, {
+  selectSidebarExpanded,
+  selectExpandedNav,
+} from "../store/ui";
+import { useAuthContext } from "./AuthProvider";
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const location = useLocation();
   const { pathname } = location;
+  const { logout } = useAuthContext();
 
   const trigger = useRef(null);
   const sidebar = useRef(null);
 
-  const storedSidebarExpanded = localStorage.getItem("sidebar-expanded");
-  const [sidebarExpanded, setSidebarExpanded] = useState(
-    storedSidebarExpanded === null ? false : storedSidebarExpanded === "true"
+  const sidebarExpanded = useUiStore(selectSidebarExpanded);
+  const toggleSidebarExpanded = useUiStore(
+    (state) => state.toggleSidebarExpanded
   );
 
-  const [expandedNav, setExpandedNav] = useState(null);
+  const expandedNav = useUiStore(selectExpandedNav);
+  const toggleNav = useUiStore((state) => state.toggleNav);
 
   useEffect(() => {
-    localStorage.setItem("sidebar-expanded", sidebarExpanded.toString());
-  }, [sidebarExpanded]);
+    const clickHandler = ({ target }) => {
+      if (!sidebar.current || !trigger.current) return;
+      if (
+        !sidebarOpen ||
+        sidebar.current.contains(target) ||
+        trigger.current.contains(target)
+      )
+        return;
+      setSidebarOpen(false);
+    };
+    document.addEventListener("click", clickHandler);
+    return () => document.removeEventListener("click", clickHandler);
+  }, [sidebarOpen, setSidebarOpen]);
 
-  const toggleNav = (label) => {
-    setExpandedNav(expandedNav === label ? null : label);
-  };
+  // Close sidebar on mobile when route changes
+  useEffect(() => {
+    if (sidebarOpen && window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  }, [pathname, sidebarOpen, setSidebarOpen]);
 
   const navItems = [
     {

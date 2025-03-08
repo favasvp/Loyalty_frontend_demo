@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Outlet } from "react-router-dom";
 import Layout from "../ui/Layout";
 import PointsCriteria from "../pages/points-management/PointsCriteria";
 import Tiers from "../pages/points-management/Tiers";
@@ -18,31 +18,51 @@ import Categories from "../pages/reference-data/Categories";
 import Rules from "../pages/points-management/Rules";
 import Reports from "../pages/audit/Reports";
 import Theme from "../pages/system-and-settings/Theme";
-const withLayout = (Component) => (
+import { AuthProvider } from "../ui/AuthProvider";
+
+// Root layout with AuthProvider
+const RootLayout = () => (
+  <AuthProvider>
+    <Outlet />
+  </AuthProvider>
+);
+
+// Protected layout with Layout component
+const ProtectedLayout = () => (
   <Layout>
-    <Component />
+    <Outlet />
   </Layout>
 );
 
 const router = createBrowserRouter([
-  { path: "/", element: <LoginPage /> },
-  { path: "/dashboard", element: withLayout(Dashboard) },
-  { path: "/points-criteria", element: withLayout(PointsCriteria) },
-  { path: "/tiers", element: withLayout(Tiers) },
-  { path: "/transactions", element: withLayout(Transactions) },
-  { path: "/customers", element: withLayout(Customer) },
-  { path: "/users", element: withLayout(Users) },
-  { path: "/role", element: withLayout(Role) },
-  { path: "/merchant-offers", element: withLayout(MerchantOfters) },
-  { path: "/system-logs", element: withLayout(Privacy) },
-  { path: "/role-logs", element: withLayout(RoleLogs) },
-  { path: "/api-logs", element: withLayout(ApiLogs) },
-  { path: "/apps", element: withLayout(Apps) },
-  { path: "/brands", element: withLayout(Brands) },
-  { path: "/categories", element: withLayout(Categories) },
-  { path: "/rules", element: withLayout(Rules) },
-  { path: "/reports", element: withLayout(Reports) },
-  { path: "/theme", element: withLayout(Theme) },
+  {
+    element: <RootLayout />,
+    children: [
+      { path: "/", element: <LoginPage /> },
+      {
+        element: <ProtectedLayout />,
+        children: [
+          { path: "/dashboard", element: <Dashboard /> },
+          { path: "/points-criteria", element: <PointsCriteria /> },
+          { path: "/tiers", element: <Tiers /> },
+          { path: "/transactions", element: <Transactions /> },
+          { path: "/customers", element: <Customer /> },
+          { path: "/users", element: <Users /> },
+          { path: "/role", element: <Role /> },
+          { path: "/merchant-offers", element: <MerchantOfters /> },
+          { path: "/system-logs", element: <Privacy /> },
+          { path: "/role-logs", element: <RoleLogs /> },
+          { path: "/api-logs", element: <ApiLogs /> },
+          { path: "/apps", element: <Apps /> },
+          { path: "/brands", element: <Brands /> },
+          { path: "/categories", element: <Categories /> },
+          { path: "/rules", element: <Rules /> },
+          { path: "/reports", element: <Reports /> },
+          { path: "/theme", element: <Theme /> },
+        ],
+      },
+    ],
+  },
 ]);
 
 export default router;

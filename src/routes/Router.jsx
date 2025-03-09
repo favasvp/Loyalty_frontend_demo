@@ -1,38 +1,66 @@
 import { createBrowserRouter, Outlet } from "react-router-dom";
-import Layout from "../ui/Layout";
-import PointsCriteria from "../pages/points-management/PointsCriteria";
-import Tiers from "../pages/points-management/Tiers";
-import LoginPage from "../pages/LoginPage";
-import Customer from "../pages/customer-management/Customer";
-import Dashboard from "../pages/Dashboard";
-import Transactions from "../pages/points-management/Transactions";
-import Users from "../pages/system-and-settings/Users";
-import Privacy from "../pages/system-and-settings/Privacy";
-import Role from "../pages/system-and-settings/Role";
-import MerchantOfters from "../pages/ofters-and-promotions/MerchantOfters";
-import RoleLogs from "../pages/audit/RoleLogs";
-import ApiLogs from "../pages/audit/ApiLogs";
-import Apps from "../pages/reference-data/Apps";
-import Brands from "../pages/reference-data/Brands";
-import Categories from "../pages/reference-data/Categories";
-import Rules from "../pages/points-management/Rules";
-import Reports from "../pages/audit/Reports";
-import Theme from "../pages/system-and-settings/Theme";
+import { lazy, Suspense } from "react";
 import { AuthProvider } from "../ui/AuthProvider";
+import Layout from "../ui/Layout";
 
-// Root layout with AuthProvider
+// Loading component
+const LoadingFallback = () => (
+  <div className="flex justify-center items-center h-screen">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+  </div>
+);
+
+// Lazy load all pages
+const LoginPage = lazy(() => import("../pages/LoginPage"));
+const Dashboard = lazy(() => import("../pages/Dashboard"));
+const PointsCriteria = lazy(() => import("../pages/points-management/PointsCriteria"));
+const Tiers = lazy(() => import("../pages/points-management/Tiers"));
+const Transactions = lazy(() => import("../pages/points-management/Transactions"));
+const Rules = lazy(() => import("../pages/points-management/Rules"));
+const Customer = lazy(() => import("../pages/customer-management/Customer"));
+const Users = lazy(() => import("../pages/system-and-settings/Users"));
+const Role = lazy(() => import("../pages/system-and-settings/Role"));
+const Privacy = lazy(() => import("../pages/system-and-settings/Privacy"));
+const Theme = lazy(() => import("../pages/system-and-settings/Theme"));
+const MerchantOfters = lazy(() => import("../pages/ofters-and-promotions/MerchantOfters"));
+const RoleLogs = lazy(() => import("../pages/audit/RoleLogs"));
+const ApiLogs = lazy(() => import("../pages/audit/ApiLogs"));
+const Reports = lazy(() => import("../pages/audit/Reports"));
+const Apps = lazy(() => import("../pages/reference-data/Apps"));
+const Brands = lazy(() => import("../pages/reference-data/Brands"));
+const Categories = lazy(() => import("../pages/reference-data/Categories"));
+
+
+
+// Root layout with AuthProvider and Suspense
 const RootLayout = () => (
   <AuthProvider>
-    <Outlet />
+    <Suspense fallback={<LoadingFallback />}>
+      <Outlet />
+    </Suspense>
   </AuthProvider>
 );
 
 // Protected layout with Layout component
-const ProtectedLayout = () => (
-  <Layout>
-    <Outlet />
-  </Layout>
-);
+// eslint-disable-next-line react-refresh/only-export-components
+const ProtectedLayout = ({ path }) => {
+  return (
+    <Layout>
+      <Suspense fallback={<LoadingFallback />}>
+        <Outlet />
+      </Suspense>
+    </Layout>
+  );
+};
+
+// Create a route with permission check
+// const createProtectedRoute = (path, element, permissions = []) => ({
+//   path,
+//   element,
+//   meta: {
+//     requiredPermissions: permissions,
+//   },
+// });
 
 const router = createBrowserRouter([
   {

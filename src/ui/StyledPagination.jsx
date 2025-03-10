@@ -9,6 +9,7 @@ const StyledPagination = ({
   setCurrentPage,
   setItemsPerPage,
   selectedRows = [],
+  handleBulkDelete
 }) => {
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
@@ -41,7 +42,7 @@ const StyledPagination = ({
                 <>
                   <TrashIcon className="w-4 h-4" /> Delete
                 </>
-              }
+              } onClick={() => handleBulkDelete()}
             />
           )}
         </div>

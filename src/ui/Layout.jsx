@@ -1,9 +1,24 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
+import useUiStore, { selectSidebarOpen } from "../store/ui";
 
+// eslint-disable-next-line react/prop-types
 const Layout = ({ children }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const sidebarOpen = useUiStore(selectSidebarOpen);
+  const setSidebarOpen = useUiStore((state) => state.setSidebarOpen);
+
+  // Close sidebar on mobile when route changes
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [setSidebarOpen]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">

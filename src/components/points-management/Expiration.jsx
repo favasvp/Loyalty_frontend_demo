@@ -8,24 +8,13 @@ import {
 } from "@heroicons/react/24/outline";
 import AddExpiration from "./AddExpiration";
 import UpcomingExpiration from "./UpComingExpiration";
+import { useExpirationRules } from "../../hooks/useExpirationRules";
 
 const Expiration = () => {
   const [open, setOpen] = useState(false);
-  const ex = {
-    defaultExpiryPeriod: 12,
-    tierExtensions: {
-      silver: 0,
-      gold: 3,
-      platinum: 6,
-    },
-    notifications: {
-      firstReminder: 30,
-      secondReminder: 15,
-      finalReminder: 7,
-    },
-    gracePeriodDays: 30,
-  };
 
+  const { useGetExpirationRules } = useExpirationRules();
+  const { isLoading, data: ruleData } = useGetExpirationRules();
   return (
     <div className=" p-0 ">
       <div className="mb-4">
@@ -44,7 +33,7 @@ const Expiration = () => {
             <div>
               <p className="text-xs text-gray-500">Default Expiry Period</p>
               <p className="font-medium text-gray-800">
-                {ex.defaultExpiryPeriod} months
+                {ruleData?.data?.default_expiry_period} months
               </p>
             </div>
           </div>
@@ -54,7 +43,7 @@ const Expiration = () => {
             <div>
               <p className="text-xs text-gray-500">Grace Period</p>
               <p className="font-medium text-gray-800">
-                {ex.gracePeriodDays} days
+                {ruleData?.data?.grace_period} days
               </p>
             </div>
           </div>
@@ -66,55 +55,62 @@ const Expiration = () => {
             Tier Extensions
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {Object.entries(ex.tierExtensions).map(([tier, months]) => (
-              <div
-                key={tier}
-                className="flex items-center gap-3 p-3 bg-gray-50 rounded-md"
-              >
-                <div
-                  className="flex-shrink-0 w-2 h-8 rounded-full"
-                  style={{
-                    backgroundColor:
-                      tier === "silver"
-                        ? "#C0C0C0"
-                        : tier === "gold"
-                        ? "#FFD700"
-                        : "#E5E4E2",
-                  }}
-                />
-                <div>
-                  <p className="text-xs text-gray-500 capitalize">{tier}</p>
-                  <p className="font-medium text-gray-800">+{months} months</p>
-                </div>
-              </div>
-            ))}
+            {ruleData?.data?.tier_extensions?.[0] &&
+              Object.entries(ruleData?.data?.tier_extensions?.[0])
+                .filter(([key]) => key !== "additional_months" && key !== "_id")
+                .map(([tier, months]) => (
+                  <div
+                    key={tier}
+                    className="flex items-center gap-3 p-3 bg-gray-50 rounded-md"
+                  >
+                    <div
+                      className="flex-shrink-0 w-2 h-8 rounded-full"
+                      style={{
+                        backgroundColor:
+                          tier === "silver"
+                            ? "#C0C0C0"
+                            : tier === "gold"
+                            ? "#FFD700"
+                            : "#E5E4E2",
+                      }}
+                    />
+                    <div>
+                      <p className="text-xs text-gray-500 capitalize">{tier}</p>
+                      <p className="font-medium text-gray-800">
+                        +{months} months
+                      </p>
+                    </div>
+                  </div>
+                ))}
           </div>
         </div>
 
         <div className="mb-6">
           <p className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
             <BellIcon className="w-4 h-4 text-indigo-500" />
-            Expiry Notifications
+            Expiry expiry_notifications
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {Object.entries(ex.notifications).map(([reminder, days], index) => (
-              <div
-                key={reminder}
-                className="flex items-center gap-3 p-3 bg-gray-50 rounded-md"
-              >
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-500 text-xs font-semibold">
-                  {index + 1}
+            {ruleData?.data?.expiry_notifications && Object.entries(ruleData?.data?.expiry_notifications)?.map(
+              ([reminder, days], index) => (
+                <div
+                  key={reminder}
+                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-md"
+                >
+                  <div className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-500 text-xs font-semibold">
+                    {index + 1}
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 capitalize">
+                      {reminder.replace("Reminder", "")} Reminder
+                    </p>
+                    <p className="font-medium text-gray-800">
+                      {days} days before
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-500 capitalize">
-                    {reminder.replace("Reminder", "")} Reminder
-                  </p>
-                  <p className="font-medium text-gray-800">
-                    {days} days before
-                  </p>
-                </div>
-              </div>
-            ))}
+              )
+            )}
           </div>
         </div>
 
@@ -135,7 +131,8 @@ const Expiration = () => {
       <AddExpiration
         isOpen={open}
         onClose={() => setOpen(false)}
-        onSuccess={() => setOpen(false)}
+        editData={ruleData?.data}
+
       />
     </div>
   );

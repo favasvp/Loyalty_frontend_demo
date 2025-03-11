@@ -4,6 +4,7 @@ import {
   ArrowLeftEndOnRectangleIcon,
   ArrowPathIcon,
   BuildingStorefrontIcon,
+  CalendarDateRangeIcon,
   ChartBarIcon,
   ChevronDownIcon,
   ChevronRightIcon,
@@ -14,6 +15,7 @@ import {
   DevicePhoneMobileIcon,
   DocumentChartBarIcon,
   LockClosedIcon,
+  ServerIcon,
   TagIcon,
   TicketIcon,
   TrophyIcon,
@@ -125,13 +127,14 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           icon: DevicePhoneMobileIcon,
         },
         {
-          label: "Trigger Events",
-          path: "/trigger-events",
-          icon: DevicePhoneMobileIcon,
-        }, {
           label: "Trigger Services",
           path: "/trigger-services",
-          icon: DevicePhoneMobileIcon,
+          icon: ServerIcon,
+        },
+        {
+          label: "Trigger Events",
+          path: "/trigger-events",
+          icon: CalendarDateRangeIcon,
         },
       ],
     },
@@ -180,17 +183,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           icon: DocumentChartBarIcon,
         },
         {
-          label: "System Logs",
+          label: "Admin-System Logs",
           path: "/system-logs",
           icon: CodeBracketIcon,
         },
+       
         {
-          label: "Role Logs",
-          path: "/role-logs",
-          icon: LockClosedIcon,
-        },
-        {
-          label: "API Logs",
+          label: "User-API Logs",
           path: "/api-logs",
           icon: CommandLineIcon,
         },

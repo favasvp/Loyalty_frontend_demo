@@ -14,7 +14,7 @@ const AddApp = ({ isOpen, onClose, onSuccess, editData }) => {
     name: "",
     icon: "",
     description: "",
-    status: true,
+    isActive: true,
   });
   const [imagePreview, setImagePreview] = useState(null);
   const { useCreateAppType, useUpdateAppType } = useAppTypes();
@@ -27,7 +27,7 @@ const AddApp = ({ isOpen, onClose, onSuccess, editData }) => {
         name: editData?.data?.name,
         icon: editData?.data?.icon,
         description: editData?.data?.description,
-        status: editData?.data?.status,
+        isActive: editData?.data?.status,
       });
       setImagePreview(editData?.data?.icon);
     }

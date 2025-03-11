@@ -15,8 +15,8 @@ const Apps = () => {
   const [totalCount, setTotalCount] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const[data, setData] = useState(null);
-  const { useGetAppTypes,useDeleteAppType,useGetAppTypeById } = useAppTypes();
+  const [data, setData] = useState(null);
+  const { useGetAppTypes, useDeleteAppType, useGetAppTypeById } = useAppTypes();
   const { data: triggerAppData } = useGetAppTypeById(data?.id);
 
   const {
@@ -27,8 +27,8 @@ const Apps = () => {
     dataUpdatedAt,
   } = useGetAppTypes();
   const [addOpen, setAddOpen] = useState(false);
-const deleteMutation = useDeleteAppType();
-const{addToast} = useUiStore();
+  const deleteMutation = useDeleteAppType();
+  const { addToast } = useUiStore();
   const tableRows = useMemo(() => {
     return appTypes?.data?.map((item) => (
       <tr key={item.id} className="hover:bg-gray-50">
@@ -76,7 +76,7 @@ const{addToast} = useUiStore();
     setAddOpen(true);
   };
   const handleDeleteOpen = async (id) => {
-    setData( id );
+    setData(id);
     setDeleteOpen(true);
   };
 
@@ -165,7 +165,7 @@ const{addToast} = useUiStore();
           </tbody>
         </StyledTable>
       )}
-        <AddApp
+      <AddApp
         isOpen={addOpen}
         onClose={() => {
           setAddOpen(false);

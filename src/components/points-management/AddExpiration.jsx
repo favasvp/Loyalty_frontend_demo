@@ -1,37 +1,48 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import StyledButton from "../../ui/StyledButton";
 
-const AddExpiration = ({ isOpen, onClose, onSuccess }) => {
+const AddExpiration = ({ isOpen, onClose, editData }) => {
   const [formData, setFormData] = useState({
-    minimumPoints: "",
-    maximumPerDay: "",
-    tierMultipliers: {
-      silver: "",
-      gold: "",
-      platinum: "",
+    grace_period: "",
+    default_expiry_period: "",
+    tier_extensions: {
+      silver: 0,
+      gold: 0,
+      platinum: 0,
     },
-    remainders: {
-      firstReminder: "",
-      secondReminder: "",
-      finalReminder: "",
+    expiry_notifications: {
+      first_reminder: 0,
+      second_reminder: 0,
+      final_reminder: 0,
     },
   });
+  useEffect(() => {
+    if (editData) {
+      const tierExtensions = editData.tier_extensions?.[0] || {};
+
+      setFormData({
+        default_expiry_period: editData?.default_expiry_period || "",
+        grace_period: editData?.grace_period || "",
+        tier_extensions: {
+          silver: tierExtensions.silver || 0,
+          gold: tierExtensions.gold || 0,
+          platinum: tierExtensions.platinum || 0,
+        },
+        expiry_notifications: {
+          first_reminder: editData?.expiry_notifications?.first_reminder || 0,
+          second_reminder: editData?.expiry_notifications?.second_reminder || 0,
+          final_reminder: editData?.expiry_notifications?.final_reminder || 0,
+        },
+      });
+    }
+  }, [editData]);
+
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    try {
-      console.log("Form Data Submitted:", formData);
-      onSuccess();
-      onClose();
-    } catch (error) {
-      setErrors({ submit: "Failed to add category" });
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const handleChange = (e) => {
@@ -47,8 +58,8 @@ const AddExpiration = ({ isOpen, onClose, onSuccess }) => {
     const { value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      tierMultipliers: {
-        ...prev.tierMultipliers,
+      tier_extensions: {
+        ...prev.tier_extensions,
         [tier]: value,
       },
     }));
@@ -58,8 +69,8 @@ const AddExpiration = ({ isOpen, onClose, onSuccess }) => {
     const { value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      remainders: {
-        ...prev.remainders,
+      expiry_notifications: {
+        ...prev.expiry_notifications,
         [remainder]: value,
       },
     }));
@@ -90,8 +101,8 @@ const AddExpiration = ({ isOpen, onClose, onSuccess }) => {
               </label>
               <input
                 type="number"
-                name="minimumPoints"
-                value={formData.minimumPoints}
+                name="default_expiry_period"
+                value={formData.default_expiry_period}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
@@ -110,7 +121,7 @@ const AddExpiration = ({ isOpen, onClose, onSuccess }) => {
                   </label>
                   <input
                     type="number"
-                    value={formData.tierMultipliers[tier]}
+                    value={formData.tier_extensions[tier]}
                     onChange={(e) => handleTierChange(e, tier)}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
@@ -123,16 +134,16 @@ const AddExpiration = ({ isOpen, onClose, onSuccess }) => {
               Expiry Notifications (days before)
             </h4>
             <div className="grid grid-cols-3 gap-4">
-              {["First Reminder", "Second Reminder", "Final Reminder"].map(
-                (remainder) => (
-                  <div key={remainder}>
+              {["first_reminder", "second_reminder", "final_reminder"].map(
+                (reminderKey) => (
+                  <div key={reminderKey}>
                     <label className="block text-sm font-medium text-gray-700 capitalize mb-1">
-                      {remainder}
+                      {reminderKey.replace("_", " ")}
                     </label>
                     <input
                       type="number"
-                      value={formData.remainders[remainder]}
-                      onChange={(e) => handleRemainderChange(e, remainder)}
+                      value={formData?.expiry_notifications[reminderKey]}
+                      onChange={(e) => handleRemainderChange(e, reminderKey)}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                   </div>
@@ -140,6 +151,7 @@ const AddExpiration = ({ isOpen, onClose, onSuccess }) => {
               )}
             </div>
           </div>
+
           <div>
             <h4 className="text-sm font-medium text-gray-900 mb-3">
               Expiration Policies
@@ -150,8 +162,8 @@ const AddExpiration = ({ isOpen, onClose, onSuccess }) => {
               </label>
               <input
                 type="number"
-                name="minimumPoints"
-                value={formData.minimumPoints}
+                name="grace_period"
+                value={formData.grace_period}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
               />

@@ -11,6 +11,8 @@ import DeleteModal from "../../ui/DeleteModal";
 import RefreshButton from "../../ui/RefreshButton.jsx";
 import Loader from "../../ui/Loader.jsx";
 import AddBrand from "../../components/reference-data/AddBrand.jsx";
+import { useBrands } from "../../hooks/useBrand.js";
+import useUiStore from "../../store/ui.js";
 
 const Brands = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -18,49 +20,86 @@ const Brands = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [data, setData] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState("");
-  const [data, setData] = useState([
-    { id: 1, name: "John Doe", pointsRequired: 120, status: "Active" },
-    { id: 2, name: "Jane Smith", pointsRequired: 90, status: "Inactive" },
-    { id: 3, name: "Alice Johnson", pointsRequired: 150, status: "Active" },
-    { id: 4, name: "Michael Brown", pointsRequired: 80, status: "Pending" },
-    { id: 5, name: "Emily Davis", pointsRequired: 110, status: "Active" },
-  ]);
-  // const fetchData = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const response = await
-  //     setData(response?.data || []);
-  //     setLastUpdated(new Date().toLocaleString());
-  //     setTotalCount(response?.data?totalCount || 0);
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const { useGetBrandById, useDeleteBrand, useGetBrands } = useBrands();
+  const { data: triggerBrandData } = useGetBrandById(data?.id);
 
-  // useEffect(() => {
-  //   fetchData();
-  // }, []);
+  const {
+    data: brands,
+    isLoading,
+    error,
+    refetch,
+    dataUpdatedAt,
+  } = useGetBrands();
+  const deleteMutation = useDeleteBrand();
+  const { addToast } = useUiStore();
+
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return data?.slice(startIndex, startIndex + itemsPerPage);
-  }, [data, currentPage, itemsPerPage]);
+    return brands?.data?.slice(startIndex, startIndex + itemsPerPage);
+  }, [brands?.data, currentPage, itemsPerPage]);
   const handleRowSelect = (id) => {
     setSelectedRows((prev) =>
       prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
     );
   };
-  const handleEdit = () => {};
+  const handleEdit = (id) => {
+    setData({ id });
+    setAddOpen(true);
+  };
+  const handleDeleteOpen = async (id) => {
+    setData(id);
+    setDeleteOpen(true);
+  };
+
   const handleSelectAll = () => {
-    if (selectedRows.length === data.length) {
+    if (selectedRows.length === brands?.data.length) {
       setSelectedRows([]);
     } else {
-      setSelectedRows(data.map((item) => item.id));
+      setSelectedRows(brands?.data?.map((item) => item.id));
     }
+  };
+  const handleDelete = () => {
+    deleteMutation.mutate(data, {
+      onSuccess: (response) => {
+        addToast({
+          type: "success",
+          message: response?.data?.message,
+        });
+      },
+      onError: (error) => {
+        addToast({
+          type: "error",
+          message: error?.response?.data?.message,
+        });
+      },
+    });
+    setDeleteOpen(false);
+    setData(null);
+  };
+  const handleBulkDelete = async () => {
+    if (!selectedRows.length) return;
+    await Promise.all(
+      selectedRows.map((id) =>
+        deleteMutation.mutateAsync(id, {
+          onSuccess: () => {
+            addToast({
+              type: "success",
+              message: `Item deleted successfully!`,
+            });
+          },
+          onError: (error) => {
+            addToast({
+              type: "error",
+              message: error?.response?.data?.message,
+            });
+          },
+        })
+      )
+    );
+
+    setSelectedRows([]);
   };
   return (
     <>
@@ -72,13 +111,15 @@ const Brands = () => {
           </h1>
           <p className="text-xs text-gray-500 mt-1">
             {" "}
-            Last Updated: {lastUpdated ? lastUpdated : "Fetching..."}
+            Last Updated: {new Date(dataUpdatedAt).toLocaleString()}
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full md:w-auto">
           <RefreshButton
-            //  onClick={fetchData}
-            isLoading={loading}
+            onClick={() => {
+              refetch();
+            }}
+            isLoading={isLoading}
           />
           <StyledSearchInput
             placeholder="Search"
@@ -104,7 +145,7 @@ const Brands = () => {
           />
         </div>
       </div>
-      {loading ? (
+      {isLoading ? (
         <Loader />
       ) : (
         <StyledTable
@@ -115,6 +156,7 @@ const Brands = () => {
             setCurrentPage,
             setItemsPerPage,
             selectedRows,
+            handleBulkDelete,
           }}
         >
           <thead className="bg-gray-50 w-full">
@@ -123,18 +165,18 @@ const Brands = () => {
                 <input
                   type="checkbox"
                   onChange={handleSelectAll}
-                  checked={selectedRows.length === data.length}
+                  checked={selectedRows?.length === brands?.data?.length}
                   className="cursor-pointer w-4 h-4 align-middle"
                 />
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
+                Title
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Points
+                Description
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
+                Image
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
@@ -143,37 +185,39 @@ const Brands = () => {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {paginatedData?.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50">
+              <tr key={item?._id} className="hover:bg-gray-50">
                 <td className="px-4 py-4">
                   <input
                     type="checkbox"
-                    onChange={() => handleRowSelect(item.id)}
-                    checked={selectedRows.includes(item.id)}
+                    onChange={() => handleRowSelect(item._id)}
+                    checked={selectedRows?.includes(item?._id)}
                     className="cursor-pointer"
                   />
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item.name}
+                  {item?.title}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {item.pointsRequired}
+                  {item?.description}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 py-1 text-xs font-medium rounded-full">
-                    {item.status}
-                  </span>
+                  <img
+                    src={item?.image}
+                    alt="icon"
+                    className="w-6 h-6 object-contain"
+                  />
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <div className="flex items-center gap-2">
                     <button
                       className="text-slate-400 hover:text-green-700 p-1 rounded-lg hover:bg-green-50"
-                      onClick={() => handleEdit(item.id)}
+                      onClick={() => handleEdit(item?._id)}
                     >
                       <PencilIcon className="w-4 h-4" />
                     </button>
                     <button
                       className="text-slate-400 hover:text-red-700 p-1 rounded-lg hover:bg-red-50"
-                      onClick={() => setDeleteOpen(true)}
+                      onClick={() => handleDeleteOpen(item?._id)}
                     >
                       <TrashIcon className="w-4 h-4" />
                     </button>
@@ -184,12 +228,16 @@ const Brands = () => {
           </tbody>
         </StyledTable>
       )}
-      <AddBrand isOpen={addOpen} onClose={() => setAddOpen(false)} />
+      <AddBrand
+        isOpen={addOpen}
+        onClose={() => setAddOpen(false)}
+        editData={triggerBrandData}
+      />
       <DeleteModal
         data={"Brand"}
         isOpen={deleteOpen}
         onClose={() => setDeleteOpen(false)}
-        onConfirm={() => setDeleteOpen(false)}
+        onConfirm={handleDelete}
       />
     </>
   );

@@ -1,40 +1,95 @@
-import { ArrowUpTrayIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import React, { useState } from "react";
-import StyledButton from "../../ui/StyledButton";
 
-const AddCategory = ({ isOpen, onClose, onSuccess }) => {
+import React, { useEffect, useState } from "react";
+import StyledButton from "../../ui/StyledButton";
+import useUiStore from "../../store/ui";
+import { ArrowUpTrayIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { useCategory } from "../../hooks/useCategory";
+
+const AddCategory = ({ isOpen, onClose, editData }) => {
   const [formData, setFormData] = useState({
     title: "",
-    icon: null,
+    image: null,
     description: "",
   });
   const [imagePreview, setImagePreview] = useState(null);
-  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-
+  const {useCreateCategory,useUpdateCategory } = useCategory();
+  const createMutation = useCreateCategory();
+  const updateMutation = useUpdateCategory();
+  const { addToast } = useUiStore();
+    useEffect(() => {
+      if (editData) {
+        setFormData({
+          title: editData?.data?.title,
+          image: editData?.data?.image,
+          description: editData?.data?.description,
+        });
+        setImagePreview(editData?.data?.image);
+      }
+    }, [editData]);
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    try {
-      onSuccess();
-      onClose();
-    } catch (error) {
-      setErrors({ submit: "Failed to add category" });
-    } finally {
-      setIsLoading(false);
+
+    if (editData) {
+      updateMutation.mutate(
+        {
+          id: editData?.data?._id,
+          formData: formData,
+        },
+        {
+          onSuccess: (data) => {
+            addToast({
+              type: "success",
+              message: data?.message,
+            });
+            onClose?.();
+          },
+          onError: (error) => {
+            addToast({
+              type: "error",
+              message: error?.response?.data?.message,
+            });
+          },
+        }
+      );
+    } else {
+      createMutation.mutate(formData, {
+        onSuccess: (data) => {
+          addToast({
+            type: "success",
+            message: data?.message,
+          });
+          onClose?.();
+        },
+        onError: (error) => {
+          addToast({
+            type: "error",
+            message: error?.response?.data?.message,
+          });
+        },
+      });
+      setFormData({
+        title: "",
+        image: "",
+        description: "",
+      });
     }
   };
+
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
-    if (name === "icon" && files.length > 0) {
+    if (name === "image" && files.length > 0) {
       const file = files[0];
       setFormData((prev) => ({
         ...prev,
-        icon: file,
+        image:
+          "https://cdn.scoreapp.com/site/uploads/2024/09/Common-issues-of-organising-events_-1024x512.png",
       }));
-      setImagePreview(URL.createObjectURL(file));
+      setImagePreview(
+        "https://cdn.scoreapp.com/site/uploads/2024/09/Common-issues-of-organising-events_-1024x512.png"
+      );
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -42,7 +97,7 @@ const AddCategory = ({ isOpen, onClose, onSuccess }) => {
       }));
     }
   };
-
+ 
   if (!isOpen) return null;
 
   return (
@@ -75,12 +130,12 @@ const AddCategory = ({ isOpen, onClose, onSuccess }) => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Icon
+              Image
             </label>
             <div className="relative w-full">
               <input
                 type="file"
-                name="icon"
+                name="image"
                 accept="image/*"
                 className="hidden"
                 id="file-upload"
@@ -91,7 +146,7 @@ const AddCategory = ({ isOpen, onClose, onSuccess }) => {
                 className="cursor-pointer w-full border border-gray-300 rounded-lg px-3 py-3 flex items-center justify-between"
               >
                 <span className="text-sm text-gray-700">
-                  {formData.icon ? formData.icon.name : "Choose Image"}
+                  {formData.image ? formData.image.name : "Choose Image"}
                 </span>
                 <ArrowUpTrayIcon className="w-5 h-5 text-gray-500" />
               </label>
@@ -122,11 +177,6 @@ const AddCategory = ({ isOpen, onClose, onSuccess }) => {
             />
           </div>
 
-          {errors.submit && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-600">{errors.submit}</p>
-            </div>
-          )}
           <div className="flex justify-end gap-3 mt-6">
             <StyledButton
               name="Cancel"

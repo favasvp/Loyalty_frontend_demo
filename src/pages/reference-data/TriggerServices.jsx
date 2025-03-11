@@ -63,7 +63,6 @@ const TriggerServices = () => {
       setSelectedRows(triggerServices?.data.map((item) => item?._id));
     }
   };
- console.log("triggerServices",Id);
   
   const handleDelete = () => {
     deleteMutation.mutate(Id, {

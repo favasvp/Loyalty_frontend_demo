@@ -1,32 +1,55 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import StyledButton from "../../ui/StyledButton";
+import { useRedemptionRules } from "../../hooks/useRedemptionRules";
+import useUiStore from "../../store/ui";
 
-const AddRedemption = ({ isOpen, onClose, onSuccess }) => {
+const AddRedemption = ({ isOpen, onClose, editData }) => {
   const [formData, setFormData] = useState({
-    minimumPoints: "",
-    maximumPerDay: "",
-    tierMultipliers: {
-      silver: "",
-      gold: "",
-      platinum: "",
+    minimum_points_required: "",
+    maximum_points_per_day: "",
+    tier_multipliers: {
+      silver: 0,
+      gold: 0,
+      platinum: 0,
     },
   });
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
+  const { useUpdateRedemptionRules } = useRedemptionRules();
+  const updateMutation = useUpdateRedemptionRules();
+  const { addToast } = useUiStore();
+  useEffect(() => {
+    if (editData) {
+      setFormData({
+        minimum_points_required: editData?.minimum_points_required || "",
+        maximum_points_per_day: editData?.maximum_points_per_day || "",
+        tier_multipliers: {
+          silver: editData?.tier_multipliers?.silver || "",
+          gold: editData?.tier_multipliers?.gold || "",
+          platinum: editData?.tier_multipliers?.platinum || "",
+        },
+      });
+    }
+  }, [editData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    try {
-      console.log("Form Data Submitted:", formData);
-      onSuccess();
-      onClose();
-    } catch (error) {
-      setErrors({ submit: "Failed to add category" });
-    } finally {
-      setIsLoading(false);
-    }
+    updateMutation.mutate(formData,
+      {
+        onSuccess: (data) => {
+          addToast({
+            type: "success",
+            message: data?.message,
+          });
+          onClose?.();
+        },
+        onError: (error) => {
+          addToast({
+            type: "error",
+            message: error?.response?.data?.message,
+          });
+        },
+      }
+    );
   };
 
   const handleChange = (e) => {
@@ -42,8 +65,8 @@ const AddRedemption = ({ isOpen, onClose, onSuccess }) => {
     const { value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      tierMultipliers: {
-        ...prev.tierMultipliers,
+      tier_multipliers: {
+        ...prev.tier_multipliers,
         [tier]: value,
       },
     }));
@@ -74,11 +97,10 @@ const AddRedemption = ({ isOpen, onClose, onSuccess }) => {
               </label>
               <input
                 type="number"
-                name="minimumPoints"
-                value={formData.minimumPoints}
+                name="minimum_points_required"
+                value={formData.minimum_points_required}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-
               />
             </div>
             <div>
@@ -87,11 +109,10 @@ const AddRedemption = ({ isOpen, onClose, onSuccess }) => {
               </label>
               <input
                 type="number"
-                name="maximumPerDay"
-                value={formData.maximumPerDay}
+                name="maximum_points_per_day"
+                value={formData.maximum_points_per_day}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-
               />
             </div>
           </div>
@@ -108,34 +129,18 @@ const AddRedemption = ({ isOpen, onClose, onSuccess }) => {
                   </label>
                   <input
                     type="number"
-                    value={formData.tierMultipliers[tier]}
+                    value={formData.tier_multipliers[tier]}
                     onChange={(e) => handleTierChange(e, tier)}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-
                   />
                 </div>
               ))}
             </div>
           </div>
 
-          {errors.submit && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-600">{errors.submit}</p>
-            </div>
-          )}
           <div className="flex justify-end gap-3 mt-6">
-            <StyledButton
-              name="Cancel"
-              onClick={onClose}
-              variant="tertiary"
-              disabled={isLoading}
-            />
-            <StyledButton
-              name="Save Rules"
-              type="submit"
-              variant="primary"
-              disabled={isLoading}
-            />
+            <StyledButton name="Cancel" onClick={onClose} variant="tertiary" />
+            <StyledButton name="Save Rules" type="submit" variant="primary" />
           </div>
         </form>
       </div>

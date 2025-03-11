@@ -1,6 +1,6 @@
 import apiClient from "./client";
 
-const rootUrl = "/points-criteria"
+const rootUrl = "/point-criteria"
 
 
 // Points management API service

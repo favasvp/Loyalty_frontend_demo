@@ -18,7 +18,7 @@ export function useExpirationRules() {
   const useUpdateExpirationRules = () => {
     return useMutation({
       mutationFn: (rulesData) =>
-        rulesAndExpirySettingsApi.updateRules(rulesData),
+        rulesAndRedemptionSettingsApi.updateRules(rulesData),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["expirationRules"] });
       },

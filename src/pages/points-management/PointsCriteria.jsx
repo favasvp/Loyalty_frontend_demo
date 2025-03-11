@@ -9,142 +9,27 @@ import {
   PencilIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import AddPointsCriteria from "../../components/points-management/AddPointsCriteria";
 import RefreshButton from "../../ui/RefreshButton";
 import Loader from "../../ui/Loader";
+import { usePointsCriteria } from "../../hooks/usePointsCriteria";
+import AddPointCriteria from "../../components/points-management/AddPointCriteria";
 const PointsCriteria = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState("");
-  const [pointsCriteria, setPointsCriteria] = useState([
-    {
-      id: 1,
-      name: "Recharge",
-      description: "Points earned for mobile recharge transactions",
-      type: "service",
-      pointsFormula: "1:1 OMR",
-      icon: "📱",
-      integration: {
-        method: "POST",
-        endpoint: "/api/v1/services/recharge",
-        sdkMethod: "khedmah.rechargeService()",
-        parameters: {
-          serviceProvider: "string (required) - Provider name",
-          mobileNumber: "string (required) - Format: 968XXXXXXXX",
-          amount: "number (required) - Amount in OMR",
-          customerId: "string (required) - Customer ID",
-        },
-      },
-    },
-    {
-      id: 2,
-      name: "Telecom",
-      description: "Points earned for telecom bill payments",
-      type: "service",
-      pointsFormula: "2:1 OMR",
-      icon: "📞",
-      integration: {
-        method: "POST",
-        endpoint: "/api/v1/services/telecom-payment",
-        sdkMethod: "khedmah.payTelecomBill()",
-        parameters: {
-          provider: "string (required) - Telecom provider name",
-          accountNumber: "string (required) - Customer account number",
-          amount: "number (required) - Bill amount",
-          billReference: "string (required) - Bill reference number",
-        },
-        example: {
-          request: `{
-        "provider": "Ooredoo",
-        "accountNumber": "TEL987654",
-        "amount": 45.500,
-        "billReference": "BILL456",
-        "customerId": "CUST123"
-      }`,
-          response: `{
-        "success": true,
-        "pointsEarned": 91,
-        "transactionId": "TEL456",
-        "billStatus": "paid",
-        "receipt": {
-          "number": "RCP789012",
-          "amount": 45.500,
-          "currency": "OMR",
-          "timestamp": "2024-01-25T14:30:00Z"
-        }
-      }`,
-        },
-        notes: [
-          "Points awarded after successful recharge",
-          "Available for prepaid and postpaid numbers",
-          "Minimum recharge amount may vary by provider",
-        ],
-      },
-    },
-    {
-      id: 3,
-      name: "Electricity",
-      description: "Points earned for electricity bill payments",
-      type: "utility",
-      pointsFormula: "2:1 OMR",
-      icon: "⚡",
-      integration: {
-        method: "POST",
-        endpoint: "/api/v1/services/electricity-payment",
-        sdkMethod: "khedmah.payElectricityBill()",
-        parameters: {
-          provider: "string (required) - Electricity provider name",
-          accountNumber: "string (required) - Customer account number",
-          amount: "number (required) - Bill amount",
-          billReference: "string (required) - Bill reference number",
-        },
-        example: {
-          request: `{
-        "provider": "Muscat Electricity",
-        "accountNumber": "ELEC123456",
-        "amount": 75.000,
-        "billReference": "BILL123",
-        "customerId": "CUST123"
-      }`,
-          response: `{
-        "success": true,
-        "pointsEarned": 150,
-        "transactionId": "ELEC456",
-        "billStatus": "paid",
-        "receipt": {
-          "number": "RCP456789",
-          "amount": 75.000,
-          "currency": "OMR",
-          "timestamp": "2024-01-25T15:45:00Z"
-        }
-      }`,
-        },
-        notes: [
-          "Points awarded after successful recharge",
-          "Available for prepaid and postpaid numbers",
-          "Minimum recharge amount may vary by provider",
-        ],
-      },
-    },
-  ]);
-  // const fetchData = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const response = await
-  //     setPointsCriteria(response?.data || []);
-  //     setLastUpdated(new Date().toLocaleString());
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const [open, setOpen] = useState(false);
+  const { useGetPointsCriteria,useGetPointsCriteriaById } = usePointsCriteria();
+  const [Id, setId] = useState(null);
+  const {
+    data: pointsCriteriaData,
+    isLoading,
+    error,
+    refetch,
+    dataUpdatedAt,
+  } = useGetPointsCriteria();
+  const { data: selectedCriteria } = useGetPointsCriteriaById(Id?.id);
 
-  // useEffect(() => {
-  //   fetchData();
-  // }, []);
-  const selectedCriteria = pointsCriteria[0];
+
+
   const [isEditing, setIsEditing] = useState(false);
   const [editedFormula, setEditedFormula] = useState(
     selectedCriteria?.pointsFormula || ""
@@ -165,33 +50,33 @@ const PointsCriteria = () => {
             </h1>
             <p className="text-xs text-gray-500 mt-1">
               {" "}
-              Last Updated: {lastUpdated ? lastUpdated : "Fetching..."}
+              Last Updated: {new Date(dataUpdatedAt).toLocaleString()}
             </p>
           </div>
           <div className="flex items-center gap-4">
-            <RefreshButton
-              //  onClick={fetchData}
-              isLoading={loading}
-            />
+            <RefreshButton onClick={() => refetch()} isLoading={isLoading} />
             <StyledSearchInput placeholder={"Search by name"} />
-            {/* <StyledButton
-              onClick={() => setAddOpen(true)}
+            <StyledButton
+              onClick={() => setOpen(true)}
               name={
                 <>
                   <span className="text-lg leading-none">+</span>
                   Add Points Criteria
                 </>
               }
-            /> */}
+            />
           </div>
         </div>
-        {loading ? (
+        {isLoading ? (
           <Loader />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {pointsCriteria.map((criteria) => (
               <PointsCard
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => {
+                  setId({ id });
+                  setIsModalOpen(true);
+                }}
                 key={criteria.id}
                 criteria={criteria}
               />
@@ -368,11 +253,7 @@ const PointsCriteria = () => {
             </div>
           </div>
         )}
-        <AddPointsCriteria
-          isOpen={addOpen}
-          onClose={() => setAddOpen(false)}
-          onSuccess={() => setAddOpen(false)}
-        />
+        <AddPointCriteria isOpen={open} onClose={() => setOpen(false)} />
       </div>
     </>
   );

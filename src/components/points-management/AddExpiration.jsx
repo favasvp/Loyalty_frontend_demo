@@ -1,22 +1,27 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
 import StyledButton from "../../ui/StyledButton";
+import { useExpirationRules } from "../../hooks/useExpirationRules";
 
 const AddExpiration = ({ isOpen, onClose, editData }) => {
   const [formData, setFormData] = useState({
     grace_period: "",
     default_expiry_period: "",
-    tier_extensions: {
+    tier_extensions: [{
       silver: 0,
       gold: 0,
       platinum: 0,
-    },
+    }],
+
     expiry_notifications: {
       first_reminder: 0,
       second_reminder: 0,
       final_reminder: 0,
     },
   });
+  const { useUpdateExpirationRules } = useExpirationRules();
+  const updateMutation = useUpdateExpirationRules();
+
   useEffect(() => {
     if (editData) {
       const tierExtensions = editData.tier_extensions?.[0] || {};
@@ -43,6 +48,21 @@ const AddExpiration = ({ isOpen, onClose, editData }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    updateMutation.mutate(formData, {
+      onSuccess: (data) => {
+        addToast({
+          type: "success",
+          message: data?.message,
+        });
+        onClose?.();
+      },
+      onError: (error) => {
+        addToast({
+          type: "error",
+          message: error?.response?.data?.message,
+        });
+      },
+    });
   };
 
   const handleChange = (e) => {

@@ -1,6 +1,6 @@
 import apiClient from "./client";
 
-const rootUrl = "/coin-convertion-rule";
+const rootUrl = "/coin-management";
 
     const coinConvertionRuleApi = {
 

@@ -136,32 +136,28 @@ const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
             />
           </div>
           <div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">
-    Trigger Event
-  </label>
-  <select
-    name="triggerEvent"
-    value={formData.triggerEvent || ""}
-    onChange={handleChange}
-    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-  >
-    <option value="" disabled>
-      Select Trigger Event
-    </option>
-    {triggerEvents?.data?.map((event) => (
-      <option key={event._id} value={event._id}>
-        {event.name}
-      </option>
-    ))}
-  </select>
-</div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Trigger Event
+            </label>
+            <select
+              name="triggerEvent"
+              value={formData.triggerEvent || ""}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              <option value="" disabled>
+                Select Trigger Event
+              </option>
+              {triggerEvents?.data?.map((event) => (
+                <option key={event._id} value={event._id}>
+                  {event.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div className="flex justify-end gap-3 mt-6">
-            <StyledButton
-              name="Cancel"
-              onClick={onClose}
-              variant="tertiary"
-            />
+            <StyledButton name="Cancel" onClick={onClose} variant="tertiary" />
             <StyledButton
               name="Add Service"
               type="submit"

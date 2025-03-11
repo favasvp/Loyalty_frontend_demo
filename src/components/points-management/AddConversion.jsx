@@ -1,32 +1,32 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import StyledButton from "../../ui/StyledButton";
 
-const AddConversion = ({ isOpen, onClose, onSuccess }) => {
+const AddConversion = ({ isOpen, onClose, editData }) => {
   const [formData, setFormData] = useState({
     minimumPoints: "",
-    maximumPerDay: "",
-    tierMultipliers: {
+    pointsPerCoin: "",
+    tierBonuses: {
       silver: "",
       gold: "",
       platinum: "",
     },
   });
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-
+  useEffect(() => {
+    if (editData) {
+      setFormData({
+        minimumPoints: editData?.minimumPoints || "",
+        pointsPerCoin: editData?.pointsPerCoin || "",
+        tierBonuses: {
+          silver: tierExtensions.silver || 0,
+          gold: tierExtensions.gold || 0,
+          platinum: tierExtensions.platinum || 0,
+        },
+      });
+    }
+  }, [editData]);
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    try {
-      console.log("Form Data Submitted:", formData);
-      onSuccess();
-      onClose();
-    } catch (error) {
-      setErrors({ submit: "Failed to add category" });
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const handleChange = (e) => {
@@ -42,8 +42,8 @@ const AddConversion = ({ isOpen, onClose, onSuccess }) => {
     const { value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      tierMultipliers: {
-        ...prev.tierMultipliers,
+      tierBonuses: {
+        ...prev.tierBonuses,
         [tier]: value,
       },
     }));
@@ -89,8 +89,8 @@ const AddConversion = ({ isOpen, onClose, onSuccess }) => {
               </label>
               <input
                 type="number"
-                name="maximumPerDay"
-                value={formData.maximumPerDay}
+                name="pointsPerCoin"
+                value={formData.pointsPerCoin}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
@@ -109,7 +109,7 @@ const AddConversion = ({ isOpen, onClose, onSuccess }) => {
                   </label>
                   <input
                     type="number"
-                    value={formData.tierMultipliers[tier]}
+                    value={formData.tierBonuses[tier]}
                     onChange={(e) => handleTierChange(e, tier)}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
@@ -118,24 +118,9 @@ const AddConversion = ({ isOpen, onClose, onSuccess }) => {
             </div>
           </div>
 
-          {errors.submit && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-600">{errors.submit}</p>
-            </div>
-          )}
           <div className="flex justify-end gap-3 mt-6">
-            <StyledButton
-              name="Cancel"
-              onClick={onClose}
-              variant="tertiary"
-              disabled={isLoading}
-            />
-            <StyledButton
-              name="Save Rules"
-              type="submit"
-              variant="primary"
-              disabled={isLoading}
-            />
+            <StyledButton name="Cancel" onClick={onClose} variant="tertiary" />
+            <StyledButton name="Save Rules" type="submit" variant="primary" />
           </div>
         </form>
       </div>

@@ -9,21 +9,15 @@ import {
   ClockIcon,
   GiftIcon,
 } from "@heroicons/react/24/outline";
+import { useCoinConvertionRule } from "../../hooks/useCoinConvertionRule";
 
 export const Conversion = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [open, setOpen] = useState(false);
   const [totalCount, setTotalCount] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState("");
-  const [data, setData] = useState([
-    { id: 1, name: "John Doe", pointsRequired: 120, status: "Active" },
-    { id: 2, name: "Jane Smith", pointsRequired: 90, status: "Inactive" },
-    { id: 3, name: "Alice Johnson", pointsRequired: 150, status: "Active" },
-    { id: 4, name: "Michael Brown", pointsRequired: 80, status: "Pending" },
-    { id: 5, name: "Emily Davis", pointsRequired: 110, status: "Active" },
-  ]);
+ const { useGetCoinConvertionRule } = useCoinConvertionRule();
+  const { isLoading, data: ruleData } = useGetCoinConvertionRule();
   const ex = {
     minimumPoints: 100,
     maximumPerDay: 1000,
@@ -33,6 +27,13 @@ export const Conversion = () => {
       platinum: 10,
     },
   };
+    const [data, setData] = useState([
+      { id: 1, name: "John Doe", pointsRequired: 120, status: "Active" },
+      { id: 2, name: "Jane Smith", pointsRequired: 90, status: "Inactive" },
+      { id: 3, name: "Alice Johnson", pointsRequired: 150, status: "Active" },
+      { id: 4, name: "Michael Brown", pointsRequired: 80, status: "Pending" },
+      { id: 5, name: "Emily Davis", pointsRequired: 110, status: "Active" },
+    ]);
   const tableRows = useMemo(() => {
     return data.map((item) => (
       <tr key={item.id} className="hover:bg-gray-50">
@@ -63,7 +64,7 @@ export const Conversion = () => {
           <div>
             <p className="text-xs text-gray-500">Minimum Points</p>
             <p className="font-medium text-gray-800">
-              {ex.minimumPoints} points
+              {ruleData?.data[0]?.minimumPoints} points
             </p>
           </div>
         </div>
@@ -73,7 +74,7 @@ export const Conversion = () => {
           <div>
             <p className="text-xs text-gray-500">Maximum Per Day</p>
             <p className="font-medium text-gray-800">
-              {ex.maximumPerDay} points
+              {ruleData?.data[0]?.pointsPerCoin} points
             </p>
           </div>
         </div>
@@ -85,7 +86,7 @@ export const Conversion = () => {
           Tier Bonuses (%)
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {Object.entries(ex.tierBonuses).map(([tier, bonus]) => (
+          {Object.entries(ruleData?.data[0]?.tierBonuses).map(([tier, bonus]) => (
             <div
               key={tier}
               className="flex items-center gap-3 p-3 bg-gray-50 rounded-md"
@@ -119,7 +120,7 @@ export const Conversion = () => {
         />
       </div>
     </div>
-      <StyledTable
+      {/* <StyledTable
         paginationProps={{
           currentPage,
           totalCount,
@@ -142,12 +143,12 @@ export const Conversion = () => {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">{tableRows}</tbody>
-      </StyledTable>
+      </StyledTable> */}
 
       <AddConversion
         isOpen={open}
         onClose={() => setOpen(false)}
-        onSuccess={() => {}}
+        editData={ruleData?.data[0]}
       />
     </div>
   );

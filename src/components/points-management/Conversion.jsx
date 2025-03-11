@@ -86,7 +86,7 @@ export const Conversion = () => {
           Tier Bonuses (%)
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {Object.entries(ruleData?.data[0]?.tierBonuses).map(([tier, bonus]) => (
+          {Object.entries(ruleData?.data[0]?.tierBonuses || {})?.map(([tier, bonus]) => (
             <div
               key={tier}
               className="flex items-center gap-3 p-3 bg-gray-50 rounded-md"

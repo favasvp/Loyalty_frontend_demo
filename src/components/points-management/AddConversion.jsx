@@ -1,32 +1,60 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
 import StyledButton from "../../ui/StyledButton";
+import { useCoinConvertionRule } from "../../hooks/useCoinConvertionRule";
+import useUiStore from "../../store/ui";
 
 const AddConversion = ({ isOpen, onClose, editData }) => {
   const [formData, setFormData] = useState({
     minimumPoints: "",
     pointsPerCoin: "",
     tierBonuses: {
-      silver: "",
-      gold: "",
-      platinum: "",
+      silver: 0,
+      gold: 0,
+      platinum: 0,
     },
   });
+    const { useUpdateCoinManagement} = useCoinConvertionRule();
+  const { addToast } = useUiStore();
+  const updateMutation = useUpdateCoinManagement();
   useEffect(() => {
     if (editData) {
       setFormData({
         minimumPoints: editData?.minimumPoints || "",
         pointsPerCoin: editData?.pointsPerCoin || "",
         tierBonuses: {
-          silver: tierExtensions.silver || 0,
-          gold: tierExtensions.gold || 0,
-          platinum: tierExtensions.platinum || 0,
+          silver: editData?.tierBonuses.silver || 0,
+          gold: editData?.tierBonuses.gold || 0,
+          platinum: editData?.tierBonuses.platinum || 0,
         },
       });
     }
   }, [editData]);
   const handleSubmit = async (e) => {
     e.preventDefault();
+    updateMutation.mutate(
+      {
+      id: editData?._id,
+      coinManagementData:  {
+        minimumPoints: formData.minimumPoints,
+        pointsPerCoin: formData.pointsPerCoin,},
+    },
+      {
+        onSuccess: (data) => {
+          addToast({
+            type: "success",
+            message: data?.message,
+          });
+          onClose?.();
+        },
+        onError: (error) => {
+          addToast({
+            type: "error",
+            message: error?.response?.data?.message,
+          });
+        },
+      }
+    );
   };
 
   const handleChange = (e) => {

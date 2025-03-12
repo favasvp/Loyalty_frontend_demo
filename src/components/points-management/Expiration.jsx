@@ -33,7 +33,7 @@ const Expiration = () => {
             <div>
               <p className="text-xs text-gray-500">Default Expiry Period</p>
               <p className="font-medium text-gray-800">
-                {ruleData?.data?.default_expiry_period} months
+                {ruleData?.data[0]?.default_expiry_period} months
               </p>
             </div>
           </div>
@@ -43,7 +43,7 @@ const Expiration = () => {
             <div>
               <p className="text-xs text-gray-500">Grace Period</p>
               <p className="font-medium text-gray-800">
-                {ruleData?.data?.grace_period} days
+                {ruleData?.data[0]?.grace_period} days
               </p>
             </div>
           </div>
@@ -55,33 +55,32 @@ const Expiration = () => {
             Tier Extensions
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {ruleData?.data?.tier_extensions?.[0] &&
-              Object.entries(ruleData?.data?.tier_extensions?.[0])
-                .filter(([key]) => key !== "additional_months" && key !== "_id")
-                .map(([tier, months]) => (
+          {ruleData?.data[0]?.tier_extensions?.map(
+                ({ tier_id, additional_months }) => (
                   <div
-                    key={tier}
-                    className="flex items-center gap-3 p-3 bg-gray-50 rounded-md"
+                    key={tier_id?.name}
+                    className="flex items-center gap-2 bg-gray-50 p-3 rounded-md"
                   >
                     <div
                       className="flex-shrink-0 w-2 h-8 rounded-full"
                       style={{
                         backgroundColor:
-                          tier === "silver"
+                          tier_id?.name?.toLowerCase() === "silver"
                             ? "#C0C0C0"
-                            : tier === "gold"
+                            : tier_id?.name?.toLowerCase() === "gold"
                             ? "#FFD700"
                             : "#E5E4E2",
                       }}
                     />
                     <div>
-                      <p className="text-xs text-gray-500 capitalize">{tier}</p>
-                      <p className="font-medium text-gray-800">
-                        +{months} months
+                      <p className="text-xs text-gray-500 capitalize">
+                        {tier_id?.name}
                       </p>
+                      <p className="font-medium text-gray-800">{additional_months}months</p>
                     </div>
                   </div>
-                ))}
+                )
+              )}
           </div>
         </div>
 
@@ -91,7 +90,7 @@ const Expiration = () => {
             Expiry expiry_notifications
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {ruleData?.data?.expiry_notifications && Object.entries(ruleData?.data?.expiry_notifications)?.map(
+            {ruleData?.data[0]?.expiry_notifications && Object.entries(ruleData?.data[0]?.expiry_notifications)?.map(
               ([reminder, days], index) => (
                 <div
                   key={reminder}
@@ -131,7 +130,7 @@ const Expiration = () => {
       <AddExpiration
         isOpen={open}
         onClose={() => setOpen(false)}
-        editData={ruleData?.data}
+        editData={ruleData?.data[0]}
 
       />
     </div>

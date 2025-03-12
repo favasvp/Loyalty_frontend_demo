@@ -22,51 +22,34 @@ import {
   UserGroupIcon,
   UsersIcon,
 } from "@heroicons/react/24/outline";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import useUiStore, {
-  selectSidebarExpanded,
-  selectExpandedNav,
-} from "../store/ui";
-import { useAuthContext } from "./AuthProvider";
+import { useAuth } from "../hooks/useAuth";
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const location = useLocation();
   const { pathname } = location;
-  const { logout } = useAuthContext();
+  const { useLogout } = useAuth();
+  const logoutMutation = useLogout();
 
   const trigger = useRef(null);
   const sidebar = useRef(null);
 
-  const sidebarExpanded = useUiStore(selectSidebarExpanded);
-  const toggleSidebarExpanded = useUiStore(
-    (state) => state.toggleSidebarExpanded
+  const storedSidebarExpanded = localStorage.getItem("sidebar-expanded");
+  const [sidebarExpanded, setSidebarExpanded] = useState(
+    storedSidebarExpanded === null ? false : storedSidebarExpanded === "true"
   );
 
-  const expandedNav = useUiStore(selectExpandedNav);
-  const toggleNav = useUiStore((state) => state.toggleNav);
+  const [expandedNav, setExpandedNav] = useState(null);
 
   useEffect(() => {
-    const clickHandler = ({ target }) => {
-      if (!sidebar.current || !trigger.current) return;
-      if (
-        !sidebarOpen ||
-        sidebar.current.contains(target) ||
-        trigger.current.contains(target)
-      )
-        return;
-      setSidebarOpen(false);
-    };
-    document.addEventListener("click", clickHandler);
-    return () => document.removeEventListener("click", clickHandler);
-  }, [sidebarOpen, setSidebarOpen]);
+    localStorage.setItem("sidebar-expanded", sidebarExpanded.toString());
+  }, [sidebarExpanded]);
 
-  // Close sidebar on mobile when route changes
-  useEffect(() => {
-    if (sidebarOpen && window.innerWidth < 1024) {
-      setSidebarOpen(false);
-    }
-  }, [pathname, sidebarOpen, setSidebarOpen]);
+  const toggleNav = (label) => {
+    setExpandedNav(expandedNav === label ? null : label);
+  };
+
 
   const navItems = [
     {
@@ -278,7 +261,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       </nav>
 
       <div className="mt-auto flex justify-center py-4 w-full">
-        <button className="text-sm font-medium hover:bg-green-700/50 hover:text-white text-white w-full px-4 py-2 flex items-center gap-2 justify-center">
+        <button className="text-sm font-medium hover:bg-green-700/50 hover:text-white text-white w-full px-4 py-2 flex items-center gap-2 justify-center"onClick={() => logoutMutation.mutate()}>
           <ArrowLeftEndOnRectangleIcon className="w-5 h-5" /> Logout
         </button>
       </div>

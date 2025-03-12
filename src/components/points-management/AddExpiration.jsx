@@ -2,16 +2,14 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
 import StyledButton from "../../ui/StyledButton";
 import { useExpirationRules } from "../../hooks/useExpirationRules";
+import { useTiers } from "../../hooks/useTiers";
+import useUiStore from "../../store/ui";
 
 const AddExpiration = ({ isOpen, onClose, editData }) => {
   const [formData, setFormData] = useState({
     grace_period: "",
     default_expiry_period: "",
-    tier_extensions: [{
-      silver: 0,
-      gold: 0,
-      platinum: 0,
-    }],
+    tier_extensions: [],
 
     expiry_notifications: {
       first_reminder: 0,
@@ -19,21 +17,21 @@ const AddExpiration = ({ isOpen, onClose, editData }) => {
       final_reminder: 0,
     },
   });
+  const { useGetTiers } = useTiers();
+  const { data: Tiers } = useGetTiers();
   const { useUpdateExpirationRules } = useExpirationRules();
   const updateMutation = useUpdateExpirationRules();
-
+  const { addToast } = useUiStore();
   useEffect(() => {
     if (editData) {
-      const tierExtensions = editData.tier_extensions?.[0] || {};
-
       setFormData({
         default_expiry_period: editData?.default_expiry_period || "",
         grace_period: editData?.grace_period || "",
-        tier_extensions: {
-          silver: tierExtensions.silver || 0,
-          gold: tierExtensions.gold || 0,
-          platinum: tierExtensions.platinum || 0,
-        },
+        tier_extensions:
+          editData?.tier_extensions?.map((item) => ({
+            tier_id: item?.tier_id?._id,
+            additional_months: item?.additional_months || 1,
+          })) || [],
         expiry_notifications: {
           first_reminder: editData?.expiry_notifications?.first_reminder || 0,
           second_reminder: editData?.expiry_notifications?.second_reminder || 0,
@@ -74,15 +72,12 @@ const AddExpiration = ({ isOpen, onClose, editData }) => {
     }));
   };
 
-  const handleTierChange = (e, tier) => {
-    const { value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      tier_extensions: {
-        ...prev.tier_extensions,
-        [tier]: value,
-      },
-    }));
+  const handleExtensionChange = (index, value) => {
+    setFormData((prev) => {
+      const updatedMultipliers = [...prev.tier_extensions];
+      updatedMultipliers[index].additional_months = value;
+      return { ...prev, tier_extensions: updatedMultipliers };
+    });
   };
 
   const handleRemainderChange = (e, remainder) => {
@@ -133,20 +128,31 @@ const AddExpiration = ({ isOpen, onClose, editData }) => {
             <h4 className="text-sm font-medium text-gray-900 mb-3">
               Tier-based Extensions (months)
             </h4>
-            <div className="grid grid-cols-3 gap-4">
-              {["silver", "gold", "platinum"].map((tier) => (
-                <div key={tier}>
-                  <label className="block text-sm font-medium text-gray-700 capitalize mb-1">
-                    {tier}
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.tier_extensions[tier]}
-                    onChange={(e) => handleTierChange(e, tier)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
-              ))}
+            <div className="space-y-3">
+              {formData.tier_extensions?.map((tierExtension, index) => {
+                const tierName = Tiers?.data?.find(
+                  (tier) => tier._id === tierExtension.tier_id
+                )?.name;
+
+                return (
+                  <div
+                    key={tierExtension?.tier_id}
+                    className="flex items-center gap-4"
+                  >
+                    <span className="w-20 text-sm font-medium text-gray-700">
+                      {tierName}
+                    </span>
+                    <input
+                      type="number"
+                      value={tierExtension?.additional_months}
+                      onChange={(e) =>
+                        handleExtensionChange(index, e.target.value)
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
+                );
+              })}
             </div>
           </div>
           <div>

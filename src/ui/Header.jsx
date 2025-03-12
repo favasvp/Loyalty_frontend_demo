@@ -1,4 +1,11 @@
+import { useAuth } from "../hooks/useAuth";
+
 const Header = ({ sidebarOpen, setSidebarOpen }) => {
+  const{useGetCurrentUser}=useAuth()
+  const{data:user}=useGetCurrentUser()
+  console.log('====================================');
+  console.log("user",user?.data);
+  console.log('====================================');
   return (
     <header className="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 ">
       <div className="flex flex-grow items-center justify-between px-4 py-6 shadow-2 md:px-6 2xl:px-11">
@@ -46,8 +53,8 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
         </div>
         <div className="flex items-center gap-3 ml-auto">
           <div className="text-right">
-            <p className="text-sm font-medium text-gray-900">Admin User</p>
-            <p className="text-xs text-gray-500">admin@khedmah.com</p>
+            <p className="text-sm font-medium text-gray-900">{user?.data?.name}</p>
+            <p className="text-xs text-gray-500">{user?.data?.email}</p>
           </div>
         </div>
       </div>

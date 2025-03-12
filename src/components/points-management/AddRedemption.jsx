@@ -3,17 +3,18 @@ import React, { useEffect, useState } from "react";
 import StyledButton from "../../ui/StyledButton";
 import { useRedemptionRules } from "../../hooks/useRedemptionRules";
 import useUiStore from "../../store/ui";
+import { useTiers } from "../../hooks/useTiers";
 
 const AddRedemption = ({ isOpen, onClose, editData }) => {
+  const { useGetTiers } = useTiers();
+  const { data: Tiers } = useGetTiers();
+
   const [formData, setFormData] = useState({
     minimum_points_required: "",
     maximum_points_per_day: "",
-    tier_multipliers: {
-      silver: 0,
-      gold: 0,
-      platinum: 0,
-    },
+    tier_multipliers: [],
   });
+
   const { useUpdateRedemptionRules } = useRedemptionRules();
   const updateMutation = useUpdateRedemptionRules();
   const { addToast } = useUiStore();
@@ -22,54 +23,47 @@ const AddRedemption = ({ isOpen, onClose, editData }) => {
       setFormData({
         minimum_points_required: editData?.minimum_points_required || "",
         maximum_points_per_day: editData?.maximum_points_per_day || "",
-        tier_multipliers: {
-          silver: editData?.tier_multipliers?.silver || "",
-          gold: editData?.tier_multipliers?.gold || "",
-          platinum: editData?.tier_multipliers?.platinum || "",
-        },
+        tier_multipliers: editData?.tier_multipliers?.map((item) => ({
+          tier_id: item?.tier_id?._id, 
+          multiplier: item?.multiplier || 1,
+        })) || [],
       });
+    } else if (Tiers?.data) {
+      setFormData((prev) => ({
+        ...prev,
+        tier_multipliers: Tiers?.data.map((tier) => ({
+          tier_id: tier.id, 
+          multiplier: 1, 
+        })),
+      }));
     }
-  }, [editData]);
+  }, [editData, Tiers]);
+
+  const handleMultiplierChange = (index, value) => {
+    setFormData((prev) => {
+      const updatedMultipliers = [...prev.tier_multipliers];
+      updatedMultipliers[index].multiplier = value;
+      return { ...prev, tier_multipliers: updatedMultipliers };
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    updateMutation.mutate(formData,
-      {
-        onSuccess: (data) => {
-          addToast({
-            type: "success",
-            message: data?.message,
-          });
-          onClose?.();
-        },
-        onError: (error) => {
-          addToast({
-            type: "error",
-            message: error?.response?.data?.message,
-          });
-        },
-      }
-    );
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleTierChange = (e, tier) => {
-    const { value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      tier_multipliers: {
-        ...prev.tier_multipliers,
-        [tier]: value,
+    updateMutation.mutate(formData, {
+      onSuccess: (data) => {
+        addToast({
+          type: "success",
+          message: data?.message,
+        });
+        onClose?.();
       },
-    }));
+      onError: (error) => {
+        addToast({
+          type: "error",
+          message: error?.response?.data?.message,
+        });
+      },
+    });
   };
 
   if (!isOpen) return null;
@@ -99,7 +93,9 @@ const AddRedemption = ({ isOpen, onClose, editData }) => {
                 type="number"
                 name="minimum_points_required"
                 value={formData.minimum_points_required}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setFormData({ ...formData, minimum_points_required: e.target.value })
+                }
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
@@ -111,7 +107,9 @@ const AddRedemption = ({ isOpen, onClose, editData }) => {
                 type="number"
                 name="maximum_points_per_day"
                 value={formData.maximum_points_per_day}
-                onChange={handleChange}
+                onChange={(e) =>
+                  setFormData({ ...formData, maximum_points_per_day: e.target.value })
+                }
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
@@ -121,20 +119,25 @@ const AddRedemption = ({ isOpen, onClose, editData }) => {
             <h4 className="text-sm font-medium text-gray-900 mb-3">
               Tier Multipliers - for maximum points per day
             </h4>
-            <div className="grid grid-cols-3 gap-4">
-              {["silver", "gold", "platinum"].map((tier) => (
-                <div key={tier}>
-                  <label className="block text-sm font-medium text-gray-700 capitalize mb-1">
-                    {tier}
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.tier_multipliers[tier]}
-                    onChange={(e) => handleTierChange(e, tier)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
-              ))}
+            <div className="space-y-3">
+              {formData.tier_multipliers.map((tierMultiplier, index) => {
+              const tierName = Tiers?.data?.find((tier) => tier._id === tierMultiplier.tier_id)?.name;
+
+
+                return (
+                  <div key={tierMultiplier.tier_id} className="flex items-center gap-4">
+                    <span className="w-20 text-sm font-medium text-gray-700">
+                      {tierName}
+                    </span>
+                    <input
+                      type="number"
+                      value={tierMultiplier.multiplier}
+                      onChange={(e) => handleMultiplierChange(index, e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
+                );
+              })}
             </div>
           </div>
 

@@ -1,6 +1,6 @@
 import apiClient from "./client";
 
-const rootUrl = "/tiers";
+const rootUrl = "/tier";
 
 // Tiers API service
 const tiersApi = {

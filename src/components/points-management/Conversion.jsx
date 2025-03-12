@@ -18,15 +18,7 @@ export const Conversion = () => {
   const [currentPage, setCurrentPage] = useState(1);
  const { useGetCoinConvertionRule } = useCoinConvertionRule();
   const { isLoading, data: ruleData } = useGetCoinConvertionRule();
-  const ex = {
-    minimumPoints: 100,
-    maximumPerDay: 1000,
-    tierBonuses: {
-      silver: 0,
-      gold: 5,
-      platinum: 10,
-    },
-  };
+
     const [data, setData] = useState([
       { id: 1, name: "John Doe", pointsRequired: 120, status: "Active" },
       { id: 2, name: "Jane Smith", pointsRequired: 90, status: "Inactive" },
@@ -85,7 +77,7 @@ export const Conversion = () => {
           <ChartBarIcon className="w-4 h-4 text-indigo-500" />
           Tier Bonuses (%)
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {/* <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {Object.entries(ruleData?.data[0]?.tierBonuses || {})?.map(([tier, bonus]) => (
             <div
               key={tier}
@@ -108,7 +100,7 @@ export const Conversion = () => {
               </div>
             </div>
           ))}
-        </div>
+        </div> */}
       </div>
 
       <div className="flex justify-end mt-6">

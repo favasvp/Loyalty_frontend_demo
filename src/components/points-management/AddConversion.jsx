@@ -8,37 +8,29 @@ const AddConversion = ({ isOpen, onClose, editData }) => {
   const [formData, setFormData] = useState({
     minimumPoints: "",
     pointsPerCoin: "",
-    tierBonuses: {
-      silver: 0,
-      gold: 0,
-      platinum: 0,
-    },
+  
   });
-    const { useUpdateCoinManagement} = useCoinConvertionRule();
+    const { useCreateCoinManagement} = useCoinConvertionRule();
   const { addToast } = useUiStore();
-  const updateMutation = useUpdateCoinManagement();
+  const updateMutation = useCreateCoinManagement();
   useEffect(() => {
     if (editData) {
       setFormData({
         minimumPoints: editData?.minimumPoints || "",
         pointsPerCoin: editData?.pointsPerCoin || "",
-        tierBonuses: {
-          silver: editData?.tierBonuses.silver || 0,
-          gold: editData?.tierBonuses.gold || 0,
-          platinum: editData?.tierBonuses.platinum || 0,
-        },
+        // tierBonuses: {
+        //   silver: editData?.tierBonuses.silver || 0,
+        //   gold: editData?.tierBonuses.gold || 0,
+        //   platinum: editData?.tierBonuses.platinum || 0,
+        // },
       });
     }
   }, [editData]);
   const handleSubmit = async (e) => {
     e.preventDefault();
     updateMutation.mutate(
-      {
-      id: editData?._id,
-      coinManagementData:  {
-        minimumPoints: formData.minimumPoints,
-        pointsPerCoin: formData.pointsPerCoin,},
-    },
+      
+      formData,
       {
         onSuccess: (data) => {
           addToast({
@@ -125,7 +117,7 @@ const AddConversion = ({ isOpen, onClose, editData }) => {
             </div>
           </div>
 
-          <div>
+          {/* <div>
             <h4 className="text-sm font-medium text-gray-900 mb-3">
               Tier Bonuses (%)
             </h4>
@@ -144,7 +136,7 @@ const AddConversion = ({ isOpen, onClose, editData }) => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
 
           <div className="flex justify-end gap-3 mt-6">
             <StyledButton name="Cancel" onClick={onClose} variant="tertiary" />

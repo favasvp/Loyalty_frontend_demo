@@ -34,7 +34,7 @@ const Redemption = () => {
               <div>
                 <p className="text-xs text-gray-500">Minimum Points</p>
                 <p className="font-medium text-gray-800">
-                  {ruleData?.data?.minimum_points_required}
+                  {ruleData?.data[0]?.minimum_points_required}
                 </p>
               </div>
             </div>
@@ -44,7 +44,7 @@ const Redemption = () => {
               <div>
                 <p className="text-xs text-gray-500">Max Points/Day</p>
                 <p className="font-medium text-gray-800">
-                  {ruleData?.data?.maximum_points_per_day}
+                  {ruleData?.data[0]?.maximum_points_per_day}
                 </p>
               </div>
             </div>
@@ -56,35 +56,32 @@ const Redemption = () => {
               Tier Multipliers
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              {ruleData?.data?.tier_multipliers &&
-                Object.entries(ruleData?.data?.tier_multipliers).map(
-                  ([tier, multiplier]) => (
+              {ruleData?.data[0]?.tier_multipliers?.map(
+                ({ tier_id, multiplier }) => (
+                  <div
+                    key={tier_id?.name}
+                    className="flex items-center gap-2 bg-gray-50 p-3 rounded-md"
+                  >
                     <div
-                      key={tier}
-                      className="flex items-center gap-2 bg-gray-50 p-3 rounded-md"
-                    >
-                      <div
-                        className="flex-shrink-0 w-2 h-8 rounded-full"
-                        style={{
-                          backgroundColor:
-                            tier === "silver"
-                              ? "#C0C0C0"
-                              : tier === "gold"
-                              ? "#FFD700"
-                              : "#E5E4E2",
-                        }}
-                      />
-                      <div>
-                        <p className="text-xs text-gray-500 capitalize">
-                          {tier}
-                        </p>
-                        <p className="font-medium text-gray-800">
-                          x{multiplier}
-                        </p>
-                      </div>
+                      className="flex-shrink-0 w-2 h-8 rounded-full"
+                      style={{
+                        backgroundColor:
+                          tier_id?.name?.toLowerCase() === "silver"
+                            ? "#C0C0C0"
+                            : tier_id?.name?.toLowerCase() === "gold"
+                            ? "#FFD700"
+                            : "#E5E4E2",
+                      }}
+                    />
+                    <div>
+                      <p className="text-xs text-gray-500 capitalize">
+                        {tier_id?.name}
+                      </p>
+                      <p className="font-medium text-gray-800">x{multiplier}</p>
                     </div>
-                  )
-                )}
+                  </div>
+                )
+              )}
             </div>
           </div>
         </div>
@@ -102,7 +99,7 @@ const Redemption = () => {
       <AddRedemption
         isOpen={open}
         onClose={() => setOpen(false)}
-        editData={ruleData?.data}
+        editData={ruleData?.data[0]}
       />
     </div>
   );

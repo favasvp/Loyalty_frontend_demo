@@ -1,6 +1,6 @@
 import apiClient from "./client";
 
-const rootUrl = "/transactions";
+const rootUrl = "/transaction";
 
 const transactionApi = {
   

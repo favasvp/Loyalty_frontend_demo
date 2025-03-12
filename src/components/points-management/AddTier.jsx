@@ -1,27 +1,77 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import StyledButton from "../../ui/StyledButton";
+import { useTiers } from "../../hooks/useTiers";
+import useUiStore from "../../store/ui";
 
-const AddTier = ({ isOpen, onClose, onSuccess }) => {
+const AddTier = ({ isOpen, onClose, editData }) => {
   const [formData, setFormData] = useState({
     name: "",
-    pointsRequired: "",
-    benefits: [""],
-    status: "Active",
+    points_required: "",
+    isActive: true,
   });
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-
+  const { useCreateTier, useUpdateTier } = useTiers();
+  const createMutation = useCreateTier();
+  const updateMutation = useUpdateTier();
+  const { addToast } = useUiStore();
+  useEffect(() => {
+    if (editData) {
+      setFormData({
+        name: editData?.data?.name,
+        points_required: editData?.data?.points_required,
+        isActive: editData?.data?.isActive,
+      });
+    }
+  }, [editData]);
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    try {
-      onSuccess();
-      onClose();
-    } catch (error) {
-      setErrors({ submit: "Failed to add tier" });
-    } finally {
-      setIsLoading(false);
+
+    if (editData) {
+      updateMutation.mutate(
+        {
+          id: editData?.data?._id,
+          tierData: formData,
+        },
+        {
+          onSuccess: (data) => {
+            addToast({
+              type: "success",
+              message: data?.message,
+            });
+            onSuccess?.();
+            onClose?.();
+          },
+          onError: (error) => {
+            addToast({
+              type: "error",
+              message: error?.response?.data?.message,
+            });
+          },
+        }
+      );
+    } else {
+      createMutation.mutate(formData, {
+        onSuccess: (data) => {
+          addToast({
+            type: "success",
+            message: data?.message,
+          });
+          onSuccess?.();
+          onClose?.();
+        },
+        onError: (error) => {
+          addToast({
+            type: "error",
+            message: error?.response?.data?.message,
+          });
+        },
+      });
+      setFormData({
+        name: "",
+        icon: "",
+        description: "",
+        tags: [],
+      });
     }
   };
 
@@ -41,7 +91,14 @@ const AddTier = ({ isOpen, onClose, onSuccess }) => {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-gray-900">Add New Tier</h2>
           <button
-            onClick={onClose}
+            onClick={() => {
+              setFormData({
+                name: "",
+                points_required: "",
+                isActive: true,
+              });
+              onClose();
+            }}
             className="text-gray-400 hover:text-gray-500 cursor-pointer"
           >
             <XMarkIcon className="w-5 h-5" />
@@ -69,8 +126,8 @@ const AddTier = ({ isOpen, onClose, onSuccess }) => {
             </label>
             <input
               type="number"
-              name="pointsRequired"
-              value={formData.pointsRequired}
+              name="points_required"
+              value={formData.points_required}
               onChange={handleChange}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
               required
@@ -83,35 +140,35 @@ const AddTier = ({ isOpen, onClose, onSuccess }) => {
               Status
             </label>
             <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
+              name="isActive"
+              value={formData.isActive}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  isActive: e.target.value === "true",
+                }))
+              }
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
+              <option value="true">Active</option>
+              <option value="false">Inactive</option>
             </select>
           </div>
-
-          {errors.submit && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-600">{errors.submit}</p>
-            </div>
-          )}
 
           <div className="flex justify-end gap-3 mt-6">
             <StyledButton
               name={"Cancel"}
-              onClick={onClose}
+              onClick={() => {
+                setFormData({
+                  name: "",
+                  points_required: "",
+                  isActive: true,
+                });
+                onClose();
+              }}
               variant="tertiary"
-              disabled={isLoading}
             />
-            <StyledButton
-              name={"Add Tier"}
-              type="submit"
-              variant="primary"
-              disabled={isLoading}
-            />
+            <StyledButton name={"Add Tier"} type="submit" variant="primary" />
           </div>
         </form>
       </div>

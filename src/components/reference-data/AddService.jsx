@@ -107,7 +107,10 @@ const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-gray-900">Add Service</h2>
           <button
-            onClick={onClose}
+            onClick={() => {
+              setFormData({});
+              onClose();
+            }}
             className="text-gray-400 hover:text-gray-500 cursor-pointer"
           >
             <XMarkIcon className="w-5 h-5" />
@@ -155,7 +158,7 @@ const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
                 label: event.name,
               }))}
               value={triggerEvents?.data
-                ?.filter((event) => formData.triggerEvent.includes(event._id))
+                ?.filter((event) => formData.triggerEvent?.includes(event._id))
                 .map((event) => ({
                   value: event._id,
                   label: event.name,
@@ -170,14 +173,19 @@ const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
                   boxShadow: state.isFocused ? "0 0 0 2px lightgreen" : "none",
                   "&:hover": { borderColor: "darkgreen" },
                 }),
-            
-              
               }}
             />
           </div>
 
           <div className="flex justify-end gap-3 mt-6">
-            <StyledButton name="Cancel" onClick={onClose} variant="tertiary" />
+            <StyledButton
+              name="Cancel"
+              onClick={() => {
+                setFormData({});
+                onClose();
+              }}
+              variant="tertiary"
+            />
             <StyledButton
               name="Add Service"
               type="submit"

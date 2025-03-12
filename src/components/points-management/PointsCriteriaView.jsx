@@ -33,8 +33,8 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
             <div className="flex items-center gap-4">
               {selectedCriteria?.data?.appType?.icon && (
                 <img
-                  src={selectedCriteria?.data?.appType.icon}
-                  alt={selectedCriteria?.data?.appType.name}
+                  src={selectedCriteria?.data?.appType?.icon}
+                  alt={selectedCriteria?.data?.appType?.name}
                   className="w-14 h-14 rounded-lg shadow-sm"
                 />
               )}

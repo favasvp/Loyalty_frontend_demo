@@ -11,15 +11,13 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
   const { useCreatePointsCriteria } = usePointsCriteria();
   const createMutation = useCreatePointsCriteria();
   const [selectedEventId, setSelectedEventId] = useState();
-  const { useGetTriggerServiceByTriggerEventId } =
-    useTriggerServices();
+  const { useGetTriggerServiceByTriggerEventId } = useTriggerServices();
   const { data: triggerServices } =
     useGetTriggerServiceByTriggerEventId(selectedEventId);
   const { useGetAppTypes } = useAppTypes();
   const { data: appTypes } = useGetAppTypes();
   const { useGetTriggerEvents } = useTriggerEvents();
   const { data: triggerEvents } = useGetTriggerEvents();
-
 
   const [formData, setFormData] = useState({
     eventType: "",
@@ -129,7 +127,10 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
             Add Point Criteria
           </h2>
           <button
-            onClick={onClose}
+            onClick={() => {
+              setFormData({});
+              onClose();
+            }}
             className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
           >
             <XMarkIcon className="w-5 h-5" />
@@ -360,7 +361,10 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
           <div className="flex justify-end gap-3 pt-2 border-t mt-4">
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => {
+                setFormData({});
+                onClose();
+              }}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
               Cancel

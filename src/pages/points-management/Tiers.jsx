@@ -7,69 +7,87 @@ import StyledTable from "../../ui/StyledTable";
 import DeleteModal from "../../ui/DeleteModal";
 import RefreshButton from "../../ui/RefreshButton";
 import Loader from "../../ui/Loader";
+import { useTiers } from "../../hooks/useTiers";
+import useUiStore from "../../store/ui";
 
 const Tiers = () => {
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalCount, setTotalCount] = useState(10);
-  const [editOpen, setEditOpen] = useState(false);
+  const [data, setData] = useState(null);
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState("");
-  const [data, setData] = useState([
-    { id: 1, name: "John Doe", pointsRequired: 120, status: "Active" },
-    { id: 2, name: "Jane Smith", pointsRequired: 90, status: "Inactive" },
-    { id: 3, name: "Alice Johnson", pointsRequired: 150, status: "Active" },
-    { id: 4, name: "Michael Brown", pointsRequired: 80, status: "Pending" },
-    { id: 5, name: "Emily Davis", pointsRequired: 110, status: "Active" },
-  ]);
-  const handleEdit = () => {
-    setEditOpen(true);
+  const { useGetTiers, useDeleteTier, useGetTierById } = useTiers();
+  const { data: tierData } = useGetTierById(data?.id);
+  const deleteMutation = useDeleteTier();
+  const { addToast } = useUiStore();
+  const {
+    data: tiers,
+    isLoading,
+
+    refetch,
+    dataUpdatedAt,
+  } = useGetTiers();
+  const handleEdit = (id) => {
+    setData({ id });
+    setOpen(true);
+  };
+  const handleDeleteOpen = async (id) => {
+    setData(id);
+    setDeleteOpen(true);
   };
 
-  // const fetchData = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const response = await
-  //     setData(response?.data || []);
-  //     setLastUpdated(new Date().toLocaleString());
-  //     setTotalCount(response?.data?totalCount || 0);
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchData();
-  // }, []);
+  const handleDelete = () => {
+    deleteMutation.mutate(data, {
+      onSuccess: (response) => {
+        addToast({
+          type: "success",
+          message: response?.data?.message,
+        });
+      },
+      onError: (error) => {
+        addToast({
+          type: "error",
+          message: error?.response?.data?.message,
+        });
+      },
+    });
+    setDeleteOpen(false);
+    setData(null);
+  };
   const tableRows = useMemo(() => {
-    return data.map((item) => (
-      <tr key={item.id} className="hover:bg-gray-50">
+    return tiers?.data.map((item) => (
+      <tr key={item?._id} className="hover:bg-gray-50">
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-          {item.name}
+          {item?.name}
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          {item.pointsRequired}
+          {item?.points_required}
         </td>
         <td className="px-6 py-4 whitespace-nowrap">
-          <span className="px-2 py-1 text-xs font-medium rounded-full">
-            {item.status}
+          <span
+            className={`px-2 py-1 text-xs font-medium rounded-full ${
+              item?.status
+                ? "bg-green-200 text-green-800"
+                : "bg-red-200 text-red-800"
+            }`}
+          >
+            {item?.status ? "Active" : "Inactive"}
           </span>
         </td>
+
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
           <div className="flex items-center gap-2">
             <button
               className="text-slate-400 hover:text-green-700 p-1 rounded-lg hover:bg-green-50"
-              onClick={() => handleEdit(item.id)}
+              onClick={() => handleEdit(item?._id)}
             >
               <PencilIcon className="w-4 h-4" />
             </button>
             <button
               className="text-slate-400 hover:text-rose-600 p-1.5 rounded-md hover:bg-rose-50 transition-colors"
-              onClick={() => setDeleteOpen(true)}
+              onClick={() => handleDeleteOpen(item?._id)}
             >
               <TrashIcon className="w-4 h-4" />
             </button>
@@ -77,7 +95,7 @@ const Tiers = () => {
         </td>
       </tr>
     ));
-  }, [data, handleEdit, setDeleteOpen]);
+  }, [tiers?.data, handleEdit, setDeleteOpen]);
   return (
     <>
       <div>
@@ -89,14 +107,11 @@ const Tiers = () => {
             </h1>
             <p className="text-xs text-gray-500 mt-1">
               {" "}
-              Last Updated: {lastUpdated ? lastUpdated : "Fetching..."}
+              Last Updated: {new Date(dataUpdatedAt).toLocaleString()}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full md:w-auto">
-            <RefreshButton
-              //  onClick={fetchData}
-              isLoading={loading}
-            />
+            <RefreshButton onClick={() => refetch()} isLoading={isLoading} />
             <StyledSearchInput
               placeholder="Search"
               className="w-full sm:w-auto"
@@ -113,7 +128,7 @@ const Tiers = () => {
             />
           </div>
         </div>
-        {loading ? (
+        {isLoading ? (
           <Loader />
         ) : (
           <StyledTable
@@ -151,7 +166,7 @@ const Tiers = () => {
           onClose={() => {
             setOpen(false);
           }}
-          onSuccess={() => {}}
+          editData={tierData}
         />
 
         <DeleteModal
@@ -160,9 +175,7 @@ const Tiers = () => {
           onClose={() => {
             setDeleteOpen(false);
           }}
-          onConfirm={() => {
-            setDeleteOpen(false);
-          }}
+          onConfirm={handleDelete}
         />
       </div>
     </>

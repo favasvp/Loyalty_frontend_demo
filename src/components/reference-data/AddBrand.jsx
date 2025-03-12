@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import StyledButton from "../../ui/StyledButton";
 import { useBrands } from "../../hooks/useBrand";
@@ -13,20 +12,20 @@ const AddBrand = ({ isOpen, onClose, editData }) => {
   });
   const [imagePreview, setImagePreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const {useCreateBrand,useUpdateBrand } = useBrands();
+  const { useCreateBrand, useUpdateBrand } = useBrands();
   const createMutation = useCreateBrand();
   const updateMutation = useUpdateBrand();
   const { addToast } = useUiStore();
-      useEffect(() => {
-        if (editData) {
-          setFormData({
-            title: editData?.data?.title,
-            image: editData?.data?.image,
-            description: editData?.data?.description,
-          });
-          setImagePreview(editData?.data?.image);
-        }
-      }, [editData]);
+  useEffect(() => {
+    if (editData) {
+      setFormData({
+        title: editData?.data?.title,
+        image: editData?.data?.image,
+        description: editData?.data?.description,
+      });
+      setImagePreview(editData?.data?.image);
+    }
+  }, [editData]);
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -76,7 +75,6 @@ const AddBrand = ({ isOpen, onClose, editData }) => {
     }
   };
 
-
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
@@ -97,7 +95,7 @@ const AddBrand = ({ isOpen, onClose, editData }) => {
       }));
     }
   };
- 
+
   if (!isOpen) return null;
 
   return (
@@ -106,7 +104,10 @@ const AddBrand = ({ isOpen, onClose, editData }) => {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-gray-900">Add Brand</h2>
           <button
-            onClick={onClose}
+            onClick={() => {
+              setFormData({});
+              onClose();
+            }}
             className="text-gray-400 hover:text-gray-500 cursor-pointer"
           >
             <XMarkIcon className="w-5 h-5" />
@@ -180,7 +181,10 @@ const AddBrand = ({ isOpen, onClose, editData }) => {
           <div className="flex justify-end gap-3 mt-6">
             <StyledButton
               name="Cancel"
-              onClick={onClose}
+              onClick={() => {
+                setFormData({});
+                onClose();
+              }}
               variant="tertiary"
               disabled={isLoading}
             />

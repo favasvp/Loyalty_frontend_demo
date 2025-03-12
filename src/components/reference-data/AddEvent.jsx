@@ -135,12 +135,15 @@ const AddEvent = ({ isOpen, onClose, onSuccess, editData }) => {
   if (!isOpen ) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 mt-10">
-      <div className="bg-white rounded-lg w-full max-w-md p-6">
+<div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 mt-10">
+<div className="bg-white rounded-lg w-full max-w-2xl p-4 max-h-[80vh] min-h-[300px] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-gray-900">Add Event</h2>
           <button
-            onClick={onClose}
+            onClick={() => {
+              setFormData({});
+              onClose();
+            }}
             className="text-gray-400 hover:text-gray-500 cursor-pointer"
           >
             <XMarkIcon className="w-5 h-5" />
@@ -260,7 +263,10 @@ const AddEvent = ({ isOpen, onClose, onSuccess, editData }) => {
           <div className="flex justify-end gap-3 mt-6">
             <StyledButton
               name="Cancel"
-              onClick={onClose}
+              onClick={() => {
+                setFormData({});
+                onClose();
+              }}
               variant="tertiary"
               // disabled={isLoading}
             />

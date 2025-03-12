@@ -42,7 +42,10 @@ const AddCustomer = ({ isOpen, onClose, onSuccess }) => {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-gray-900">Add Customer</h2>
           <button
-            onClick={onClose}
+            onClick={() => {
+              setFormData({});
+              onClose();
+            }}
             className="text-gray-400 hover:text-gray-500 cursor-pointer"
           >
             <XMarkIcon className="w-5 h-5" />

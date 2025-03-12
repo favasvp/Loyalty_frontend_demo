@@ -41,9 +41,6 @@ const Tiers = () => {
   const handleDelete = () => {
     deleteMutation.mutate(data, {
       onSuccess: (response) => {
-        console.log("====================================");
-        console.log("response", response);
-        console.log("====================================");
         addToast({
           type: "success",
           message: response?.message,

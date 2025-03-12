@@ -11,7 +11,6 @@ const AddTier = ({ isOpen, onClose, editData }) => {
     isActive: true,
     description: [],
   });
-console.log("editData",editData);
 
   const { useCreateTier, useUpdateTier } = useTiers();
   const createMutation = useCreateTier();

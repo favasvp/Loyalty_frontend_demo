@@ -8,12 +8,13 @@ import StyledButton from "../../ui/StyledButton";
 import useUiStore from "../../store/ui";
 import { useTriggerServices } from "../../hooks/useTriggerServices";
 import { useTriggerEvents } from "../../hooks/useTriggerEvents";
+import Select from "react-select";
 
 const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    triggerEvent: "",
+    triggerEvent: [],
   });
   const { useCreateTriggerService, useUpdateTriggerService } =
     useTriggerServices();
@@ -23,14 +24,16 @@ const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
   const { useGetTriggerEvents } = useTriggerEvents();
   const { data: triggerEvents } = useGetTriggerEvents();
   useEffect(() => {
-    if (editData) {
+    if (editData?.data) {
       setFormData({
-        title: editData?.data?.title,
-        triggerEvent: editData?.data?.triggerEvent,
-        description: editData?.data?.description,
+        title: editData.data.title || "",
+        description: editData.data.description || "",
+        triggerEvent:
+          editData.data.triggerEvent.map((event) => event._id) || [], // Extracting IDs
       });
     }
   }, [editData]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -38,7 +41,7 @@ const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
       updateMutation.mutate(
         {
           id: editData?.data?._id,
-          triggerEventData: formData,
+          triggerServiceData: formData,
         },
         {
           onSuccess: (data) => {
@@ -92,7 +95,12 @@ const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
   };
 
   if (!isOpen) return null;
-
+  const handleTriggerEventChange = (selectedOptions) => {
+    setFormData((prev) => ({
+      ...prev,
+      triggerEvent: selectedOptions.map((option) => option.value),
+    }));
+  };
   return (
     <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 mt-10">
       <div className="bg-white rounded-lg w-full max-w-md p-6">
@@ -139,21 +147,33 @@ const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Trigger Event
             </label>
-            <select
+            <Select
+              isMulti
               name="triggerEvent"
-              value={formData.triggerEvent || ""}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-            >
-              <option value="" disabled>
-                Select Trigger Event
-              </option>
-              {triggerEvents?.data?.map((event) => (
-                <option key={event._id} value={event._id}>
-                  {event.name}
-                </option>
-              ))}
-            </select>
+              options={triggerEvents?.data?.map((event) => ({
+                value: event._id,
+                label: event.name,
+              }))}
+              value={triggerEvents?.data
+                ?.filter((event) => formData.triggerEvent.includes(event._id))
+                .map((event) => ({
+                  value: event._id,
+                  label: event.name,
+                }))}
+              onChange={handleTriggerEventChange}
+              className="basic-multi-select"
+              classNamePrefix="select"
+              styles={{
+                control: (base, state) => ({
+                  ...base,
+                  borderColor: state.isFocused ? "green" : "gray",
+                  boxShadow: state.isFocused ? "0 0 0 2px lightgreen" : "none",
+                  "&:hover": { borderColor: "darkgreen" },
+                }),
+            
+              
+              }}
+            />
           </div>
 
           <div className="flex justify-end gap-3 mt-6">

@@ -8,19 +8,17 @@ export function usePointsCriteria() {
   const queryClient = useQueryClient();
 
   // Get all points criteria
-  const useGetPointsCriteria = (params = {}) => {
+  const useGetPointsCriteria = () => {
     return useQuery({
-      queryKey: ["pointsCriteria", params],
-      queryFn: () => pointsCriteriaApi.getPointsCriteria(params),
+      queryKey: ["pointsCriteria"],
+      queryFn: () => pointsCriteriaApi.getPointsCriteria(),
       staleTime: 5 * 60 * 1000, // 5 minutes
     });
   };
 
   // Get points criteria by ID
   const useGetPointsCriteriaById = (id) => {
-    console.log("api",id);
-    
-    return useQuery({
+   return useQuery({
       queryKey: ["pointsCriteria", id],
       queryFn: () => pointsCriteriaApi.getPointsCriteriaById(id),
       enabled: !!id,

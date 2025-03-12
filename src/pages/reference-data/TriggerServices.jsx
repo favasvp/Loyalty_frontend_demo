@@ -25,7 +25,7 @@ const TriggerServices = () => {
   const {
     useGetTriggerServices,
     useGetTriggerServiceById,
-   useDeleteTriggerService
+    useDeleteTriggerService,
   } = useTriggerServices();
   const {
     data: triggerServices,
@@ -46,16 +46,14 @@ const TriggerServices = () => {
     );
   };
   const handleEdit = (id) => {
-    
-    setId({id});
+    setId({ id });
     setAddOpen(true);
   };
   const handleDeleteOpen = async (id) => {
-  
     setId(id);
     setDeleteOpen(true);
   };
- 
+
   const handleSelectAll = () => {
     if (selectedRows.length === triggerServices?.data.length) {
       setSelectedRows([]);
@@ -63,7 +61,7 @@ const TriggerServices = () => {
       setSelectedRows(triggerServices?.data.map((item) => item?._id));
     }
   };
-  
+
   const handleDelete = () => {
     deleteMutation.mutate(Id, {
       onSuccess: (response) => {
@@ -194,10 +192,10 @@ const TriggerServices = () => {
                   {item?.description}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-  <span className="px-2 py-1 text-xs font-medium rounded-full">
-    {item?.triggerEvent?.map(event => event.name).join(", ")}
-  </span>
-</td>
+                  <span className="px-2 py-1 text-xs font-medium rounded-full">
+                    {item?.triggerEvent?.map((event) => event.name).join(", ")}
+                  </span>
+                </td>
 
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <div className="flex items-center gap-2">

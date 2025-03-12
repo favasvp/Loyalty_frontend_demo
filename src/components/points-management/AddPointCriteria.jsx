@@ -7,17 +7,19 @@ import { useTriggerEvents } from "../../hooks/useTriggerEvents";
 
 const AddPointCriteria = ({ isOpen, onClose, editData }) => {
   if (!isOpen) return null;
-  
 
   const { useCreatePointsCriteria } = usePointsCriteria();
   const createMutation = useCreatePointsCriteria();
-  const { useGetTriggerServices } = useTriggerServices();
-  const { data: triggerServices } = useGetTriggerServices();
+  const [selectedEventId, setSelectedEventId] = useState();
+  const { useGetTriggerServiceByTriggerEventId } =
+    useTriggerServices();
+  const { data: triggerServices } =
+    useGetTriggerServiceByTriggerEventId(selectedEventId);
   const { useGetAppTypes } = useAppTypes();
   const { data: appTypes } = useGetAppTypes();
   const { useGetTriggerEvents } = useTriggerEvents();
   const { data: triggerEvents } = useGetTriggerEvents();
-  
+
 
   const [formData, setFormData] = useState({
     eventType: "",
@@ -26,8 +28,8 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
     pointSystem: [{ paymentMethod: "", pointType: "", pointRate: "" }],
     conditions: {
       maxTransactions: { weekly: "", monthly: "" },
-      transactionValueLimits: { minValue: "", maxValue: "" }
-    }
+      transactionValueLimits: { minValue: "", maxValue: "" },
+    },
   });
 
   const handleSubmit = async (e) => {
@@ -39,9 +41,9 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
       },
       onError: (error) => {
         addToast({ type: "error", message: error?.response?.data?.message });
-      }
+      },
     });
-    
+
     setFormData({
       eventType: "",
       serviceType: "",
@@ -49,69 +51,83 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
       pointSystem: [{ paymentMethod: "", pointType: "", pointRate: "" }],
       conditions: {
         maxTransactions: { weekly: "", monthly: "" },
-        transactionValueLimits: { minValue: "", maxValue: "" }
-      }
+        transactionValueLimits: { minValue: "", maxValue: "" },
+      },
     });
-    
+
     onClose();
   };
 
   const handleChange = (e, index) => {
     const { name, value } = e.target;
-
+    if (name === "eventType") {
+      setSelectedEventId(value); // Update event type and trigger service fetch
+    }
     if (["paymentMethod", "pointType", "pointRate"].includes(name)) {
       const updatedPointSystem = [...formData.pointSystem];
-      updatedPointSystem[index] = { ...updatedPointSystem[index], [name]: value };
-      setFormData(prev => ({ ...prev, pointSystem: updatedPointSystem }));
-    } 
-    else if (name in formData.conditions.maxTransactions) {
-      setFormData(prev => ({
+      updatedPointSystem[index] = {
+        ...updatedPointSystem[index],
+        [name]: value,
+      };
+      setFormData((prev) => ({ ...prev, pointSystem: updatedPointSystem }));
+    } else if (name in formData.conditions.maxTransactions) {
+      setFormData((prev) => ({
         ...prev,
         conditions: {
           ...prev.conditions,
-          maxTransactions: { ...prev.conditions.maxTransactions, [name]: value }
-        }
+          maxTransactions: {
+            ...prev.conditions.maxTransactions,
+            [name]: value,
+          },
+        },
       }));
-    } 
-    else if (name in formData.conditions.transactionValueLimits) {
-      setFormData(prev => ({
+    } else if (name in formData.conditions.transactionValueLimits) {
+      setFormData((prev) => ({
         ...prev,
         conditions: {
           ...prev.conditions,
-          transactionValueLimits: { ...prev.conditions.transactionValueLimits, [name]: value }
-        }
+          transactionValueLimits: {
+            ...prev.conditions.transactionValueLimits,
+            [name]: value,
+          },
+        },
       }));
-    } 
-    else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
   const addPointSystem = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      pointSystem: [...prev.pointSystem, { paymentMethod: "", pointType: "", pointRate: "" }]
+      pointSystem: [
+        ...prev.pointSystem,
+        { paymentMethod: "", pointType: "", pointRate: "" },
+      ],
     }));
   };
 
   const removePointSystem = (index) => {
     if (formData.pointSystem.length <= 1) return;
-    const updatedPointSystem = formData.pointSystem.filter((_, i) => i !== index);
-    setFormData(prev => ({ ...prev, pointSystem: updatedPointSystem }));
+    const updatedPointSystem = formData.pointSystem.filter(
+      (_, i) => i !== index
+    );
+    setFormData((prev) => ({ ...prev, pointSystem: updatedPointSystem }));
   };
 
-
-  const inputClass = "w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors";
+  const inputClass =
+    "w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors";
   const labelClass = "block text-xs font-medium text-gray-500 mb-1";
   const sectionHeadingClass = "text-sm font-medium text-gray-700 mb-3";
   const cardClass = "bg-white p-4 rounded-lg shadow-sm border border-gray-100";
-  
+
   return (
     <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 mt-10">
       <div className="bg-white rounded-lg w-full max-w-2xl p-4 max-h-[80vh] min-h-[300px] overflow-y-auto">
-       
         <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-lg font-medium text-gray-800">Add Point Criteria</h2>
+          <h2 className="text-lg font-medium text-gray-800">
+            Add Point Criteria
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
@@ -121,7 +137,6 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-6">
-         
           <div className={cardClass}>
             <h3 className={sectionHeadingClass}>Basic Information</h3>
             <div className="grid grid-cols-3 gap-4">
@@ -133,9 +148,13 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
                   onChange={(e) => handleChange(e)}
                   className={inputClass}
                 >
-                  <option value="" disabled>Select Event</option>
+                  <option value="" disabled>
+                    Select Event
+                  </option>
                   {triggerEvents?.data?.map((item) => (
-                    <option key={item._id} value={item._id}>{item.name}</option>
+                    <option key={item._id} value={item._id}>
+                      {item.name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -147,9 +166,13 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
                   onChange={(e) => handleChange(e)}
                   className={inputClass}
                 >
-                  <option value="" disabled>Select Service</option>
+                  <option value="" disabled>
+                    Select Service
+                  </option>
                   {triggerServices?.data?.map((item) => (
-                    <option key={item._id} value={item._id}>{item.title}</option>
+                    <option key={item._id} value={item._id}>
+                      {item.title}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -161,9 +184,13 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
                   onChange={(e) => handleChange(e)}
                   className={inputClass}
                 >
-                  <option value="" disabled>Select App</option>
+                  <option value="" disabled>
+                    Select App
+                  </option>
                   {appTypes?.data?.map((item) => (
-                    <option key={item._id} value={item._id}>{item.name}</option>
+                    <option key={item._id} value={item._id}>
+                      {item.name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -185,7 +212,10 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
 
             <div className="space-y-3">
               {formData.pointSystem.map((pointItem, index) => (
-                <div key={index} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                <div
+                  key={index}
+                  className="bg-gray-50 rounded-lg p-3 border border-gray-200"
+                >
                   <div className="flex justify-between items-center mb-2">
                     <div className="flex items-center">
                       <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-100 text-green-700 text-xs font-medium mr-2">
@@ -215,9 +245,13 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
                         onChange={(e) => handleChange(e, index)}
                         className={inputClass}
                       >
-                        <option value="" disabled>Select Method</option>
+                        <option value="" disabled>
+                          Select Method
+                        </option>
                         <option value="Khedmah-site">Khedmah-site</option>
-                        <option value="KhedmahPay-Wallet">KhedmahPay-Wallet</option>
+                        <option value="KhedmahPay-Wallet">
+                          KhedmahPay-Wallet
+                        </option>
                       </select>
                     </div>
                     <div>
@@ -228,7 +262,9 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
                         onChange={(e) => handleChange(e, index)}
                         className={inputClass}
                       >
-                        <option value="" disabled>Select Type</option>
+                        <option value="" disabled>
+                          Select Type
+                        </option>
                         <option value="percentage">Percentage</option>
                         <option value="fixed">Fixed</option>
                       </select>
@@ -253,10 +289,12 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
 
           <div className={cardClass}>
             <h3 className={sectionHeadingClass}>Limitations & Thresholds</h3>
-            
+
             <div className="grid grid-cols-2 gap-x-6 gap-y-4">
               <div>
-                <h4 className="text-xs font-medium text-gray-600 mb-2">Maximum Transactions</h4>
+                <h4 className="text-xs font-medium text-gray-600 mb-2">
+                  Maximum Transactions
+                </h4>
                 <div className="space-y-3">
                   <div>
                     <label className={labelClass}>Weekly Limit</label>
@@ -282,16 +320,20 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
                   </div>
                 </div>
               </div>
-              
+
               <div>
-                <h4 className="text-xs font-medium text-gray-600 mb-2">Transaction Value Limits</h4>
+                <h4 className="text-xs font-medium text-gray-600 mb-2">
+                  Transaction Value Limits
+                </h4>
                 <div className="space-y-3">
                   <div>
                     <label className={labelClass}>Minimum Value</label>
                     <input
                       type="text"
                       name="minValue"
-                      value={formData.conditions.transactionValueLimits.minValue}
+                      value={
+                        formData.conditions.transactionValueLimits.minValue
+                      }
                       placeholder="Minimum value"
                       onChange={handleChange}
                       className={inputClass}
@@ -302,7 +344,9 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
                     <input
                       type="text"
                       name="maxValue"
-                      value={formData.conditions.transactionValueLimits.maxValue}
+                      value={
+                        formData.conditions.transactionValueLimits.maxValue
+                      }
                       placeholder="Maximum value"
                       onChange={handleChange}
                       className={inputClass}

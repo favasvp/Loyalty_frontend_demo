@@ -37,7 +37,7 @@ const authApi = {
 
   // Logout user (server-side)
   logout: async () => {
-    const response = await apiClient.post(`${rootUrl}/logout`);
+    const response = await apiClient.get(`${rootUrl}/logout`);
     return response.data;
   },
 

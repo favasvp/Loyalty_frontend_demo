@@ -7,10 +7,17 @@ const PointsCard = ({ criteria, onClick }) => {
       onClick={onClick}
     >
       <div className="flex items-center gap-4 mb-2">
-        <div className="text-3xl">{criteria?.icon}</div>
+        {criteria?.eventType?.icon && (
+          <img
+            src={criteria.eventType.icon}
+            alt="Event Icon"
+            className="w-12 h-12 object-contain"
+          />
+        )}
+
         <div>
           <h3 className="font-medium text-gray-900 text-sm pb-1">
-            {criteria?.name}
+            {criteria?.serviceType?.title}
           </h3>
           <p className="text-xs text-gray-500">{criteria?.description}</p>
         </div>
@@ -20,9 +27,17 @@ const PointsCard = ({ criteria, onClick }) => {
         <span className="text-sm font-medium text-green-600">
           {criteria?.pointsFormula}
         </span>
-        <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
-          {criteria?.type}
-        </span>
+
+        <div className="flex gap-1">
+          {criteria?.eventType?.tags?.map((tag, index) => (
+            <span
+              key={index}
+              className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );

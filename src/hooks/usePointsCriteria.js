@@ -18,6 +18,8 @@ export function usePointsCriteria() {
 
   // Get points criteria by ID
   const useGetPointsCriteriaById = (id) => {
+    console.log("api",id);
+    
     return useQuery({
       queryKey: ["pointsCriteria", id],
       queryFn: () => pointsCriteriaApi.getPointsCriteriaById(id),

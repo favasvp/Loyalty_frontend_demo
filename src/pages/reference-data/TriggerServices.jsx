@@ -194,10 +194,11 @@ const TriggerServices = () => {
                   {item?.description}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 py-1 text-xs font-medium rounded-full">
-                    {item?.triggerEvent}
-                  </span>
-                </td>
+  <span className="px-2 py-1 text-xs font-medium rounded-full">
+    {item?.triggerEvent?.map(event => event.name).join(", ")}
+  </span>
+</td>
+
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <div className="flex items-center gap-2">
                     <button

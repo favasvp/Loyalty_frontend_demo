@@ -63,7 +63,6 @@ const AddEvent = ({ isOpen, onClose, onSuccess, editData }) => {
           },
         }
       );
-
     } else {
       createMutation.mutate(formData, {
         onSuccess: (data) => {
@@ -99,7 +98,9 @@ const AddEvent = ({ isOpen, onClose, onSuccess, editData }) => {
         ...prev,
         icon: "https://cdn.scoreapp.com/site/uploads/2024/09/Common-issues-of-organising-events_-1024x512.png",
       }));
-      setImagePreview("https://cdn.scoreapp.com/site/uploads/2024/09/Common-issues-of-organising-events_-1024x512.png");
+      setImagePreview(
+        "https://cdn.scoreapp.com/site/uploads/2024/09/Common-issues-of-organising-events_-1024x512.png"
+      );
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -132,16 +133,22 @@ const AddEvent = ({ isOpen, onClose, onSuccess, editData }) => {
     }));
   };
 
-  if (!isOpen ) return null;
+  if (!isOpen) return null;
 
   return (
-<div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 mt-10">
-<div className="bg-white rounded-lg w-full max-w-2xl p-4 max-h-[80vh] min-h-[300px] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 mt-10">
+      <div className="bg-white rounded-lg w-full max-w-2xl p-4 max-h-[80vh] min-h-[300px] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-gray-900">Add Event</h2>
           <button
             onClick={() => {
-              setFormData({});
+              setFormData({
+                tags:[],
+                description:"",
+                icon:"",
+                name:""
+              });
+              setImagePreview(null)
               onClose();
             }}
             className="text-gray-400 hover:text-gray-500 cursor-pointer"
@@ -264,7 +271,13 @@ const AddEvent = ({ isOpen, onClose, onSuccess, editData }) => {
             <StyledButton
               name="Cancel"
               onClick={() => {
-                setFormData({});
+                setFormData({
+                  tags:[],
+                  description:"",
+                  icon:"",
+                  name:""
+                });
+                setImagePreview(null)
                 onClose();
               }}
               variant="tertiary"

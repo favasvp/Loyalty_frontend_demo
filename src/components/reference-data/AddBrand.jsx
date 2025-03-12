@@ -105,7 +105,12 @@ const AddBrand = ({ isOpen, onClose, editData }) => {
           <h2 className="text-xl font-semibold text-gray-900">Add Brand</h2>
           <button
             onClick={() => {
-              setFormData({});
+              setFormData({
+                title:"",
+                description:"",
+                image:""
+              });
+              setImagePreview(null)
               onClose();
             }}
             className="text-gray-400 hover:text-gray-500 cursor-pointer"
@@ -182,7 +187,12 @@ const AddBrand = ({ isOpen, onClose, editData }) => {
             <StyledButton
               name="Cancel"
               onClick={() => {
-                setFormData({});
+                setFormData({
+                  title:"",
+                  description:"",
+                  image:""
+                });
+                setImagePreview(null)
                 onClose();
               }}
               variant="tertiary"

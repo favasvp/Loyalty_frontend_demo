@@ -230,7 +230,9 @@ const Categories = () => {
       )}
       <AddCategory
         isOpen={addOpen}
-        onClose={() => setAddOpen(false)}
+        onClose={() =>{ setAddOpen(false)
+          setData(null)
+        }}
         editData={triggerData}
       />
       <DeleteModal

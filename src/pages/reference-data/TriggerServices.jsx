@@ -222,6 +222,8 @@ const TriggerServices = () => {
         isOpen={addOpen}
         onClose={() => {
           setAddOpen(false);
+          setId({});
+
         }}
         onSuccess={() => {
           setId({});

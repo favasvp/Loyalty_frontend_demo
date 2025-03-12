@@ -108,7 +108,11 @@ const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
           <h2 className="text-xl font-semibold text-gray-900">Add Service</h2>
           <button
             onClick={() => {
-              setFormData({});
+              setFormData({
+                title:"",
+                description:"",
+                triggerEvent:[]
+              });
               onClose();
             }}
             className="text-gray-400 hover:text-gray-500 cursor-pointer"
@@ -181,7 +185,11 @@ const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
             <StyledButton
               name="Cancel"
               onClick={() => {
-                setFormData({});
+                setFormData({
+                  title:"",
+                  description:"",
+                  triggerEvent:[]
+                });
                 onClose();
               }}
               variant="tertiary"

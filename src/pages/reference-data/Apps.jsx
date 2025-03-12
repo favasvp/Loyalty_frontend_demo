@@ -169,6 +169,7 @@ const Apps = () => {
         isOpen={addOpen}
         onClose={() => {
           setAddOpen(false);
+          setData(null);
         }}
         onSuccess={() => {
           setData({});

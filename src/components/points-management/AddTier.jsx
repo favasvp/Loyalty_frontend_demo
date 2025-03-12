@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon, TrashIcon } from "@heroicons/react/24/outline";
 import StyledButton from "../../ui/StyledButton";
 import { useTiers } from "../../hooks/useTiers";
 import useUiStore from "../../store/ui";
@@ -9,24 +9,30 @@ const AddTier = ({ isOpen, onClose, editData }) => {
     name: "",
     points_required: "",
     isActive: true,
+    description: [],
   });
+console.log("editData",editData);
+
   const { useCreateTier, useUpdateTier } = useTiers();
   const createMutation = useCreateTier();
   const updateMutation = useUpdateTier();
   const { addToast } = useUiStore();
+
   useEffect(() => {
     if (editData) {
       setFormData({
-        name: editData?.data?.name,
-        points_required: editData?.data?.points_required,
-        isActive: editData?.data?.isActive,
+        name: editData?.data?.name || "",
+        points_required: editData?.data?.points_required || "",
+        isActive: editData?.data?.isActive ?? true,
+        description: editData?.data?.description || [],
       });
     }
   }, [editData]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (editData) {
+    if (editData?.data) {
       updateMutation.mutate(
         {
           id: editData?.data?._id,
@@ -38,8 +44,7 @@ const AddTier = ({ isOpen, onClose, editData }) => {
               type: "success",
               message: data?.message,
             });
-            onSuccess?.();
-            onClose?.();
+            onClose();
           },
           onError: (error) => {
             addToast({
@@ -56,8 +61,7 @@ const AddTier = ({ isOpen, onClose, editData }) => {
             type: "success",
             message: data?.message,
           });
-          onSuccess?.();
-          onClose?.();
+          onClose();
         },
         onError: (error) => {
           addToast({
@@ -66,11 +70,12 @@ const AddTier = ({ isOpen, onClose, editData }) => {
           });
         },
       });
+
       setFormData({
         name: "",
-        icon: "",
-        description: "",
-        tags: [],
+        points_required: "",
+        isActive: true,
+        description: [],
       });
     }
   };
@@ -83,6 +88,31 @@ const AddTier = ({ isOpen, onClose, editData }) => {
     }));
   };
 
+  // **Handle Adding a New Description**
+  const handleAddDescription = () => {
+    setFormData((prev) => ({
+      ...prev,
+      description: [...prev.description, ""], // Add an empty string to descriptions array
+    }));
+  };
+
+  // **Handle Changing an Existing Description**
+  const handleDescriptionChange = (index, value) => {
+    setFormData((prev) => {
+      const newDescriptions = [...prev.description];
+      newDescriptions[index] = value;
+      return { ...prev, description: newDescriptions };
+    });
+  };
+
+  // **Handle Removing a Description**
+  const handleRemoveDescription = (index) => {
+    setFormData((prev) => {
+      const newDescriptions = prev.description.filter((_, i) => i !== index);
+      return { ...prev, description: newDescriptions };
+    });
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -93,9 +123,10 @@ const AddTier = ({ isOpen, onClose, editData }) => {
           <button
             onClick={() => {
               setFormData({
+                description: [],
+                isActive: "",
                 name: "",
                 points_required: "",
-                isActive: true,
               });
               onClose();
             }}
@@ -155,6 +186,40 @@ const AddTier = ({ isOpen, onClose, editData }) => {
             </select>
           </div>
 
+          {/* **Dynamic Description List** */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Description
+            </label>
+            {formData?.description?.map((desc, index) => (
+              <div key={index} className="flex items-center gap-2 mb-2">
+                <input
+                  type="text"
+                  value={desc}
+                  onChange={(e) =>
+                    handleDescriptionChange(index, e.target.value)
+                  }
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveDescription(index)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <TrashIcon className="w-5 h-5" />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={handleAddDescription}
+              className="text-green-600 hover:text-green-800 text-sm mt-2"
+            >
+              + Add Description
+            </button>
+          </div>
+
           <div className="flex justify-end gap-3 mt-6">
             <StyledButton
               name={"Cancel"}
@@ -163,6 +228,7 @@ const AddTier = ({ isOpen, onClose, editData }) => {
                   name: "",
                   points_required: "",
                   isActive: true,
+                  description: [],
                 });
                 onClose();
               }}

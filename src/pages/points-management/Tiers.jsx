@@ -165,6 +165,8 @@ const Tiers = () => {
           isOpen={open}
           onClose={() => {
             setOpen(false);
+            setData(null)
+            
           }}
           editData={tierData}
         />

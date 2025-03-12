@@ -226,6 +226,8 @@ const TriggerEvents = () => {
         isOpen={addOpen}
         onClose={() => {
           setAddOpen(false);
+          setEditData({});
+
         }}
         onSuccess={() => {
           setEditData({});

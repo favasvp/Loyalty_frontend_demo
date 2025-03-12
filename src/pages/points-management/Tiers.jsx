@@ -41,9 +41,12 @@ const Tiers = () => {
   const handleDelete = () => {
     deleteMutation.mutate(data, {
       onSuccess: (response) => {
+        console.log("====================================");
+        console.log("response", response);
+        console.log("====================================");
         addToast({
           type: "success",
-          message: response?.data?.message,
+          message: response?.message,
         });
       },
       onError: (error) => {
@@ -165,8 +168,7 @@ const Tiers = () => {
           isOpen={open}
           onClose={() => {
             setOpen(false);
-            setData(null)
-            
+            setData(null);
           }}
           editData={tierData}
         />

@@ -67,7 +67,7 @@ const TriggerServices = () => {
       onSuccess: (response) => {
         addToast({
           type: "success",
-          message: response?.data?.message,
+          message: response?.message,
         });
       },
       onError: (error) => {

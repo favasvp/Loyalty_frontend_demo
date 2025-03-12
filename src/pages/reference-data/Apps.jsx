@@ -85,7 +85,7 @@ const Apps = () => {
       onSuccess: (response) => {
         addToast({
           type: "success",
-          message: response?.data?.message,
+          message: response?.message,
         });
       },
       onError: (error) => {

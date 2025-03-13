@@ -87,15 +87,13 @@ const AddTier = ({ isOpen, onClose, editData }) => {
     }));
   };
 
-  // **Handle Adding a New Description**
   const handleAddDescription = () => {
     setFormData((prev) => ({
       ...prev,
-      description: [...prev.description, ""], // Add an empty string to descriptions array
+      description: [...prev.description, ""]
     }));
   };
 
-  // **Handle Changing an Existing Description**
   const handleDescriptionChange = (index, value) => {
     setFormData((prev) => {
       const newDescriptions = [...prev.description];
@@ -104,7 +102,6 @@ const AddTier = ({ isOpen, onClose, editData }) => {
     });
   };
 
-  // **Handle Removing a Description**
   const handleRemoveDescription = (index) => {
     setFormData((prev) => {
       const newDescriptions = prev.description.filter((_, i) => i !== index);

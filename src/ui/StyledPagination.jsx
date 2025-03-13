@@ -1,6 +1,7 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { TrashIcon } from "@heroicons/react/24/solid";
 import StyledButton from "./StyledButton";
+import { useEffect } from "react";
 
 const StyledPagination = ({
   currentPage,
@@ -9,16 +10,20 @@ const StyledPagination = ({
   setCurrentPage,
   setItemsPerPage,
   selectedRows = [],
-  handleBulkDelete
+  handleBulkDelete,
 }) => {
-  const totalPages = Math.ceil(totalCount / itemsPerPage);
-
+  const totalPages = Math.max(1, Math.ceil(totalCount / itemsPerPage));
   const handlePageChange = (page) => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
     }
   };
-
+  useEffect(() => {
+    setCurrentPage(1); 
+  }, [itemsPerPage]);
+  console.log("====================================");
+  console.log("current Page and total pages", currentPage, totalPages);
+  console.log("====================================");
   return (
     <div className="w-full bg-gray-50 border-t border-gray-200 px-4 py-3">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -42,18 +47,19 @@ const StyledPagination = ({
                 <>
                   <TrashIcon className="w-4 h-4" /> Delete
                 </>
-              } onClick={() => handleBulkDelete()}
+              }
+              onClick={() => handleBulkDelete()}
             />
           )}
         </div>
         <div className="flex items-center justify-center gap-2">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
+            disabled={currentPage <= 1} 
             className={`px-3 py-1 rounded-lg transition-all text-xs ${
-              currentPage === 1
+              currentPage <= 1
                 ? "text-gray-500 cursor-not-allowed"
-                : "bg-blue-500 text-white hover:bg-blue-600"
+                : "bg-green-500 text-white hover:bg-green-600"
             }`}
           >
             <ChevronLeftIcon className="w-4 h-4" />
@@ -65,11 +71,11 @@ const StyledPagination = ({
 
           <button
             onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
+            disabled={currentPage >= totalPages} 
             className={`px-3 py-1 rounded-lg transition-all text-xs ${
-              currentPage === totalPages
+              currentPage >= totalPages
                 ? "text-gray-500 cursor-not-allowed"
-                : "bg-blue-500 text-white hover:bg-blue-600"
+                : "bg-green-500 text-white hover:bg-green-600"
             }`}
           >
             <ChevronRightIcon className="w-4 h-4" />

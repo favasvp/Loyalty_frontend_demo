@@ -2,55 +2,115 @@ import React, { useEffect, useMemo, useState } from "react";
 import StyledTable from "../../ui/StyledTable";
 import RefreshButton from "../../ui/RefreshButton";
 import Loader from "../../ui/Loader";
+import { useAudits } from "../../hooks/useAudit";
+import StyledButton from "../../ui/StyledButton";
+import ViewLog from "../../components/system-and-settings/ViewLog";
+import { EyeDropperIcon, EyeIcon } from "@heroicons/react/24/outline";
 
 const Privacy = () => {
-  const [activeTab, setActiveTab] = useState("security-log");
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
   const [totalCount, setTotalCount] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState("");
-  const [data, setData] = useState([
-    { id: 1, name: "John Doe", pointsRequired: 120, status: "Active" },
-    { id: 2, name: "Jane Smith", pointsRequired: 90, status: "Inactive" },
-    { id: 3, name: "Alice Johnson", pointsRequired: 150, status: "Active" },
-    { id: 4, name: "Michael Brown", pointsRequired: 80, status: "Pending" },
-    { id: 5, name: "Emily Davis", pointsRequired: 110, status: "Active" },
-  ]);
-  // const fetchData = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const response = await
-  //     setData(response?.data || []);
-  //     setLastUpdated(new Date().toLocaleString());
-  //     setTotalCount(response?.data?totalCount || 0);
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const [Id, setId] = useState(null);
+  const [viewOpen, setViewOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    startDate: "",
+    endDate: "",
+    adminName: "",
+    status: "",
+  });
 
-  // useEffect(() => {
-  //   fetchData();
-  // }, []);
+  const { useGetAdminLogs } = useAudits();
+  const {
+    data: logs,
+    dataUpdatedAt,
+    isLoading,
+    refetch,
+  } = useGetAdminLogs({
+    page: currentPage,
+    limit: itemsPerPage,
+    ...filters,
+  });
+  useEffect(() => {
+    if (logs?.data?.pagination?.total !== undefined) {
+      setTotalCount(logs.data.pagination.total);
+    }
+  }, [logs]);
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleFilterApply = () => {
+    setCurrentPage(1);
+    refetch();
+  };
+
+  const handleFilterReset = () => {
+    setFilters({
+      startDate: "",
+      endDate: "",
+      adminName: "",
+      status: "",
+    });
+    setCurrentPage(1);
+    refetch();
+  };
+
   const tableRows = useMemo(() => {
-    return data.map((item) => (
+    return logs?.data?.logs?.map((item) => (
       <tr key={item.id} className="hover:bg-gray-50">
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-          {item.name}
+          {item?.userName}
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          {item.pointsRequired}
+          {item?.userEmail}
         </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm">
+          {item?.userAgent?.length > 20
+            ? item.userAgent.slice(0, 20) + "..."
+            : item?.userAgent}
+        </td>
+
+        <td className="px-6 py-4 whitespace-nowrap text-sm">{item?.action}</td>
         <td className="px-6 py-4 whitespace-nowrap">
-          <span className="px-2 py-1 text-xs font-medium rounded-full">
-            {item.status}
+          <span
+            className={`px-2 py-1 text-xs font-medium rounded-full ${
+              item?.status === "success"
+                ? "bg-green-100 text-green-800"
+                : item?.status === "failure"
+                ? "bg-red-100 text-red-800"
+                : item?.status === "warning"
+                ? "bg-yellow-100 text-yellow-800"
+                : item?.status === "info"
+                ? "bg-blue-100 text-blue-800"
+                : "bg-gray-100 text-gray-800"
+            }`}
+          >
+            {item?.status}
           </span>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          <div className="flex items-center gap-2">
+            <button
+              className="text-slate-400 hover:text-green-700 p-1 rounded-lg hover:bg-green-50"
+              onClick={() => {
+                setId(item?._id);
+                setViewOpen(true);
+              }}
+            >
+              <EyeIcon className="w-4 h-4" />
+            </button>
+          </div>
         </td>
       </tr>
     ));
-  }, [data]);
+  }, [logs?.data?.logs]);
+  const inputClass =
+    "w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors";
   return (
     <div>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -59,81 +119,140 @@ const Privacy = () => {
             System Logs
           </h1>
           <p className="text-xs text-gray-500 mt-1">
-            Last Updated: {lastUpdated ? lastUpdated : "Fetching..."}
+            Last Updated: {new Date(dataUpdatedAt).toLocaleString()}
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <RefreshButton
-            //  onClick={fetchData}
-            isLoading={loading}
-          />
+          <RefreshButton onClick={() => refetch()} isLoading={isLoading} />
         </div>
       </div>
 
-      <div className="border-b border-gray-200">
-        <div className="flex space-x-4">
-          <button
-            className={`px-4 py-2 text-sm font-medium ${
-              activeTab === "security-log"
-                ? "border-b-2 border-green-500 text-green-600"
-                : "text-gray-600"
-            }`}
-            onClick={() => setActiveTab("security-log")}
-          >
-            Security Audit Log
-          </button>
-          <button
-            className={`px-4 py-2 text-sm font-medium ${
-              activeTab === "role-log"
-                ? "border-b-2 border-green-500 text-green-600"
-                : "text-gray-600"
-            }`}
-            onClick={() => setActiveTab("role-log")}
-          >
-            Role Audit Log
-          </button>
+      <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
+        <h2 className="text-lg font-medium text-gray-800 mb-3">Filter Logs</h2>
+        <div className="flex flex-wrap gap-4 mb-4">
+          <div className="flex flex-col">
+            <label htmlFor="startDate" className="text-xs text-gray-600 mb-1">
+              Start Date
+            </label>
+            <input
+              id="startDate"
+              type="date"
+              name="startDate"
+              value={filters.startDate}
+              onChange={handleFilterChange}
+              className={inputClass}
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label htmlFor="endDate" className="text-xs text-gray-600 mb-1">
+              End Date
+            </label>
+            <input
+              id="endDate"
+              type="date"
+              name="endDate"
+              value={filters.endDate}
+              onChange={handleFilterChange}
+              className={inputClass}
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label htmlFor="adminName" className="text-xs text-gray-600 mb-1">
+              Admin Name
+            </label>
+            <input
+              id="adminName"
+              type="text"
+              name="adminName"
+              value={filters.adminName}
+              onChange={handleFilterChange}
+              className={inputClass}
+              placeholder="Search by name"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label htmlFor="status" className="text-xs text-gray-600 mb-1">
+              Status
+            </label>
+            <select
+              id="status"
+              name="status"
+              value={filters.status}
+              onChange={handleFilterChange}
+              className={inputClass}
+            >
+              <option value="">All Statuses</option>
+              <option value="success">Success</option>
+              <option value="failure">Failure</option>
+              <option value="warning">Warning</option>
+              <option value="info">Info</option>
+            </select>
+          </div>
+
+          <div className="flex items-end gap-2">
+            <StyledButton name={"Apply Filters"} onClick={handleFilterApply} />
+
+            <StyledButton
+              name={"Reset Filters"}
+              onClick={handleFilterReset}
+              variant="download"
+            />
+          </div>
         </div>
       </div>
-      {loading ? (
+
+      {isLoading ? (
         <Loader />
       ) : (
         <div className="mt-6">
-          {activeTab === "security-log" && (
-            <StyledTable
-              paginationProps={{
-                currentPage,
-                totalCount,
-                itemsPerPage,
-                setCurrentPage,
-                setItemsPerPage,
-              }}
-            >
-              <thead className="bg-gray-50 w-full">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Points
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {tableRows}
-              </tbody>
-            </StyledTable>
-          )}
-
-          {activeTab === "role-log" && (
-            <div>
-              <h2 className="text-lg font-semibold">Role Audit Log</h2>
-            </div>
-          )}
+          <StyledTable
+            paginationProps={{
+              currentPage,
+              totalCount,
+              itemsPerPage,
+              setCurrentPage,
+              setItemsPerPage,
+            }}
+          >
+            <thead className="bg-gray-50 w-full">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Email
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Agent
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Action
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+               
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {tableRows}
+            </tbody>
+          </StyledTable>
         </div>
       )}
+      <ViewLog
+        id={Id}
+        onClose={() => {
+          setId(null);
+          setViewOpen(false);
+        }}
+        open={viewOpen}
+      />
     </div>
   );
 };

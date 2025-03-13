@@ -16,7 +16,7 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
     });
   };
   return (
-    <div className="fixed inset-0 flex items-center justify-center  bg-opacity-50">
+    <div className="fixed inset-0 flex items-center justify-center  bg-black/10">
       <div className="relative bg-white rounded-lg shadow-xl w-full max-w-3xl min-h-[500px] max-h-[60vh] overflow-y-auto p-6 mt-17 custom-scrollbar">
         <div className="absolute right-4 top-4 z-10">
           <button

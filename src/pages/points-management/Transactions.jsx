@@ -19,7 +19,7 @@ const Transactions = () => {
     isLoading,
   } = useGetTransactions();
   const tableRows = useMemo(() => {
-    return transactions?.data.map((item) => (
+    return transactions?.data?.transactions?.map((item) => (
       <tr key={item.id} className="hover:bg-gray-50">
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
           {item.name}

@@ -5,7 +5,6 @@ import {
 } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
 import StyledButton from "../../ui/StyledButton";
-import { useTriggerEvents } from "../../hooks/useTriggerEvents";
 import useUiStore from "../../store/ui";
 import { useAppTypes } from "../../hooks/useAppTypes";
 
@@ -110,10 +109,17 @@ const AddApp = ({ isOpen, onClose, onSuccess, editData }) => {
     <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 mt-10">
       <div className="bg-white rounded-lg w-full max-w-md p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">Add App</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            {editData ? "Edit App" : "Add App"}
+          </h2>
           <button
             onClick={() => {
-              setFormData({});
+              setFormData({
+                name: "",
+                icon: "",
+                description: "",
+                isActive: true,
+              });
               setImagePreview(null);
               onClose();
             }}
@@ -193,7 +199,12 @@ const AddApp = ({ isOpen, onClose, onSuccess, editData }) => {
             <StyledButton
               name="Cancel"
               onClick={() => {
-                setFormData({});
+                setFormData({
+                  name: "",
+                  icon: "",
+                  description: "",
+                  isActive: true,
+                });
                 setImagePreview(null);
                 onClose();
               }}
@@ -201,7 +212,7 @@ const AddApp = ({ isOpen, onClose, onSuccess, editData }) => {
               // disabled={isLoading}
             />
             <StyledButton
-              name="Add App"
+              name={editData ? "Update" : "Add App"}
               type="submit"
               variant="primary"
               // disabled={isLoading}

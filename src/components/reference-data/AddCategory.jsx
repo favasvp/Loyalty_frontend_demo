@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import StyledButton from "../../ui/StyledButton";
 import useUiStore from "../../store/ui";
@@ -13,20 +12,20 @@ const AddCategory = ({ isOpen, onClose, editData }) => {
   });
   const [imagePreview, setImagePreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const {useCreateCategory,useUpdateCategory } = useCategory();
+  const { useCreateCategory, useUpdateCategory } = useCategory();
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
   const { addToast } = useUiStore();
-    useEffect(() => {
-      if (editData) {
-        setFormData({
-          title: editData?.data?.title,
-          image: editData?.data?.image,
-          description: editData?.data?.description,
-        });
-        setImagePreview(editData?.data?.image);
-      }
-    }, [editData]);
+  useEffect(() => {
+    if (editData) {
+      setFormData({
+        title: editData?.data?.title,
+        image: editData?.data?.image,
+        description: editData?.data?.description,
+      });
+      setImagePreview(editData?.data?.image);
+    }
+  }, [editData]);
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -76,7 +75,6 @@ const AddCategory = ({ isOpen, onClose, editData }) => {
     }
   };
 
-
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
@@ -97,24 +95,26 @@ const AddCategory = ({ isOpen, onClose, editData }) => {
       }));
     }
   };
- 
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 mt-10">
       <div className="bg-white rounded-lg w-full max-w-md p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">Add Category</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            {editData ? "Edit" : "Add Category"}
+          </h2>
           <button
-           onClick={() => {
-            setFormData({
-              title:"",
-              image:"",
-              description:""
-            });
-            setImagePreview(null)
-            onClose();
-          }}
+            onClick={() => {
+              setFormData({
+                title: "",
+                image: "",
+                description: "",
+              });
+              setImagePreview(null);
+              onClose();
+            }}
             className="text-gray-400 hover:text-gray-500 cursor-pointer"
           >
             <XMarkIcon className="w-5 h-5" />
@@ -190,18 +190,18 @@ const AddCategory = ({ isOpen, onClose, editData }) => {
               name="Cancel"
               onClick={() => {
                 setFormData({
-                  title:"",
-                  image:"",
-                  description:""
+                  title: "",
+                  image: "",
+                  description: "",
                 });
-                setImagePreview(null)
+                setImagePreview(null);
                 onClose();
               }}
               variant="tertiary"
               disabled={isLoading}
             />
             <StyledButton
-              name="Add Category"
+              name={editData ? "Edit" : "Add Category"}
               type="submit"
               variant="primary"
               disabled={isLoading}

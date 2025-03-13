@@ -102,15 +102,17 @@ const AddBrand = ({ isOpen, onClose, editData }) => {
     <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 mt-10">
       <div className="bg-white rounded-lg w-full max-w-md p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">Add Brand</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            {editData ? "Edit" : "Add Brand"}
+          </h2>
           <button
             onClick={() => {
               setFormData({
-                title:"",
-                description:"",
-                image:""
+                title: "",
+                description: "",
+                image: "",
               });
-              setImagePreview(null)
+              setImagePreview(null);
               onClose();
             }}
             className="text-gray-400 hover:text-gray-500 cursor-pointer"
@@ -188,18 +190,18 @@ const AddBrand = ({ isOpen, onClose, editData }) => {
               name="Cancel"
               onClick={() => {
                 setFormData({
-                  title:"",
-                  description:"",
-                  image:""
+                  title: "",
+                  description: "",
+                  image: "",
                 });
-                setImagePreview(null)
+                setImagePreview(null);
                 onClose();
               }}
               variant="tertiary"
               disabled={isLoading}
             />
             <StyledButton
-              name="Add Brand"
+              name={editData ? "Edit" : "Add Brand"}
               type="submit"
               variant="primary"
               disabled={isLoading}

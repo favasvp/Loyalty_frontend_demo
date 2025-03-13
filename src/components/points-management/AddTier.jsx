@@ -90,7 +90,7 @@ const AddTier = ({ isOpen, onClose, editData }) => {
   const handleAddDescription = () => {
     setFormData((prev) => ({
       ...prev,
-      description: [...prev.description, ""]
+      description: [...prev.description, ""],
     }));
   };
 
@@ -115,7 +115,9 @@ const AddTier = ({ isOpen, onClose, editData }) => {
     <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 mt-10">
       <div className="bg-white rounded-lg w-full max-w-md p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">Add New Tier</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            {editData?.data ? "Edit Tier" : "Add New Tier"}
+          </h2>
           <button
             onClick={() => {
               setFormData({
@@ -182,7 +184,6 @@ const AddTier = ({ isOpen, onClose, editData }) => {
             </select>
           </div>
 
-          {/* **Dynamic Description List** */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Description
@@ -230,7 +231,11 @@ const AddTier = ({ isOpen, onClose, editData }) => {
               }}
               variant="tertiary"
             />
-            <StyledButton name={"Add Tier"} type="submit" variant="primary" />
+            <StyledButton
+              name={editData?.data ? "Update" : "Add Tier"}
+              type="submit"
+              variant="primary"
+            />
           </div>
         </form>
       </div>

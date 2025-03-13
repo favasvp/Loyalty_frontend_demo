@@ -105,13 +105,15 @@ const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
     <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 mt-10">
       <div className="bg-white rounded-lg w-full max-w-md p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">Add Service</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            {editData ? "Edit" : "Add Service"}
+          </h2>
           <button
             onClick={() => {
               setFormData({
-                title:"",
-                description:"",
-                triggerEvent:[]
+                title: "",
+                description: "",
+                triggerEvent: [],
               });
               onClose();
             }}
@@ -186,16 +188,16 @@ const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
               name="Cancel"
               onClick={() => {
                 setFormData({
-                  title:"",
-                  description:"",
-                  triggerEvent:[]
+                  title: "",
+                  description: "",
+                  triggerEvent: [],
                 });
                 onClose();
               }}
               variant="tertiary"
             />
             <StyledButton
-              name="Add Service"
+              name={editData ? "Edit" : "Add Service"}
               type="submit"
               variant="primary"
               disabled={createMutation.isLoading || updateMutation.isLoading}

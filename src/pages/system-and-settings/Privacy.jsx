@@ -61,7 +61,20 @@ const Privacy = () => {
   };
 
   const tableRows = useMemo(() => {
-    return logs?.data?.logs?.map((item) => (
+    const logList = logs?.data?.logs;
+    if (!logList || logList?.length === 0) {
+      return (
+        <tr>
+          <td
+            colSpan="6"
+            className="px-6 py-4 text-center text-gray-500 text-sm"
+          >
+            No data available
+          </td>
+        </tr>
+      );
+    }
+    return logList?.map((item) => (
       <tr key={item.id} className="hover:bg-gray-50">
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
           {item?.userName}
@@ -234,9 +247,7 @@ const Privacy = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-               
-                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">

@@ -57,7 +57,20 @@ const Tiers = () => {
     setData(null);
   };
   const tableRows = useMemo(() => {
-    return tiers?.data.map((item) => (
+    const tiersList = tiers?.data;
+    if (!tiersList || tiersList?.length === 0) {
+      return (
+        <tr>
+          <td
+            colSpan="3"
+            className="px-6 py-4 text-center text-gray-500 text-sm"
+          >
+            No data available
+          </td>
+        </tr>
+      );
+    }
+    return tiersList?.map((item) => (
       <tr key={item?._id} className="hover:bg-gray-50">
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
           {item?.name}

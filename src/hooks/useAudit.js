@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import auditApi from "../api/audit";
+import { use } from "react";
 
 export function useAudits() {
   const useGetAdminLogs = (params) => {
@@ -17,8 +18,16 @@ export function useAudits() {
       staleTime: 5 * 60 * 1000, // 5 minutes
     });
   };
+  const useSdkLogs = (params) => {
+    return useQuery({
+      queryKey: ["sdk-logs", params],
+      queryFn: () => auditApi.getSdkLogs(params),
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    });
+  };
   return {
     useGetAdminLogs,
     useGetLogById,
+    useSdkLogs,
   };
 }

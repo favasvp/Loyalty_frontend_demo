@@ -55,10 +55,11 @@ const TriggerServices = () => {
   };
 
   const handleSelectAll = () => {
-    if (selectedRows.length === triggerServices?.data.length) {
+    const allRowIds = paginatedData?.map((item) => item?._id) || [];
+    if (selectedRows.length === allRowIds?.length) {
       setSelectedRows([]);
     } else {
-      setSelectedRows(triggerServices?.data.map((item) => item?._id));
+      setSelectedRows(allRowIds);
     }
   };
 
@@ -156,7 +157,12 @@ const TriggerServices = () => {
                 <input
                   type="checkbox"
                   onChange={handleSelectAll}
-                  checked={selectedRows.length === triggerServices?.data.length}
+                  checked={
+                    paginatedData?.length > 0 &&
+                    paginatedData.every((item) =>
+                      selectedRows?.includes(item._id)
+                    )
+                  }
                   className="cursor-pointer w-4 h-4 align-middle"
                 />
               </th>
@@ -175,46 +181,59 @@ const TriggerServices = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {paginatedData?.map((item) => (
-              <tr key={item?.id} className="hover:bg-gray-50">
-                <td className="px-4 py-4">
-                  <input
-                    type="checkbox"
-                    onChange={() => handleRowSelect(item?._id)}
-                    checked={selectedRows.includes(item?._id)}
-                    className="cursor-pointer"
-                  />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item?.title}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {item?.description}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 py-1 text-xs font-medium rounded-full">
-                    {item?.triggerEvent?.map((event) => event.name).join(", ")}
-                  </span>
-                </td>
+            {paginatedData?.length > 0 ? (
+              paginatedData?.map((item) => (
+                <tr key={item?.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-4">
+                    <input
+                      type="checkbox"
+                      onChange={() => handleRowSelect(item?._id)}
+                      checked={selectedRows.includes(item?._id)}
+                      className="cursor-pointer"
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item?.title}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {item?.description}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="px-2 py-1 text-xs font-medium rounded-full">
+                      {item?.triggerEvent
+                        ?.map((event) => event.name)
+                        .join(", ")}
+                    </span>
+                  </td>
 
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <button
-                      className="text-slate-400 hover:text-green-700 p-1 rounded-lg hover:bg-green-50"
-                      onClick={() => handleEdit(item?._id)}
-                    >
-                      <PencilIcon className="w-4 h-4" />
-                    </button>
-                    <button
-                      className="text-slate-400 hover:text-red-700 p-1 rounded-lg hover:bg-red-50"
-                      onClick={() => handleDeleteOpen(item?._id)}
-                    >
-                      <TrashIcon className="w-4 h-4" />
-                    </button>
-                  </div>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="text-slate-400 hover:text-green-700 p-1 rounded-lg hover:bg-green-50"
+                        onClick={() => handleEdit(item?._id)}
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </button>
+                      <button
+                        className="text-slate-400 hover:text-red-700 p-1 rounded-lg hover:bg-red-50"
+                        onClick={() => handleDeleteOpen(item?._id)}
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan="5"
+                  className="px-6 py-4 text-center text-gray-500 text-sm"
+                >
+                  No data available
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </StyledTable>
       )}
@@ -223,7 +242,6 @@ const TriggerServices = () => {
         onClose={() => {
           setAddOpen(false);
           setId({});
-
         }}
         onSuccess={() => {
           setId({});

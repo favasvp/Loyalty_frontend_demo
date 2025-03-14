@@ -22,7 +22,8 @@ const Categories = () => {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [data, setData] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
-  const { useGetCategory,useGetCategoryById,useDeleteCategory } = useCategory();
+  const { useGetCategory, useGetCategoryById, useDeleteCategory } =
+    useCategory();
   const { data: triggerData } = useGetCategoryById(data?.id);
 
   const {
@@ -54,12 +55,14 @@ const Categories = () => {
   };
 
   const handleSelectAll = () => {
-    if (selectedRows.length === categories?.data.length) {
+    const allRowIds = paginatedData?.map((item) => item?._id) || [];
+    if (selectedRows.length === allRowIds?.length) {
       setSelectedRows([]);
     } else {
-      setSelectedRows(categories?.data?.map((item) => item.id));
+      setSelectedRows(allRowIds);
     }
   };
+
   const handleDelete = () => {
     deleteMutation.mutate(data, {
       onSuccess: (response) => {
@@ -165,8 +168,12 @@ const Categories = () => {
                 <input
                   type="checkbox"
                   onChange={handleSelectAll}
-                  checked={selectedRows?.length === categories?.data?.length}
-                  className="cursor-pointer w-4 h-4 align-middle"
+                  checked={
+                    paginatedData?.length > 0 &&
+                    paginatedData.every((item) =>
+                      selectedRows?.includes(item._id)
+                    )
+                  }
                 />
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -184,54 +191,66 @@ const Categories = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {paginatedData?.map((item) => (
-              <tr key={item?._id} className="hover:bg-gray-50">
-                <td className="px-4 py-4">
-                  <input
-                    type="checkbox"
-                    onChange={() => handleRowSelect(item._id)}
-                    checked={selectedRows?.includes(item?._id)}
-                    className="cursor-pointer"
-                  />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item?.title}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {item?.description}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <img
-                    src={item?.image}
-                    alt="icon"
-                    className="w-6 h-6 object-contain"
-                  />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <button
-                      className="text-slate-400 hover:text-green-700 p-1 rounded-lg hover:bg-green-50"
-                      onClick={() => handleEdit(item?._id)}
-                    >
-                      <PencilIcon className="w-4 h-4" />
-                    </button>
-                    <button
-                      className="text-slate-400 hover:text-red-700 p-1 rounded-lg hover:bg-red-50"
-                      onClick={() => handleDeleteOpen(item?._id)}
-                    >
-                      <TrashIcon className="w-4 h-4" />
-                    </button>
-                  </div>
+            {paginatedData?.length > 0 ? (
+              paginatedData?.map((item) => (
+                <tr key={item?._id} className="hover:bg-gray-50">
+                  <td className="px-4 py-4">
+                    <input
+                      type="checkbox"
+                      onChange={() => handleRowSelect(item._id)}
+                      checked={selectedRows?.includes(item?._id)}
+                      className="cursor-pointer"
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item?.title}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {item?.description}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <img
+                      src={item?.image}
+                      alt="icon"
+                      className="w-6 h-6 object-contain"
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="text-slate-400 hover:text-green-700 p-1 rounded-lg hover:bg-green-50"
+                        onClick={() => handleEdit(item?._id)}
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </button>
+                      <button
+                        className="text-slate-400 hover:text-red-700 p-1 rounded-lg hover:bg-red-50"
+                        onClick={() => handleDeleteOpen(item?._id)}
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan="5"
+                  className="px-6 py-4 text-center text-gray-500 text-sm"
+                >
+                  No data available
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </StyledTable>
       )}
       <AddCategory
         isOpen={addOpen}
-        onClose={() =>{ setAddOpen(false)
-          setData(null)
+        onClose={() => {
+          setAddOpen(false);
+          setData(null);
         }}
         editData={triggerData}
       />

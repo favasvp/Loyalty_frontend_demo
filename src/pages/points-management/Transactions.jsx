@@ -19,7 +19,22 @@ const Transactions = () => {
     isLoading,
   } = useGetTransactions();
   const tableRows = useMemo(() => {
-    return transactions?.data?.transactions?.map((item) => (
+    const transactionList = transactions?.data?.transactions;
+
+    if (!transactionList || transactionList.length === 0) {
+      return (
+        <tr>
+          <td
+            colSpan="3"
+            className="px-6 py-4 text-center text-gray-500 text-sm"
+          >
+            No data available
+          </td>
+        </tr>
+      );
+    }
+
+    return transactionList?.map((item) => (
       <tr key={item.id} className="hover:bg-gray-50">
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
           {item.name}
@@ -35,6 +50,7 @@ const Transactions = () => {
       </tr>
     ));
   }, [transactions?.data]);
+
   return (
     <>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">

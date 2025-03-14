@@ -53,11 +53,13 @@ const Brands = () => {
     setDeleteOpen(true);
   };
 
+
   const handleSelectAll = () => {
-    if (selectedRows.length === brands?.data.length) {
+    const allRowIds = paginatedData?.map((item) => item?._id) || [];
+    if (selectedRows.length === allRowIds?.length) {
       setSelectedRows([]);
     } else {
-      setSelectedRows(brands?.data?.map((item) => item.id));
+      setSelectedRows(allRowIds);
     }
   };
   const handleDelete = () => {
@@ -165,7 +167,12 @@ const Brands = () => {
                 <input
                   type="checkbox"
                   onChange={handleSelectAll}
-                  checked={selectedRows?.length === brands?.data?.length}
+                  checked={
+                    paginatedData?.length > 0 &&
+                    paginatedData.every((item) =>
+                      selectedRows?.includes(item._id)
+                    )
+                  }
                   className="cursor-pointer w-4 h-4 align-middle"
                 />
               </th>
@@ -184,7 +191,7 @@ const Brands = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {paginatedData?.map((item) => (
+            {paginatedData?.length > 0 ? paginatedData?.map((item) => (
               <tr key={item?._id} className="hover:bg-gray-50">
                 <td className="px-4 py-4">
                   <input
@@ -224,7 +231,17 @@ const Brands = () => {
                   </div>
                 </td>
               </tr>
-            ))}
+            ))
+              : (
+                <tr>
+                  <td
+                    colSpan="5"
+                    className="px-6 py-4 text-center text-gray-500 text-sm"
+                  >
+                    No data available
+                  </td>
+                </tr>
+              )}
           </tbody>
         </StyledTable>
       )}

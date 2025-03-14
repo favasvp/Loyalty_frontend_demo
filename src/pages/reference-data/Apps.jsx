@@ -30,6 +30,19 @@ const Apps = () => {
   const deleteMutation = useDeleteAppType();
   const { addToast } = useUiStore();
   const tableRows = useMemo(() => {
+    const appList = appTypes?.data;
+    if (!appList || appList?.length === 0) {
+      return (
+        <tr>
+          <td
+            colSpan="5"
+            className="px-6 py-4 text-center text-gray-500 text-sm"
+          >
+            No data available
+          </td>
+        </tr>
+      );
+    }
     return appTypes?.data?.map((item) => (
       <tr key={item.id} className="hover:bg-gray-50">
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

@@ -48,14 +48,15 @@ const TriggerEvents = () => {
     setAddOpen(true);
   };
   const handleDeleteOpen = async (id) => {
-    setEditData( id );
+    setEditData(id);
     setDeleteOpen(true);
   };
   const handleSelectAll = () => {
-    if (selectedRows.length === triggerEvents?.data?.length) {
+    const allRowIds = paginatedData?.map((item) => item?._id) || [];
+    if (selectedRows.length === allRowIds?.length) {
       setSelectedRows([]);
     } else {
-      setSelectedRows(triggerEvents?.data?.map((item) => item?._id));
+      setSelectedRows(allRowIds);
     }
   };
   const handleDelete = () => {
@@ -157,7 +158,12 @@ const TriggerEvents = () => {
                 <input
                   type="checkbox"
                   onChange={handleSelectAll}
-                  checked={selectedRows.length === triggerEvents?.data.length}
+                  checked={
+                    paginatedData?.length > 0 &&
+                    paginatedData.every((item) =>
+                      selectedRows?.includes(item._id)
+                    )
+                  }
                   className="cursor-pointer w-4 h-4 align-middle"
                 />
               </th>
@@ -177,48 +183,59 @@ const TriggerEvents = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {paginatedData?.map((item) => (
-              <tr key={item?.id} className="hover:bg-gray-50">
-                <td className="px-4 py-4">
-                  <input
-                    type="checkbox"
-                    onChange={() => handleRowSelect(item?._id)}
-                    checked={selectedRows.includes(item?._id)}
-                    className="cursor-pointer"
-                  />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item?.name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <img
-                    src={item?.icon}
-                    alt="icon"
-                    className="w-6 h-6 object-contain"
-                  />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {item?.description}
-                </td>
+            {paginatedData?.length > 0 ? (
+              paginatedData?.map((item) => (
+                <tr key={item?.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-4">
+                    <input
+                      type="checkbox"
+                      onChange={() => handleRowSelect(item?._id)}
+                      checked={selectedRows.includes(item?._id)}
+                      className="cursor-pointer"
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item?.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <img
+                      src={item?.icon}
+                      alt="icon"
+                      className="w-6 h-6 object-contain"
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {item?.description}
+                  </td>
 
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <button
-                      className="text-slate-400 hover:text-green-700 p-1 rounded-lg hover:bg-green-50"
-                      onClick={() => handleEdit(item?._id)}
-                    >
-                      <PencilIcon className="w-4 h-4" />
-                    </button>
-                    <button
-                      className="text-slate-400 hover:text-red-700 p-1 rounded-lg hover:bg-red-50"
-                      onClick={() => handleDeleteOpen(item?._id)}
-                    >
-                      <TrashIcon className="w-4 h-4" />
-                    </button>
-                  </div>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="text-slate-400 hover:text-green-700 p-1 rounded-lg hover:bg-green-50"
+                        onClick={() => handleEdit(item?._id)}
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </button>
+                      <button
+                        className="text-slate-400 hover:text-red-700 p-1 rounded-lg hover:bg-red-50"
+                        onClick={() => handleDeleteOpen(item?._id)}
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan="5"
+                  className="px-6 py-4 text-center text-gray-500 text-sm"
+                >
+                  No data available
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </StyledTable>
       )}
@@ -227,7 +244,6 @@ const TriggerEvents = () => {
         onClose={() => {
           setAddOpen(false);
           setEditData({});
-
         }}
         onSuccess={() => {
           setEditData({});

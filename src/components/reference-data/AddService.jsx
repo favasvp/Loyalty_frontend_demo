@@ -1,21 +1,39 @@
-import {
-  ArrowUpTrayIcon,
-  XMarkIcon,
-  PlusIcon,
-} from "@heroicons/react/24/outline";
-import React, { useEffect, useState } from "react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import StyledButton from "../../ui/StyledButton";
 import useUiStore from "../../store/ui";
 import { useTriggerServices } from "../../hooks/useTriggerServices";
 import { useTriggerEvents } from "../../hooks/useTriggerEvents";
 import Select from "react-select";
 
+const serviceSchema = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  description: z.string().min(5, "Description must be at least 5 characters"),
+  triggerEvent: z
+    .array(z.string())
+    .nonempty("At least one event must be selected"),
+});
+
 const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    triggerEvent: [],
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(serviceSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      triggerEvent: [],
+    },
   });
+
   const { useCreateTriggerService, useUpdateTriggerService } =
     useTriggerServices();
   const createMutation = useCreateTriggerService();
@@ -23,34 +41,27 @@ const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
   const { addToast } = useUiStore();
   const { useGetTriggerEvents } = useTriggerEvents();
   const { data: triggerEvents } = useGetTriggerEvents();
+
   useEffect(() => {
     if (editData?.data) {
-      setFormData({
+      reset({
         title: editData.data.title || "",
         description: editData.data.description || "",
         triggerEvent:
-          editData.data.triggerEvent.map((event) => event._id) || [], // Extracting IDs
+          editData.data.triggerEvent.map((event) => event._id) || [],
       });
     }
-  }, [editData]);
+  }, [editData, reset]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const onSubmit = (formData) => {
     if (editData) {
       updateMutation.mutate(
-        {
-          id: editData?.data?._id,
-          triggerServiceData: formData,
-        },
+        { id: editData?.data?._id, triggerServiceData: formData },
         {
           onSuccess: (data) => {
-            addToast({
-              type: "success",
-              message: data?.message,
-            });
+            addToast({ type: "success", message: data?.message });
             onSuccess?.();
-            onClose?.();
+            resetAndClose();
           },
           onError: (error) => {
             addToast({
@@ -63,44 +74,28 @@ const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
     } else {
       createMutation.mutate(formData, {
         onSuccess: (data) => {
-          addToast({
-            type: "success",
-            message: data?.message,
-          });
+          addToast({ type: "success", message: data?.message });
           onSuccess?.();
-          onClose?.();
+          resetAndClose();
         },
         onError: (error) => {
-          addToast({
-            type: "error",
-            message: error?.response?.data?.message,
-          });
+          addToast({ type: "error", message: error?.response?.data?.message });
         },
-      });
-      setFormData({
-        title: "",
-        description: "",
-        triggerEvent: "",
       });
     }
   };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const resetAndClose = () => {
+    reset({
+      title: "",
+      description: "",
+      triggerEvent: [],
+    });
+    onClose();
   };
-
   if (!isOpen) return null;
-  const handleTriggerEventChange = (selectedOptions) => {
-    setFormData((prev) => ({
-      ...prev,
-      triggerEvent: selectedOptions.map((option) => option.value),
-    }));
-  };
+  const inputClass =
+    "w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors";
+  const labelClass = "block text-xs font-medium text-gray-500 mb-1";
   return (
     <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 mt-10">
       <div className="bg-white rounded-lg w-full max-w-md p-6">
@@ -109,91 +104,84 @@ const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
             {editData ? "Edit" : "Add Service"}
           </h2>
           <button
-            onClick={() => {
-              setFormData({
-                title: "",
-                description: "",
-                triggerEvent: [],
-              });
-              onClose();
-            }}
+            onClick={resetAndClose}
             className="text-gray-400 hover:text-gray-500 cursor-pointer"
           >
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Title
-            </label>
+            <label className={labelClass}>Title</label>
             <input
-              type="text"
-              name="title"
-              value={formData.title}
+              {...register("title")}
               placeholder="Enter Name"
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-              required
+              className={inputClass}
             />
+            {errors.title && (
+              <p className="text-red-500 text-sm">{errors.title.message}</p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
-            </label>
+            <label className={labelClass}>Description</label>
             <textarea
-              name="description"
-              value={formData.description}
+              {...register("description")}
               placeholder="Enter description"
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-              required
+              className={inputClass}
             />
+            {errors.description && (
+              <p className="text-red-500 text-sm">
+                {errors.description.message}
+              </p>
+            )}
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Trigger Event
-            </label>
+            <label className={labelClass}>Trigger Event</label>
             <Select
               isMulti
-              name="triggerEvent"
               options={triggerEvents?.data?.map((event) => ({
                 value: event._id,
                 label: event.name,
               }))}
               value={triggerEvents?.data
-                ?.filter((event) => formData.triggerEvent?.includes(event._id))
-                .map((event) => ({
-                  value: event._id,
-                  label: event.name,
-                }))}
-              onChange={handleTriggerEventChange}
-              className="basic-multi-select"
+                ?.filter((event) => watch("triggerEvent").includes(event._id))
+                .map((event) => ({ value: event._id, label: event.name }))}
+              onChange={(selectedOptions) =>
+                setValue(
+                  "triggerEvent",
+                  selectedOptions.map((option) => option.value)
+                )
+              }
+              className={`basic-multi-select`}
               classNamePrefix="select"
               styles={{
-                control: (base, state) => ({
-                  ...base,
-                  borderColor: state.isFocused ? "green" : "gray",
-                  boxShadow: state.isFocused ? "0 0 0 2px lightgreen" : "none",
-                  "&:hover": { borderColor: "darkgreen" },
+                control: (provided) => ({
+                  ...provided,
+                  border: "1px solid #E5E7EB",
+                  borderRadius: "0.375rem",
+                  padding: "2px",
+                  boxShadow: "none",
+                  "&:hover": {
+                    borderColor: "#10B981",
+                  },
                 }),
               }}
             />
+
+            {errors.triggerEvent && (
+              <p className="text-red-500 text-sm">
+                {errors.triggerEvent.message}
+              </p>
+            )}
           </div>
 
           <div className="flex justify-end gap-3 mt-6">
             <StyledButton
               name="Cancel"
-              onClick={() => {
-                setFormData({
-                  title: "",
-                  description: "",
-                  triggerEvent: [],
-                });
-                onClose();
-              }}
+              onClick={resetAndClose}
               variant="tertiary"
             />
             <StyledButton

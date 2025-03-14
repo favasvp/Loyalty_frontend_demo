@@ -59,7 +59,7 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
   const handleChange = (e, index) => {
     const { name, value } = e.target;
     if (name === "eventType") {
-      setSelectedEventId(value); 
+      setSelectedEventId(value);
     }
     if (["paymentMethod", "pointType", "pointRate"].includes(name)) {
       const updatedPointSystem = [...formData.pointSystem];

@@ -4,56 +4,71 @@ import {
   PlusIcon,
 } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import StyledButton from "../../ui/StyledButton";
 import { useTriggerEvents } from "../../hooks/useTriggerEvents";
 import useUiStore from "../../store/ui";
 
+const eventSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  icon: z.string().url("Invalid image URL"),
+  description: z.string().min(1, "Description is required"),
+  tags: z.array(z.string()).optional(),
+});
+
 const AddEvent = ({ isOpen, onClose, onSuccess, editData }) => {
-  const [formData, setFormData] = useState({
-    name: "",
-    icon: "",
-    description: "",
-    tags: [],
-  });
   const [imagePreview, setImagePreview] = useState(null);
   const [tagInput, setTagInput] = useState("");
+
   const { useCreateTriggerEvent, useUpdateTriggerEvent } = useTriggerEvents();
   const createMutation = useCreateTriggerEvent();
   const updateMutation = useUpdateTriggerEvent();
   const { addToast } = useUiStore();
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    getValues,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(eventSchema),
+    defaultValues: {
+      name: "",
+      icon: "",
+      description: "",
+      tags: [],
+    },
+  });
+
+  const watchedTags = watch("tags");
+
   useEffect(() => {
     if (editData) {
-      setFormData(
-        {
-          name: editData?.data?.name,
-          icon: editData?.data?.icon,
-          description: editData?.data?.description,
-          tags: editData?.data?.tags,
-        },
-        {
-          icon: editData?.data?.icon,
-        }
-      );
-      setImagePreview(editData?.data?.icon);
+      const { name, icon, description, tags } = editData?.data || {};
+      reset({
+        name: name || "",
+        icon: icon || "",
+        description: description || "",
+        tags: tags || [],
+      });
+      setImagePreview(icon);
     }
-  }, [editData]);
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  }, [editData, reset]);
 
+  const onSubmit = async (data) => {
     if (editData) {
       updateMutation.mutate(
+        { id: editData?.data?._id, triggerEventData: data },
         {
-          id: editData?.data?._id,
-          triggerEventData: formData,
-        },
-        {
-          onSuccess: (data) => {
-            addToast({
-              type: "success",
-              message: data?.message,
-            });
+          onSuccess: (response) => {
+            addToast({ type: "success", message: response?.message });
             onSuccess?.();
-            onClose?.();
+            resetAndClose();
           },
           onError: (error) => {
             addToast({
@@ -64,143 +79,112 @@ const AddEvent = ({ isOpen, onClose, onSuccess, editData }) => {
         }
       );
     } else {
-      createMutation.mutate(formData, {
-        onSuccess: (data) => {
-          addToast({
-            type: "success",
-            message: data?.message,
-          });
+      createMutation.mutate(data, {
+        onSuccess: (response) => {
+          addToast({ type: "success", message: response?.message });
           onSuccess?.();
-          onClose?.();
+          resetAndClose();
         },
         onError: (error) => {
-          addToast({
-            type: "error",
-            message: error?.response?.data?.message,
-          });
+          addToast({ type: "error", message: error?.response?.data?.message });
         },
-      });
-      setFormData({
-        name: "",
-        icon: "",
-        description: "",
-        tags: [],
       });
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
+  const resetAndClose = () => {
+    setImagePreview(null);
+    setTagInput("");
+    reset({
+      name: "",
+      icon: "",
+      description: "",
+      tags: [],
+    });
+    onClose();
+  };
 
-    if (name === "icon" && files?.length > 0) {
-      const file = files[0];
-      setFormData((prev) => ({
-        ...prev,
-        icon: "https://cdn.scoreapp.com/site/uploads/2024/09/Common-issues-of-organising-events_-1024x512.png",
-      }));
-      setImagePreview(
-        "https://cdn.scoreapp.com/site/uploads/2024/09/Common-issues-of-organising-events_-1024x512.png"
-      );
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const imageUrl = "https://cdn.scoreapp.com/site/uploads/2024/09/Common-issues-of-organising-events_-1024x512.png"
+      setImagePreview(imageUrl);
+      setValue("icon", imageUrl);
     }
   };
 
   const handleAddTag = () => {
-    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
-      setFormData((prev) => ({
-        ...prev,
-        tags: [...prev.tags, tagInput.trim()],
-      }));
+    if (tagInput.trim()) {
+      const currentTags = getValues("tags") || [];
+      setValue("tags", [...currentTags, tagInput.trim()]);
       setTagInput("");
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleAddTag();
-    }
-  };
-
-  const handleRemoveTag = (index) => {
-    setFormData((prev) => ({
-      ...prev,
-      tags: prev.tags.filter((_, i) => i !== index),
-    }));
+  const handleRemoveTag = (indexToRemove) => {
+    const currentTags = getValues("tags") || [];
+    const updatedTags = currentTags?.filter(
+      (_, index) => index !== indexToRemove
+    );
+    setValue("tags", updatedTags);
   };
 
   if (!isOpen) return null;
-
+  const inputClass =
+    "w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors";
+  const labelClass = "block text-xs font-medium text-gray-500 mb-1";
   return (
     <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 mt-10">
       <div className="bg-white rounded-lg w-full max-w-2xl p-4 max-h-[80vh] min-h-[300px] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">{editData ? "Edit" : "Add Event"}</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            {editData ? "Edit Event" : "Add Event"}
+          </h2>
           <button
-            onClick={() => {
-              setFormData({
-                tags:[],
-                description:"",
-                icon:"",
-                name:""
-              });
-              setImagePreview(null)
-              onClose();
-            }}
+            onClick={resetAndClose}
             className="text-gray-400 hover:text-gray-500 cursor-pointer"
           >
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Title
-            </label>
+            <label className={labelClass}>Title</label>
             <input
+              {...register("name")}
               type="text"
-              name="name"
-              value={formData.name}
               placeholder="Enter Name"
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-              required
+              className={inputClass}
             />
+            {errors.name && (
+              <p className="text-red-500 text-sm">{errors.name.message}</p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Icon
+            <label className={labelClass}>Icon</label>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              id="file-upload"
+              onChange={handleFileChange}
+            />
+            <label
+              htmlFor="file-upload"
+              className="cursor-pointer w-full border border-gray-200 rounded-lg px-3 py-3 flex items-center justify-between"
+            >
+              <span className="text-sm text-gray-700">Choose Image</span>
+              <ArrowUpTrayIcon className="w-5 h-5 text-gray-500" />
             </label>
-            <div className="relative w-full">
-              <input
-                type="file"
-                name="icon"
-                accept="image/*"
-                className="hidden"
-                id="file-upload"
-                onChange={handleChange}
-              />
-              <label
-                htmlFor="file-upload"
-                className="cursor-pointer w-full border border-gray-300 rounded-lg px-3 py-3 flex items-center justify-between"
-              >
-                <span className="text-sm text-gray-700">
-                  {formData.icon ? formData.icon.name : "Choose Image"}
-                </span>
-                <ArrowUpTrayIcon className="w-5 h-5 text-gray-500" />
-              </label>
-            </div>
+            {errors.icon && (
+              <p className="text-red-500 text-sm">{errors.icon.message}</p>
+            )}
           </div>
 
           {imagePreview && (
             <div className="mt-3">
-              <p className="text-sm text-gray-700">Preview:</p>
               <img
                 src={imagePreview}
                 alt="Preview"
@@ -210,84 +194,76 @@ const AddEvent = ({ isOpen, onClose, onSuccess, editData }) => {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
-            </label>
+            <label className={labelClass}>Description</label>
             <textarea
-              name="description"
-              value={formData.description}
+              {...register("description")}
               placeholder="Enter description"
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-              required
+              className={inputClass}
             />
+            {errors.description && (
+              <p className="text-red-500 text-sm">
+                {errors.description.message}
+              </p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tags
-            </label>
+            <label className={labelClass}>Tags</label>
             <div className="relative mb-2">
               <input
                 type="text"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-12 focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="Type and press Enter or Add"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddTag();
+                  }
+                }}
+                className={inputClass}
+                placeholder="Type and press Enter"
               />
               <button
                 type="button"
                 onClick={handleAddTag}
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
-                disabled={!tagInput.trim()}
               >
                 <PlusIcon className="w-4 h-4" />
               </button>
             </div>
 
-            {formData?.tags?.length > 0 && (
-              <div className="flex flex-wrap gap-2 p-2 border border-gray-200 rounded-lg bg-gray-50 min-h-10">
-                {formData?.tags?.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm flex items-center gap-1 transition-all hover:bg-green-200"
+            <div className="flex flex-wrap gap-2">
+              {watchedTags?.map((tag, index) => (
+                <div
+                  key={index}
+                  className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm flex items-center gap-1 border border-green-200 shadow-sm hover:bg-green-200 transition-colors"
+                >
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag(index)}
+                    className="ml-1 p-0.5 rounded-full hover:bg-red-100 text-red-500 focus:outline-none"
                   >
-                    {tag}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveTag(index)}
-                      className="text-green-700 hover:text-red-600 rounded-full w-4 h-4 flex items-center justify-center"
-                    >
-                      <XMarkIcon className="w-3 h-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
+                    <XMarkIcon className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+              {(!watchedTags || watchedTags.length === 0) && (
+                <div className="text-gray-400 text-sm">No tags added yet</div>
+              )}
+            </div>
           </div>
 
           <div className="flex justify-end gap-3 mt-6">
             <StyledButton
               name="Cancel"
-              onClick={() => {
-                setFormData({
-                  tags:[],
-                  description:"",
-                  icon:"",
-                  name:""
-                });
-                setImagePreview(null)
-                onClose();
-              }}
+              onClick={resetAndClose}
               variant="tertiary"
-              // disabled={isLoading}
             />
             <StyledButton
               name={editData ? "Edit" : "Add Event"}
               type="submit"
               variant="primary"
-              // disabled={isLoading}
             />
           </div>
         </form>

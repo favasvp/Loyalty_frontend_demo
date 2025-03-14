@@ -28,7 +28,6 @@ const AddCategory = ({ isOpen, onClose, editData }) => {
     },
   });
   const [imagePreview, setImagePreview] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const { useCreateCategory, useUpdateCategory } = useCategory();
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
@@ -81,11 +80,6 @@ const AddCategory = ({ isOpen, onClose, editData }) => {
             message: error?.response?.data?.message,
           });
         },
-      });
-      setFormData({
-        title: "",
-        image: "",
-        description: "",
       });
     }
   };

@@ -1,15 +1,38 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { XMarkIcon, TrashIcon } from "@heroicons/react/24/outline";
 import StyledButton from "../../ui/StyledButton";
 import { useTiers } from "../../hooks/useTiers";
 import useUiStore from "../../store/ui";
 
+const tierSchema = z.object({
+  name: z.string().min(1, "Tier name is required"),
+  points_required: z
+    .number()
+    .nonnegative("Points required must be 0 or greater"),
+  isActive: z.boolean(),
+  description: z.array(z.string()).optional(),
+});
+
 const AddTier = ({ isOpen, onClose, editData }) => {
-  const [formData, setFormData] = useState({
-    name: "",
-    points_required: "",
-    isActive: true,
-    description: [],
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    getValues,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(tierSchema),
+    defaultValues: {
+      name: "",
+      points_required: "",
+      isActive: true,
+      description: [],
+    },
   });
 
   const { useCreateTier, useUpdateTier } = useTiers();
@@ -19,18 +42,16 @@ const AddTier = ({ isOpen, onClose, editData }) => {
 
   useEffect(() => {
     if (editData) {
-      setFormData({
+      reset({
         name: editData?.data?.name || "",
         points_required: editData?.data?.points_required || "",
         isActive: editData?.data?.isActive ?? true,
         description: editData?.data?.description || [],
       });
     }
-  }, [editData]);
+  }, [editData, reset]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const onSubmit = async (formData) => {
     if (editData?.data) {
       updateMutation.mutate(
         {
@@ -39,11 +60,8 @@ const AddTier = ({ isOpen, onClose, editData }) => {
         },
         {
           onSuccess: (data) => {
-            addToast({
-              type: "success",
-              message: data?.message,
-            });
-            onClose();
+            addToast({ type: "success", message: data?.message });
+            resetAndClose();
           },
           onError: (error) => {
             addToast({
@@ -56,61 +74,28 @@ const AddTier = ({ isOpen, onClose, editData }) => {
     } else {
       createMutation.mutate(formData, {
         onSuccess: (data) => {
-          addToast({
-            type: "success",
-            message: data?.message,
-          });
-          onClose();
+          addToast({ type: "success", message: data?.message });
+          resetAndClose();
         },
         onError: (error) => {
-          addToast({
-            type: "error",
-            message: error?.response?.data?.message,
-          });
+          addToast({ type: "error", message: error?.response?.data?.message });
         },
-      });
-
-      setFormData({
-        name: "",
-        points_required: "",
-        isActive: true,
-        description: [],
       });
     }
   };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleAddDescription = () => {
-    setFormData((prev) => ({
-      ...prev,
-      description: [...prev.description, ""],
-    }));
-  };
-
-  const handleDescriptionChange = (index, value) => {
-    setFormData((prev) => {
-      const newDescriptions = [...prev.description];
-      newDescriptions[index] = value;
-      return { ...prev, description: newDescriptions };
+  const resetAndClose = () => {
+    reset({
+      name: "",
+      points_required: "",
+      isActive: true,
+      description: [],
     });
+    onClose();
   };
-
-  const handleRemoveDescription = (index) => {
-    setFormData((prev) => {
-      const newDescriptions = prev.description.filter((_, i) => i !== index);
-      return { ...prev, description: newDescriptions };
-    });
-  };
-
   if (!isOpen) return null;
-
+  const inputClass =
+    "w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors";
+  const labelClass = "block text-xs font-medium text-gray-500 mb-1";
   return (
     <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 mt-10">
       <div className="bg-white rounded-lg w-full max-w-md p-6">
@@ -119,89 +104,66 @@ const AddTier = ({ isOpen, onClose, editData }) => {
             {editData?.data ? "Edit Tier" : "Add New Tier"}
           </h2>
           <button
-            onClick={() => {
-              setFormData({
-                description: [],
-                isActive: "",
-                name: "",
-                points_required: "",
-              });
-              onClose();
-            }}
+            onClick={resetAndClose}
             className="text-gray-400 hover:text-gray-500 cursor-pointer"
           >
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tier Name
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-              required
-            />
+            <label className={labelClass}>Tier Name</label>
+            <input {...register("name")} className={inputClass} />
+            {errors.name && (
+              <p className="text-red-500 text-sm">{errors.name.message}</p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Points Required
-            </label>
+            <label className={labelClass}>Points Required</label>
             <input
               type="number"
-              name="points_required"
-              value={formData.points_required}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-              required
-              min="0"
+              {...register("points_required", { valueAsNumber: true })}
+              className={inputClass}
             />
+            {errors.points_required && (
+              <p className="text-red-500 text-sm">
+                {errors.points_required.message}
+              </p>
+            )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
-            </label>
-            <select
-              name="isActive"
-              value={formData.isActive}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  isActive: e.target.value === "true",
-                }))
-              }
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-            >
+          {/* <div>
+            <label className={labelClass}>Status</label>
+            <select {...register("isActive")} className={inputClass}>
               <option value="true">Active</option>
               <option value="false">Inactive</option>
             </select>
-          </div>
+          </div> */}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
-            </label>
-            {formData?.description?.map((desc, index) => (
+            <label className={labelClass}>Description</label>
+            {watch("description")?.map((desc, index) => (
               <div key={index} className="flex items-center gap-2 mb-2">
                 <input
                   type="text"
                   value={desc}
-                  onChange={(e) =>
-                    handleDescriptionChange(index, e.target.value)
-                  }
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  required
+                  onChange={(e) => {
+                    const newDesc = [...getValues("description")];
+                    newDesc[index] = e.target.value;
+                    setValue("description", newDesc);
+                  }}
+                  className={inputClass}
                 />
                 <button
                   type="button"
-                  onClick={() => handleRemoveDescription(index)}
+                  onClick={() =>
+                    setValue(
+                      "description",
+                      watch("description").filter((_, i) => i !== index)
+                    )
+                  }
                   className="text-red-500 hover:text-red-700"
                 >
                   <TrashIcon className="w-5 h-5" />
@@ -210,7 +172,9 @@ const AddTier = ({ isOpen, onClose, editData }) => {
             ))}
             <button
               type="button"
-              onClick={handleAddDescription}
+              onClick={() =>
+                setValue("description", [...watch("description"), ""])
+              }
               className="text-green-600 hover:text-green-800 text-sm mt-2"
             >
               + Add Description
@@ -219,16 +183,8 @@ const AddTier = ({ isOpen, onClose, editData }) => {
 
           <div className="flex justify-end gap-3 mt-6">
             <StyledButton
-              name={"Cancel"}
-              onClick={() => {
-                setFormData({
-                  name: "",
-                  points_required: "",
-                  isActive: true,
-                  description: [],
-                });
-                onClose();
-              }}
+              name="Cancel"
+              onClick={resetAndClose}
               variant="tertiary"
             />
             <StyledButton

@@ -82,11 +82,6 @@ const AddBrand = ({ isOpen, onClose, editData }) => {
           });
         },
       });
-      setFormData({
-        title: "",
-        image: "",
-        description: "",
-      });
     }
   };
 

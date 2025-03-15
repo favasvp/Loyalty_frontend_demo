@@ -50,7 +50,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
     setExpandedNav(expandedNav === label ? null : label);
   };
 
-
   const navItems = [
     {
       label: "Dashboard",
@@ -170,10 +169,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           path: "/system-logs",
           icon: CodeBracketIcon,
         },
-       
+
         {
           label: "User-API Logs",
           path: "/api-logs",
+          icon: CommandLineIcon,
+        },
+        {
+          label: "Authentication-Logs",
+          path: "/auth-logs",
           icon: CommandLineIcon,
         },
       ],
@@ -261,7 +265,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       </nav>
 
       <div className="mt-auto flex justify-center py-4 w-full">
-        <button className="text-sm font-medium hover:bg-green-700/50 hover:text-white text-white w-full px-4 py-2 flex items-center gap-2 justify-center"onClick={() => logoutMutation.mutate()}>
+        <button
+          className="text-sm font-medium hover:bg-green-700/50 hover:text-white text-white w-full px-4 py-2 flex items-center gap-2 justify-center"
+          onClick={() => logoutMutation.mutate()}
+        >
           <ArrowLeftEndOnRectangleIcon className="w-5 h-5" /> Logout
         </button>
       </div>

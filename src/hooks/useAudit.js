@@ -25,9 +25,17 @@ export function useAudits() {
       staleTime: 5 * 60 * 1000, // 5 minutes
     });
   };
+  const useAuthLogs = (params) => {
+    return useQuery({
+      queryKey: ["auth-logs", params],
+      queryFn: () => auditApi.getAuthLogs(params),
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    });
+  };
   return {
     useGetAdminLogs,
     useGetLogById,
     useSdkLogs,
+    useAuthLogs,
   };
 }

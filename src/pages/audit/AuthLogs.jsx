@@ -7,7 +7,7 @@ import StyledButton from "../../ui/StyledButton";
 import ViewLog from "../../components/system-and-settings/ViewLog";
 import { EyeDropperIcon, EyeIcon } from "@heroicons/react/24/outline";
 
-const Privacy = () => {
+const AuthLogs = () => {
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [totalCount, setTotalCount] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,13 +20,13 @@ const Privacy = () => {
     status: "",
   });
 
-  const { useGetAdminLogs } = useAudits();
+  const { useAuthLogs } = useAudits();
   const {
     data: logs,
     dataUpdatedAt,
     isLoading,
     refetch,
-  } = useGetAdminLogs({
+  } = useAuthLogs({
     page: currentPage,
     limit: itemsPerPage,
     ...filters,
@@ -132,7 +132,7 @@ const Privacy = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-            System Logs
+            Authentication Logs
           </h1>
           <p className="text-xs text-gray-500 mt-1">
             Last Updated: {new Date(dataUpdatedAt).toLocaleString()}
@@ -271,4 +271,4 @@ const Privacy = () => {
   );
 };
 
-export default Privacy;
+export default AuthLogs;

@@ -1,12 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import customersApi from "../api/customers";
-import useCustomersStore, {
-  selectFilters,
-  selectSorting,
-  selectPagination,
-  selectSelectedCustomerId,
-} from "../store/customers";
 
 /**
  * Custom hook for customer management using TanStack Query
@@ -14,18 +8,7 @@ import useCustomersStore, {
 export function useCustomers() {
   const queryClient = useQueryClient();
 
-  // Get UI state actions from Zustand
-  const {
-    setFilters,
-    setSorting,
-    setPagination,
-    setViewMode,
-    resetFilters,
-    setSelectedCustomerId,
-  } = useCustomersStore();
-
   // Get selected customer ID
-  const selectedCustomerId = useCustomersStore(selectSelectedCustomerId);
 
   // Get all customers
   const useGetCustomers = (params = {}) => {
@@ -119,13 +102,7 @@ export function useCustomers() {
 
   return {
     // UI state actions
-    setFilters,
-    setSorting,
-    setPagination,
-    setViewMode,
-    resetFilters,
-    setSelectedCustomerId,
-    selectedCustomerId,
+  
 
     // Customers hooks
     useGetCustomers,

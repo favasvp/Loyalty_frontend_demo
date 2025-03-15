@@ -10,7 +10,6 @@ import Users from "../pages/system-and-settings/Users";
 import Privacy from "../pages/system-and-settings/Privacy";
 import Role from "../pages/system-and-settings/Role";
 import MerchantOfters from "../pages/ofters-and-promotions/MerchantOfters";
-import RoleLogs from "../pages/audit/RoleLogs";
 import ApiLogs from "../pages/audit/ApiLogs";
 import Apps from "../pages/reference-data/Apps";
 import Brands from "../pages/reference-data/Brands";
@@ -23,6 +22,7 @@ import { AuthProvider } from "../ui/AuthProvider";
 // Root layout with AuthProvider
 import TriggerEvents from "../pages/reference-data/TriggerEvents";
 import TriggerServices from "../pages/reference-data/TriggerServices";
+import AuthLogs from "../pages/audit/AuthLogs";
 const RootLayout = () => (
   <AuthProvider>
     <Outlet />
@@ -53,7 +53,6 @@ const router = createBrowserRouter([
           { path: "/role", element: <Role /> },
           { path: "/merchant-offers", element: <MerchantOfters /> },
           { path: "/system-logs", element: <Privacy /> },
-          { path: "/role-logs", element: <RoleLogs /> },
           { path: "/api-logs", element: <ApiLogs /> },
           { path: "/apps", element: <Apps /> },
           { path: "/brands", element: <Brands /> },
@@ -63,6 +62,7 @@ const router = createBrowserRouter([
           { path: "/theme", element: <Theme /> },
           { path: "/trigger-events", element: <TriggerEvents /> },
           { path: "/trigger-services", element: <TriggerServices /> },
+          { path: "/auth-logs", element: <AuthLogs /> },
         ],
       },
     ],

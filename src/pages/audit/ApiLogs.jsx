@@ -32,6 +32,9 @@ const ApiLogs = () => {
     ...filters,
   });
   useEffect(() => {
+    setCurrentPage(1);
+  }, [itemsPerPage, filters]);
+  useEffect(() => {
     if (logs?.data?.pagination?.total !== undefined) {
       setTotalCount(logs.data.pagination.total);
     }

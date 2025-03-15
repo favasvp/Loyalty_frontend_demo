@@ -20,6 +20,12 @@ const auditApi = {
     });
     return response.data;
   },
+  getAuthLogs: async (params) => {
+    const response = await apiClient.get(`${rootUrl}/authentication-logs`, {
+      params,
+    });
+    return response.data;
+  },
 };
 
 export default auditApi;

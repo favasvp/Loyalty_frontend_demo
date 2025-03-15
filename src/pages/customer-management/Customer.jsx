@@ -11,6 +11,8 @@ import AddCustomer from "../../components/customer-management/AddCustomer.jsx";
 import DeleteModal from "../../ui/DeleteModal";
 import RefreshButton from "../../ui/RefreshButton.jsx";
 import Loader from "../../ui/Loader.jsx";
+import { useCustomers } from "../../hooks/useCustomers.js";
+import useUiStore from "../../store/ui.js";
 
 const Customer = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -19,35 +21,23 @@ const Customer = () => {
   const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState("");
-  const [data, setData] = useState([
-    { id: 1, name: "John Doe", pointsRequired: 120, status: "Active" },
-    { id: 2, name: "Jane Smith", pointsRequired: 90, status: "Inactive" },
-    { id: 3, name: "Alice Johnson", pointsRequired: 150, status: "Active" },
-    { id: 4, name: "Michael Brown", pointsRequired: 80, status: "Pending" },
-    { id: 5, name: "Emily Davis", pointsRequired: 110, status: "Active" },
-  ]);
-  // const fetchData = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const response = await
-  //     setData(response?.data || []);
-  //     setLastUpdated(new Date().toLocaleString());
-  //     setTotalCount(response?.data?totalCount || 0);
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const [data, setData] = useState(null);
+  const { useGetCustomers, useDeleteCustomer, useGetCustomerById } =
+    useCustomers();
+  const { data: customerData } = useGetCustomerById(data?.id);
 
-  // useEffect(() => {
-  //   fetchData();
-  // }, []);
+  const {
+    data: customers,
+    isLoading,
+    error,
+    refetch,
+    dataUpdatedAt,
+  } = useGetCustomers();
+  const deleteMutation = useDeleteCustomer();
+  const { addToast } = useUiStore();
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return data?.slice(startIndex, startIndex + itemsPerPage);
+    return customers?.data?.slice(startIndex, startIndex + itemsPerPage);
   }, [data, currentPage, itemsPerPage]);
   const handleRowSelect = (id) => {
     setSelectedRows((prev) =>
@@ -56,11 +46,35 @@ const Customer = () => {
   };
   const handleEdit = () => {};
   const handleSelectAll = () => {
-    if (selectedRows.length === data.length) {
+    const allRowIds = paginatedData?.map((item) => item?._id) || [];
+    if (selectedRows.length === allRowIds?.length) {
       setSelectedRows([]);
     } else {
-      setSelectedRows(data.map((item) => item.id));
+      setSelectedRows(allRowIds);
     }
+  };
+  const handleBulkDelete = async () => {
+    if (!selectedRows.length) return;
+    await Promise.all(
+      selectedRows.map((id) =>
+        deleteMutation.mutateAsync(id, {
+          onSuccess: () => {
+            addToast({
+              type: "success",
+              message: `Item deleted successfully!`,
+            });
+          },
+          onError: (error) => {
+            addToast({
+              type: "error",
+              message: error?.response?.data?.message,
+            });
+          },
+        })
+      )
+    );
+
+    setSelectedRows([]);
   };
   return (
     <>
@@ -72,13 +86,15 @@ const Customer = () => {
           </h1>
           <p className="text-xs text-gray-500 mt-1">
             {" "}
-            Last Updated: {lastUpdated ? lastUpdated : "Fetching..."}
+            Last Updated: {new Date(dataUpdatedAt).toLocaleString()}
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full md:w-auto">
           <RefreshButton
-            //  onClick={fetchData}
-            isLoading={loading}
+            onClick={() => {
+              refetch();
+            }}
+            isLoading={isLoading}
           />
           <StyledSearchInput
             placeholder="Search"
@@ -104,7 +120,7 @@ const Customer = () => {
           />
         </div>
       </div>
-      {loading ? (
+      {isLoading ? (
         <Loader />
       ) : (
         <StyledTable
@@ -115,6 +131,7 @@ const Customer = () => {
             setCurrentPage,
             setItemsPerPage,
             selectedRows,
+            handleBulkDelete,
           }}
         >
           <thead className="bg-gray-50 w-full">
@@ -123,7 +140,12 @@ const Customer = () => {
                 <input
                   type="checkbox"
                   onChange={handleSelectAll}
-                  checked={selectedRows.length === data.length}
+                  checked={
+                    paginatedData?.length > 0 &&
+                    paginatedData.every((item) =>
+                      selectedRows?.includes(item._id)
+                    )
+                  }
                   className="cursor-pointer w-4 h-4 align-middle"
                 />
               </th>

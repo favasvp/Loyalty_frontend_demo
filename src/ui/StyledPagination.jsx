@@ -18,12 +18,7 @@ const StyledPagination = ({
       setCurrentPage(page);
     }
   };
-  useEffect(() => {
-    setCurrentPage(1); 
-  }, [itemsPerPage]);
-  console.log("====================================");
-  console.log("current Page and total pages", currentPage, totalPages);
-  console.log("====================================");
+
   return (
     <div className="w-full bg-gray-50 border-t border-gray-200 px-4 py-3">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -55,7 +50,7 @@ const StyledPagination = ({
         <div className="flex items-center justify-center gap-2">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage <= 1} 
+            disabled={currentPage <= 1}
             className={`px-3 py-1 rounded-lg transition-all text-xs ${
               currentPage <= 1
                 ? "text-gray-500 cursor-not-allowed"
@@ -71,7 +66,7 @@ const StyledPagination = ({
 
           <button
             onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage >= totalPages} 
+            disabled={currentPage >= totalPages}
             className={`px-3 py-1 rounded-lg transition-all text-xs ${
               currentPage >= totalPages
                 ? "text-gray-500 cursor-not-allowed"

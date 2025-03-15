@@ -1,5 +1,5 @@
 import apiClient from "./client";
-const rootUrl = "/customers";
+const rootUrl = "/customer";
 
 // Customer management API service
 const customersApi = {

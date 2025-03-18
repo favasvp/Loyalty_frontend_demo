@@ -85,13 +85,13 @@ const AuthLogs = () => {
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
           {item?.userEmail}
         </td>
-        <td className="px-6 py-4 whitespace-nowrap text-sm">
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
           {item?.userAgent?.length > 20
             ? item.userAgent.slice(0, 20) + "..."
             : item?.userAgent}
         </td>
 
-        <td className="px-6 py-4 whitespace-nowrap text-sm">{item?.action}</td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item?.action}</td>
         <td className="px-6 py-4 whitespace-nowrap">
           <span
             className={`px-2 py-1 text-xs font-medium rounded-full ${

@@ -1,22 +1,23 @@
 import React, { useState } from "react";
-import { PencilIcon, TrashIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { useRoleSettings } from "../../hooks/useRoleSettings";
+import useUiStore from "../../store/ui";
+
+// UI Components
 import StyledButton from "../../ui/StyledButton";
 import AddRole from "../../components/system-and-settings/AddRole";
 import DeleteModal from "../../ui/DeleteModal";
 import RefreshButton from "../../ui/RefreshButton";
 import Loader from "../../ui/Loader";
-import { useRoleSettings } from "../../hooks/useRoleSettings";
-import useUiStore from "../../store/ui";
+import { PencilIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
 
 const Role = () => {
   const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [data, setData] = useState(null);
+  const [selectedRole, setSelectedRole] = useState(null);
 
-  const { useGetRoleSettings, useDeleteRoleSetting, useGetRoleSettingById } =
-    useRoleSettings();
+  const { useGetRoleSettings, useDeleteRoleSetting, useGetRoleSettingById } = useRoleSettings();
 
-  const { data: roleData } = useGetRoleSettingById(data?.id);
+  const { data: roleData } = useGetRoleSettingById(selectedRole?.id);
   const {
     data: roleSettings,
     isLoading,
@@ -28,17 +29,17 @@ const Role = () => {
   const { addToast } = useUiStore();
 
   const handleDeleteOpen = (id) => {
-    setData(id);
+    setSelectedRole(id);
     setDeleteOpen(true);
   };
 
   const handleEdit = (id) => {
-    setData({ id });
+    setSelectedRole({ id });
     setAddOpen(true);
   };
 
   const handleDelete = () => {
-    deleteMutation.mutate(data, {
+    deleteMutation.mutate(selectedRole, {
       onSuccess: (response) => {
         addToast({
           type: "success",
@@ -53,51 +54,53 @@ const Role = () => {
       },
     });
     setDeleteOpen(false);
-    setData(null);
+    setSelectedRole(null);
   };
 
   const formatDate = (timestamp) => {
     return new Date(timestamp).toLocaleString();
   };
 
-  const DisplayPermissionsGrid = ({ permissions }) => {
-    return (
-      <div className="mt-5 pt-4 border-t border-gray-100">
-        <p className="text-sm font-medium text-gray-700 mb-3">Permissions</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-          {permissions?.map((perm, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <span
-                key={index}
-                className="inline-flex items-center bg-gray-50 text-gray-700 px-2 py-1 text-xs rounded-md"
-              >
-                {perm}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
+  const getPermissionStyle = (permission) => {
+    const permissionLower = permission.toLowerCase();
+    
+    if (permissionLower.includes('view')) {
+      return "bg-blue-50 text-blue-600";
+    } else if (permissionLower.includes('edit')) {
+      return "bg-green-50 text-green-600";
+    } else if (permissionLower.includes('delete')) {
+      return "bg-red-50 text-red-600";
+    } else if (permissionLower.includes('create') || permissionLower.includes('add')) {
+      return "bg-purple-50 text-purple-600";
+    } else if (permissionLower.includes('manage')) {
+      return "bg-amber-50 text-amber-600";
+    } else if (permissionLower.includes('export')) {
+      return "bg-indigo-50 text-indigo-600";
+    } else if (permissionLower.includes('adjust')) {
+      return "bg-teal-50 text-teal-600";
+    } else if (permissionLower.includes('assign')) {
+      return "bg-pink-50 text-pink-600";
+    } else {
+      return "bg-gray-50 text-gray-600";
+    }
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div className="max-w-6xl mx-auto px-4 py-12">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">
-            Role & Access Management
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-medium text-gray-800">Roles & Permissions</h1>
+          <p className="text-xs text-gray-500 mt-1">
             Last Updated: {formatDate(dataUpdatedAt)}
           </p>
         </div>
-        <div className="flex items-center gap-4 w-full md:w-auto">
+        <div className="flex items-center gap-3 mt-4 md:mt-0">
           <RefreshButton onClick={refetch} isLoading={isLoading} />
           <StyledButton
             name={
-              <span className="flex items-center gap-2">
-                <PlusIcon className="w-4 h-4" /> Add Role
-              </span>
+             <> <span className="flex items-center gap-2">
+                +
+              </span> New Role</>
             }
             onClick={() => setAddOpen(true)}
           />
@@ -105,35 +108,31 @@ const Role = () => {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-12">
+        <div className="flex justify-center py-16">
           <Loader />
         </div>
       ) : (
-        <div className="space-y-8">
+        <div className="grid grid-cols-1 gap-6">
           {roleSettings?.data?.map((role) => (
             <div
               key={role?._id}
-              className="bg-white shadow-md rounded-lg p-6 border border-gray-100 hover:border-green-200 hover:shadow-lg transition-all duration-300"
+              className="bg-white rounded-lg p-6 border border-gray-100 transition-all duration-300 hover:shadow-sm hover:border-green-100"
             >
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <h3 className="text-lg font-medium text-gray-800">
-                    {role?.name}
-                  </h3>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {role?.description}
-                  </p>
+                  <h3 className="text-lg font-medium text-gray-800">{role?.name}</h3>
+                  <p className="text-sm text-gray-500 mt-1">{role?.description}</p>
                 </div>
-                <div className="flex space-x-2 ml-3">
+                <div className="flex space-x-1">
                   <button
-                    className="text-gray-400 hover:text-green-600 p-1.5 rounded-md hover:bg-green-50 transition-colors"
+                    className="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-50 transition-colors"
                     onClick={() => handleEdit(role?._id)}
                     aria-label="Edit role"
                   >
-                    <PencilIcon className="w-4 h-4" />
+                   <PencilIcon className="w-4 h-4" />
                   </button>
                   <button
-                    className="text-gray-400 hover:text-red-600 p-1.5 rounded-md hover:bg-red-50 transition-colors"
+                    className="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-gray-50 transition-colors"
                     onClick={() => handleDeleteOpen(role?._id)}
                     aria-label="Delete role"
                   >
@@ -142,9 +141,30 @@ const Role = () => {
                 </div>
               </div>
 
-              <DisplayPermissionsGrid permissions={role?.permissions} />
+              {role?.permissions?.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-50">
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Permissions</p>
+                  <div className="flex flex-wrap gap-2">
+                    {role?.permissions?.map((permission, index) => (
+                     <span
+                     key={index}
+                     className={`inline-flex items-center px-3 py-1 text-xs rounded-lg ${getPermissionStyle(permission)}`}
+                   >
+                     {permission.toLowerCase()}
+                   </span>
+                   
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ))}
+          
+          {roleSettings?.data?.length === 0 && (
+            <div className="text-center py-16 text-gray-500">
+              <p>No roles found. Create your first role to get started.</p>
+            </div>
+          )}
         </div>
       )}
 
@@ -152,7 +172,7 @@ const Role = () => {
         isOpen={addOpen}
         onClose={() => {
           setAddOpen(false);
-          setData(null);
+          setSelectedRole(null);
         }}
         editData={roleData}
       />

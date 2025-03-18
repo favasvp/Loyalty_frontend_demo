@@ -34,7 +34,7 @@ const Redemption = () => {
               <div>
                 <p className="text-xs text-gray-500">Minimum Points</p>
                 <p className="font-medium text-gray-800">
-                  {ruleData?.data[0]?.minimum_points_required}
+                  {ruleData?.data?.minimum_points_required}
                 </p>
               </div>
             </div>
@@ -44,7 +44,7 @@ const Redemption = () => {
               <div>
                 <p className="text-xs text-gray-500">Max Points/Day</p>
                 <p className="font-medium text-gray-800">
-                  {ruleData?.data[0]?.maximum_points_per_day}
+                  {ruleData?.data?.maximum_points_per_day}
                 </p>
               </div>
             </div>
@@ -56,7 +56,7 @@ const Redemption = () => {
               Tier Multipliers
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              {ruleData?.data[0]?.tier_multipliers?.map(
+              {ruleData?.data?.tier_multipliers?.map(
                 ({ tier_id, multiplier }) => (
                   <div
                     key={tier_id?.name}
@@ -99,7 +99,7 @@ const Redemption = () => {
       <AddRedemption
         isOpen={open}
         onClose={() => setOpen(false)}
-        editData={ruleData?.data[0]}
+        editData={ruleData?.data}
       />
     </div>
   );

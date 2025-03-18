@@ -160,7 +160,7 @@ const TriggerServices = () => {
                   checked={
                     paginatedData?.length > 0 &&
                     paginatedData.every((item) =>
-                      selectedRows?.includes(item._id)
+                      selectedRows?.includes(item?._id)
                     )
                   }
                   className="cursor-pointer w-4 h-4 align-middle"
@@ -199,7 +199,7 @@ const TriggerServices = () => {
                     {item?.description}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 py-1 text-xs font-medium rounded-full">
+                    <span className="px-2 py-1 text-sm text-gray-500  rounded-full">
                       {item?.triggerEvent
                         ?.map((event) => event.name)
                         .join(", ")}

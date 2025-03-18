@@ -73,10 +73,10 @@ export const Conversion = () => {
       </div>
 
       <div className="mb-6">
-        <p className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
+        {/* <p className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
           <ChartBarIcon className="w-4 h-4 text-indigo-500" />
           Tier Bonuses (%)
-        </p>
+        </p> */}
         {/* <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {Object.entries(ruleData?.data[0]?.tierBonuses || {})?.map(([tier, bonus]) => (
             <div

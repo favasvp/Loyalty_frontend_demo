@@ -5,7 +5,7 @@ import {
 } from "@heroicons/react/24/outline";
 import StyledButton from "../../ui/StyledButton";
 import StyledSearchInput from "../../ui/StyledSearchInput";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import StyledTable from "../../ui/StyledTable";
 import AddCustomer from "../../components/customer-management/AddCustomer.jsx";
 import DeleteModal from "../../ui/DeleteModal";
@@ -32,19 +32,52 @@ const Customer = () => {
     error,
     refetch,
     dataUpdatedAt,
-  } = useGetCustomers();
+  } = useGetCustomers({ page: currentPage, limit: itemsPerPage });
   const deleteMutation = useDeleteCustomer();
   const { addToast } = useUiStore();
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return customers?.data?.slice(startIndex, startIndex + itemsPerPage);
-  }, [data, currentPage, itemsPerPage]);
+    return customers?.data?.customers?.slice(
+      startIndex,
+      startIndex + itemsPerPage
+    );
+  }, [customers?.data, currentPage, itemsPerPage]);
+  useEffect(() => {
+    if (customers?.data?.pagination?.total !== undefined) {
+      setTotalCount(customers?.data?.pagination?.total);
+    }
+  }, [customers]);
   const handleRowSelect = (id) => {
     setSelectedRows((prev) =>
       prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
     );
   };
-  const handleEdit = () => {};
+  const handleEdit = (id) => {
+    setData({ id });
+    setAddOpen(true);
+  };
+  const handleDeleteOpen = async (id) => {
+    setData(id);
+    setDeleteOpen(true);
+  };
+  const handleDelete = () => {
+    deleteMutation.mutate(data, {
+      onSuccess: (response) => {
+        addToast({
+          type: "success",
+          message: response?.message,
+        });
+      },
+      onError: (error) => {
+        addToast({
+          type: "error",
+          message: error?.response?.data?.message,
+        });
+      },
+    });
+    setDeleteOpen(false);
+    setData(null);
+  };
   const handleSelectAll = () => {
     const allRowIds = paginatedData?.map((item) => item?._id) || [];
     if (selectedRows.length === allRowIds?.length) {
@@ -153,10 +186,19 @@ const Customer = () => {
                 Name
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Points
+                Email
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
+                Phone
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Tier
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                App Type
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                status
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
@@ -164,58 +206,86 @@ const Customer = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {paginatedData?.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50">
-                <td className="px-4 py-4">
-                  <input
-                    type="checkbox"
-                    onChange={() => handleRowSelect(item.id)}
-                    checked={selectedRows.includes(item.id)}
-                    className="cursor-pointer"
-                  />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item.name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {item.pointsRequired}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 py-1 text-xs font-medium rounded-full">
-                    {item.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <button
-                      className="text-slate-400 hover:text-green-700 p-1 rounded-lg hover:bg-green-50"
-                      onClick={() => handleEdit(item.id)}
+            {paginatedData?.length > 0 ? (
+              paginatedData?.map((item) => (
+                <tr key={item.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-4">
+                    <input
+                      type="checkbox"
+                      onChange={() => handleRowSelect(item?.id)}
+                      checked={selectedRows.includes(item?.id)}
+                      className="cursor-pointer"
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item?.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {item?.email}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item?.phone}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {item?.tier?.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {item?.app_type?.map((type) => type.name).join(", ")}
+                  </td>
+
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        item?.status
+                          ? "bg-green-200 text-green-800"
+                          : "bg-red-200 text-red-800"
+                      }`}
                     >
-                      <PencilIcon className="w-4 h-4" />
-                    </button>
-                    <button
-                      className="text-slate-400 hover:text-red-700 p-1 rounded-lg hover:bg-red-50"
-                      onClick={() => setDeleteOpen(true)}
-                    >
-                      <TrashIcon className="w-4 h-4" />
-                    </button>
-                  </div>
+                      {item?.status ? "Active" : "Inactive"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="text-slate-400 hover:text-green-700 p-1 rounded-lg hover:bg-green-50"
+                        onClick={() => handleEdit(item?._id)}
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </button>
+                      <button
+                        className="text-slate-400 hover:text-red-700 p-1 rounded-lg hover:bg-red-50"
+                        onClick={() => handleDeleteOpen(item?._id)}
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan="8"
+                  className="px-6 py-4 text-center text-gray-500 text-sm"
+                >
+                  No data available
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </StyledTable>
       )}
       <AddCustomer
         isOpen={addOpen}
-        onClose={() => setAddOpen(false)}
-        onSuccess={() => setAddOpen(false)}
+        onClose={() => {
+          setAddOpen(false);
+          setData(null);
+        }}
+        editData={customerData}
       />
       <DeleteModal
         data={"Customer"}
         isOpen={deleteOpen}
         onClose={() => setDeleteOpen(false)}
-        onConfirm={() => setDeleteOpen(false)}
+        onConfirm={handleDelete}
       />
     </>
   );

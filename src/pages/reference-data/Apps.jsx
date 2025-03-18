@@ -51,7 +51,7 @@ const Apps = () => {
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
           <img src={item?.icon} alt="icon" className="w-6 h-6 object-contain" />
         </td>
-        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
           {item?.description}
         </td>
         <td className="px-6 py-4 whitespace-nowrap">

@@ -93,7 +93,7 @@ const AddConversion = ({ isOpen, onClose, editData }) => {
           <div className="grid grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Points per Coin
+                Minimum Points
               </label>
               <input
                 type="number"
@@ -105,7 +105,7 @@ const AddConversion = ({ isOpen, onClose, editData }) => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Minimum Points
+               Points per Coin
               </label>
               <input
                 type="number"

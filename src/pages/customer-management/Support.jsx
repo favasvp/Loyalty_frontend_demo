@@ -135,16 +135,7 @@ console.log('====================================');
             placeholder="Search"
             className="w-full sm:w-auto"
           />
-          <StyledButton
-            name={
-              <>
-                <span className="text-lg leading-none">+</span> Add Tier
-              </>
-            }
-            onClick={() => {
-              setOpen(true);
-            }}
-          />
+       
         </div>
       </div>
       {isLoading ? (

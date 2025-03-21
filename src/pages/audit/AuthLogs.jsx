@@ -90,7 +90,10 @@ const AuthLogs = () => {
             ? item.userAgent.slice(0, 20) + "..."
             : item?.userAgent}
         </td>
-
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          {" "}
+          {new Date(item?.createdAt).toLocaleString()}
+        </td>
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item?.action}</td>
         <td className="px-6 py-4 whitespace-nowrap">
           <span
@@ -243,6 +246,9 @@ const AuthLogs = () => {
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Agent
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                 Time
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Action

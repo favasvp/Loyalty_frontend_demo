@@ -198,7 +198,7 @@ const Customer = () => {
                 App Type
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                status
+                Login Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
@@ -223,12 +223,21 @@ const Customer = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {item?.email}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item?.phone}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {item?.phone}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {item?.tier?.name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {item?.app_type?.map((type) => type.name).join(", ")}
+                    {item?.app_type?.map((type, index) => (
+                      <span
+                        key={index}
+                        className="mr-2 px-2 py-1 bg-gray-200 text-gray-700  rounded-lg"
+                      >
+                        {type.name}
+                      </span>
+                    ))}
                   </td>
 
                   <td className="px-6 py-4 whitespace-nowrap">

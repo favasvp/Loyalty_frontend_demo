@@ -78,6 +78,10 @@ const Tiers = () => {
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
           {item?.points_required}
         </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          {Array.isArray(item?.description) ? item.description.join(", ") : ""}
+        </td>
+
         <td className="px-6 py-4 whitespace-nowrap">
           <span
             className={`px-2 py-1 text-xs font-medium rounded-full ${
@@ -160,6 +164,9 @@ const Tiers = () => {
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Points
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Description
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status

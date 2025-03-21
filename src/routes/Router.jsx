@@ -23,6 +23,7 @@ import { AuthProvider } from "../ui/AuthProvider";
 import TriggerEvents from "../pages/reference-data/TriggerEvents";
 import TriggerServices from "../pages/reference-data/TriggerServices";
 import AuthLogs from "../pages/audit/AuthLogs";
+import Support from "../pages/customer-management/Support";
 const RootLayout = () => (
   <AuthProvider>
     <Outlet />
@@ -63,6 +64,7 @@ const router = createBrowserRouter([
           { path: "/trigger-events", element: <TriggerEvents /> },
           { path: "/trigger-services", element: <TriggerServices /> },
           { path: "/auth-logs", element: <AuthLogs /> },
+          { path: "/support", element: <Support /> },
         ],
       },
     ],

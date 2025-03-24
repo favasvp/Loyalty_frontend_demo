@@ -20,7 +20,7 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/10 z-50">
       <div className="relative bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[80vh] overflow-hidden flex flex-col mt-17">
-        {/* Header */}
+      
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
             {selectedCriteria?.data?.appType?.icon && (

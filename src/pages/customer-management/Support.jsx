@@ -9,6 +9,7 @@ import moment from "moment/moment";
 import { useCustomers } from "../../hooks/useCustomers";
 import CustomerView from "../../components/customer-management/CustomerView";
 import TicketView from "../../components/customer-management/TicketView";
+import { EyeIcon } from "@heroicons/react/24/outline";
 
 const Support = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -16,7 +17,7 @@ const Support = () => {
   const [view, setView] = useState(false);
   const [viewDetails, setViewDetails] = useState(false);
   const [data, setData] = useState(null);
-  const[customer, setCustomer] = useState(null);
+  const [customer, setCustomer] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const { useGetSupport, useTicketById } = useSupport();
   const {
@@ -30,9 +31,6 @@ const Support = () => {
   const { data: ticketDetails } = useTicketById(data);
   const tableRows = useMemo(() => {
     const ticketList = ticketData?.data?.tickets;
-console.log('====================================');
-console.log("ticketList", ticketList);
-console.log('====================================');
     if (!ticketList || ticketList?.length === 0) {
       return (
         <tr>
@@ -57,7 +55,7 @@ console.log('====================================');
             setCustomer(item?.customer?._id);
           }}
         >
-          View Full Profile
+          {item?.customer?.name}
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
           {item?.subject}
@@ -105,13 +103,13 @@ console.log('====================================');
           {item?.createdAt ? moment(item.createdAt).format("M/D/YYYY") : "-"}
         </td>
         <td
-          className="px-6 py-4 whitespace-nowrap text-sm text-green-500 cursor-pointer"
+          className="px-6 py-4 whitespace-nowrap text-sm hover:text-green-500 text-slate-400 cursor-pointer"
           onClick={() => {
             setViewDetails(true);
             setData(item?._id);
           }}
         >
-          View Details
+          <EyeIcon className="w-4 h-4" />
         </td>
       </tr>
     ));
@@ -135,7 +133,6 @@ console.log('====================================');
             placeholder="Search"
             className="w-full sm:w-auto"
           />
-       
         </div>
       </div>
       {isLoading ? (

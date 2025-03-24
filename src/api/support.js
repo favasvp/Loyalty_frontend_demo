@@ -16,7 +16,7 @@ const supportApi = {
     return response.data;
   },
   updateStatus: async (id, data) => {
-    const response = await apiClient.put(`${rootUrl}/${id}`, data);
+    const response = await apiClient.patch(`${rootUrl}/${id}/status`, data);
     return response.data;
   },
 };

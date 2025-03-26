@@ -40,46 +40,76 @@ const AddApp = ({ isOpen, onClose, onSuccess, editData }) => {
   useEffect(() => {
     if (editData) {
       reset({
-        name: editData?.data?.name,
-        icon: editData?.data?.icon,
-        description: editData?.data?.description,
-        isActive: editData?.data?.status,
+        name: editData?.data?.name || "",
+        icon: editData?.data?.icon || "",
+        description: editData?.data?.description || "",
+        isActive: editData?.data?.status ?? true, 
       });
-      setImagePreview(editData?.data?.icon);
+      setImagePreview(editData?.data?.icon || null);
     }
   }, [editData, reset]);
 
   const onSubmit = async (data) => {
-    if (editData) {
-      updateMutation.mutate(
-        { id: editData?.data?._id, appTypeData: data },
-        {
+    try {
+      const submitData = {
+        ...data,
+        isActive: data.isActive ?? true, 
+      };
+
+      if (editData) {
+        if (!editData?.data?._id) {
+          addToast({
+            type: "error",
+            message: "Cannot update: Missing App ID",
+          });
+          return;
+        }
+
+        updateMutation.mutate(
+          { 
+            id: editData.data._id, 
+            appTypeData: submitData 
+          },
+          {
+            onSuccess: (res) => {
+              addToast({ type: "success", message: res?.message || "App updated successfully" });
+              onSuccess?.();
+              resetAndClose();
+            },
+            onError: (error) => {
+              console.error('Update Error:', error);
+              addToast({
+                type: "error",
+                message: error?.response?.data?.message || "Failed to update app",
+              });
+            },
+          }
+        );
+      } else {
+        createMutation.mutate(submitData, {
           onSuccess: (res) => {
-            addToast({ type: "success", message: res?.message });
+            addToast({ type: "success", message: res?.message || "App created successfully" });
             onSuccess?.();
             resetAndClose();
           },
           onError: (error) => {
-            addToast({
-              type: "error",
-              message: error?.response?.data?.message,
+            console.error('Create Error:', error);
+            addToast({ 
+              type: "error", 
+              message: error?.response?.data?.message || "Failed to create app" 
             });
           },
-        }
-      );
-    } else {
-      createMutation.mutate(data, {
-        onSuccess: (res) => {
-          addToast({ type: "success", message: res?.message });
-          onSuccess?.();
-          resetAndClose();
-        },
-        onError: (error) => {
-          addToast({ type: "error", message: error?.response?.data?.message });
-        },
+        });
+      }
+    } catch (error) {
+      console.error('Submission Error:', error);
+      addToast({
+        type: "error",
+        message: "An unexpected error occurred",
       });
     }
   };
+
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -89,6 +119,7 @@ const AddApp = ({ isOpen, onClose, onSuccess, editData }) => {
       setValue("icon", imageUrl);
     }
   };
+
   const resetAndClose = () => {
     setImagePreview(null);
     reset({
@@ -99,6 +130,7 @@ const AddApp = ({ isOpen, onClose, onSuccess, editData }) => {
     });
     onClose();
   };
+
   if (!isOpen) return null;
   const inputClass =
     "w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors";

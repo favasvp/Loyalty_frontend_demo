@@ -172,9 +172,9 @@ const AddCustomer = ({ isOpen, onClose, editData }) => {
               }}
             />
 
-            {errors.triggerEvent && (
+            {errors.app_type && (
               <p className="text-red-500 text-sm">
-                {errors.triggerEvent.message}
+                {errors.app_type.message}
               </p>
             )}
           </div>

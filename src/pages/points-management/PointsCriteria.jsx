@@ -14,12 +14,17 @@ import Loader from "../../ui/Loader";
 import { usePointsCriteria } from "../../hooks/usePointsCriteria";
 import AddPointCriteria from "../../components/points-management/AddPointCriteria";
 import PointsCriteriaView from "../../components/points-management/PointsCriteriaView";
+import DeleteModal from "../../ui/DeleteModal";
+import useUiStore from "../../store/ui";
 const PointsCriteria = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [open, setOpen] = useState(false);
-  const { useGetPointsCriteria, useGetPointsCriteriaById } =
+  const { useGetPointsCriteria, useGetPointsCriteriaById,useDeletePointsCriteria } =
     usePointsCriteria();
   const [Id, setId] = useState(null);
+  const [selected, setSelected] = useState(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const deleteMutation = useDeletePointsCriteria();
   const {
     data: pointsCriteriaData,
     isLoading,
@@ -28,7 +33,34 @@ const PointsCriteria = () => {
     dataUpdatedAt,
   } = useGetPointsCriteria();
   const pointsCriteria = pointsCriteriaData?.data;
-
+  const { data: pointsCriteriaById } = useGetPointsCriteriaById(Id);
+  const { addToast } = useUiStore();
+  const handleDelete = () => {
+    deleteMutation.mutate(selected, {
+      onSuccess: (response) => {
+        addToast({
+          type: "success",
+          message: response?.message,
+        });
+      },
+      onError: (error) => {
+        addToast({
+          type: "error",
+          message: error?.response?.data?.message,
+        });
+      },
+    });
+    setDeleteOpen(false);
+    setSelected(null);
+  };
+  const handleDeleteOpen = (id) => {
+    setSelected(id);
+    setDeleteOpen(true);
+  };
+  const handleEdit = (id) => {
+    setId(id);
+    setOpen(true);
+  };
   return (
     <>
       <div>
@@ -69,6 +101,8 @@ const PointsCriteria = () => {
                 }}
                 key={criteria._id}
                 criteria={criteria}
+                onEdit={() => handleEdit(criteria._id)}
+                onDelete={() => handleDeleteOpen(criteria?._id)}
               />
             ))}
           </div>
@@ -81,7 +115,20 @@ const PointsCriteria = () => {
           }}
           open={isModalOpen}
         />
-        <AddPointCriteria isOpen={open} onClose={() => setOpen(false)} />
+        <AddPointCriteria
+          isOpen={open}
+          onClose={() => {
+            setOpen(false);
+            setId(null);
+          }}
+          editData={pointsCriteriaById?.data}
+        />
+        <DeleteModal
+          isOpen={deleteOpen}
+          onClose={() => setDeleteOpen(false)}
+          onConfirm={handleDelete}
+          data={"Points Criteria"}
+        />
       </div>
     </>
   );

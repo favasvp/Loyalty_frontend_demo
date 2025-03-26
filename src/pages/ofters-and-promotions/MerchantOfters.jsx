@@ -11,9 +11,12 @@ import StyledButton from "../../ui/StyledButton";
 import StyledSearchInput from "../../ui/StyledSearchInput";
 import DeleteModal from "../../ui/DeleteModal";
 import Loader from "../../ui/Loader";
+import AddOffer from "../../components/ofters-and-promotions/AddOffer";
 
 const MerchantOffers = () => {
   const [activeView, setActiveView] = useState("grid");
+  const [addOpen, setAddOpen] = useState(false);
+
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState("");
@@ -78,6 +81,9 @@ const MerchantOffers = () => {
                 Offer
               </>
             }
+            onClick={() => {
+              setAddOpen(true);
+            }}
           />
         </div>
       </div>
@@ -238,6 +244,13 @@ const MerchantOffers = () => {
             onClose={() => setDeleteOpen(false)}
             onConfirm={() => setDeleteOpen(false)}
             data={"offer"}
+          />
+          <AddOffer
+            isOpen={addOpen}
+            onClose={() => {
+              setAddOpen(false);
+              // setData(null);
+            }}
           />
         </div>
       )}

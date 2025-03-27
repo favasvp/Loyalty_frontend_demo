@@ -6,9 +6,10 @@ import { useCategory } from "../../hooks/useCategory";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import uploadApi from "../../api/upload";
 const schema = z.object({
   title: z.string().min(1, "Name is required"),
-  image: z.string().url("Invalid image URL"),
+  // image: z.string().url("Invalid image URL"),
   description: z.string().min(5, "Description must be at least 5 characters"),
 });
 const AddCategory = ({ isOpen, onClose, editData }) => {
@@ -43,13 +44,38 @@ const AddCategory = ({ isOpen, onClose, editData }) => {
     }
   }, [editData, reset]);
   const onSubmit = async (data) => {
-    if (editData) {
-      updateMutation.mutate(
-        {
-          id: editData?.data?._id,
-          formData: data,
-        },
-        {
+    try {
+      let imageUrl = data.image;
+      const file = watch("image");
+      if (file instanceof File) {
+        const uploadResponse = await uploadApi.uploadImage(file);
+        imageUrl = uploadResponse.data?.url;
+      }
+      const formDataToSubmit = { ...data, image: imageUrl };
+      if (editData) {
+        updateMutation.mutate(
+          {
+            id: editData?.data?._id,
+            formData: formDataToSubmit,
+          },
+          {
+            onSuccess: (data) => {
+              addToast({
+                type: "success",
+                message: data?.message,
+              });
+              resetAndClose();
+            },
+            onError: (error) => {
+              addToast({
+                type: "error",
+                message: error?.response?.data?.message,
+              });
+            },
+          }
+        );
+      } else {
+        createMutation.mutate(formDataToSubmit, {
           onSuccess: (data) => {
             addToast({
               type: "success",
@@ -63,34 +89,19 @@ const AddCategory = ({ isOpen, onClose, editData }) => {
               message: error?.response?.data?.message,
             });
           },
-        }
-      );
-    } else {
-      createMutation.mutate(data, {
-        onSuccess: (data) => {
-          addToast({
-            type: "success",
-            message: data?.message,
-          });
-          resetAndClose();
-        },
-        onError: (error) => {
-          addToast({
-            type: "error",
-            message: error?.response?.data?.message,
-          });
-        },
-      });
+        });
+      }
+    } catch (error) {
+      addToast({ type: "error", message: error.message });
     }
   };
+
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      const imageUrl =
-        "https://cdn.scoreapp.com/site/uploads/2024/09/Common-issues-of-organising-events_-1024x512.png";
-      setImagePreview(imageUrl);
-      setValue("image", imageUrl);
+      setImagePreview(URL.createObjectURL(file));
+      setValue("image", file);
     }
   };
   const resetAndClose = () => {

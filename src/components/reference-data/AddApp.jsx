@@ -6,10 +6,11 @@ import * as z from "zod";
 import StyledButton from "../../ui/StyledButton";
 import useUiStore from "../../store/ui";
 import { useAppTypes } from "../../hooks/useAppTypes";
+import uploadApi from "../../api/upload";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
-  icon: z.string().url("Invalid image URL"),
+  // icon: z.string().url("Invalid image URL"),
   description: z.string().min(5, "Description must be at least 5 characters"),
   isActive: z.boolean(),
 });
@@ -43,7 +44,7 @@ const AddApp = ({ isOpen, onClose, onSuccess, editData }) => {
         name: editData?.data?.name || "",
         icon: editData?.data?.icon || "",
         description: editData?.data?.description || "",
-        isActive: editData?.data?.status ?? true, 
+        isActive: editData?.data?.status ?? true,
       });
       setImagePreview(editData?.data?.icon || null);
     }
@@ -51,9 +52,16 @@ const AddApp = ({ isOpen, onClose, onSuccess, editData }) => {
 
   const onSubmit = async (data) => {
     try {
+      let imageUrl = data.icon;
+      const file = watch("icon");
+      if (file instanceof File) {
+        const uploadResponse = await uploadApi.uploadImage(file);
+        imageUrl = uploadResponse.data?.url;
+      }
       const submitData = {
         ...data,
-        isActive: data.isActive ?? true, 
+        isActive: data.isActive ?? true,
+        icon: imageUrl,
       };
 
       if (editData) {
@@ -66,21 +74,25 @@ const AddApp = ({ isOpen, onClose, onSuccess, editData }) => {
         }
 
         updateMutation.mutate(
-          { 
-            id: editData.data._id, 
-            appTypeData: submitData 
+          {
+            id: editData.data._id,
+            appTypeData: submitData,
           },
           {
             onSuccess: (res) => {
-              addToast({ type: "success", message: res?.message || "App updated successfully" });
+              addToast({
+                type: "success",
+                message: res?.message || "App updated successfully",
+              });
               onSuccess?.();
               resetAndClose();
             },
             onError: (error) => {
-              console.error('Update Error:', error);
+              console.error("Update Error:", error);
               addToast({
                 type: "error",
-                message: error?.response?.data?.message || "Failed to update app",
+                message:
+                  error?.response?.data?.message || "Failed to update app",
               });
             },
           }
@@ -88,21 +100,24 @@ const AddApp = ({ isOpen, onClose, onSuccess, editData }) => {
       } else {
         createMutation.mutate(submitData, {
           onSuccess: (res) => {
-            addToast({ type: "success", message: res?.message || "App created successfully" });
+            addToast({
+              type: "success",
+              message: res?.message || "App created successfully",
+            });
             onSuccess?.();
             resetAndClose();
           },
           onError: (error) => {
-            console.error('Create Error:', error);
-            addToast({ 
-              type: "error", 
-              message: error?.response?.data?.message || "Failed to create app" 
+            console.error("Create Error:", error);
+            addToast({
+              type: "error",
+              message: error?.response?.data?.message || "Failed to create app",
             });
           },
         });
       }
     } catch (error) {
-      console.error('Submission Error:', error);
+      console.error("Submission Error:", error);
       addToast({
         type: "error",
         message: "An unexpected error occurred",
@@ -113,10 +128,8 @@ const AddApp = ({ isOpen, onClose, onSuccess, editData }) => {
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      const imageUrl =
-        "https://cdn.scoreapp.com/site/uploads/2024/09/Common-issues-of-organising-events_-1024x512.png";
-      setImagePreview(imageUrl);
-      setValue("icon", imageUrl);
+      setImagePreview(URL.createObjectURL(file));
+      setValue("icon", file);
     }
   };
 

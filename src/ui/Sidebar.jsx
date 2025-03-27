@@ -115,7 +115,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           icon: DevicePhoneMobileIcon,
         },
         {
-          label: "Trigger Services",
+          label: "Service Providers",
           path: "/trigger-services",
           icon: ServerIcon,
         },

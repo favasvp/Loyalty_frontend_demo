@@ -13,7 +13,7 @@ import useUiStore from "../../store/ui";
 
 const eventSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  icon: z.string().url("Invalid image URL"),
+  
   description: z.string().min(1, "Description is required"),
   tags: z.array(z.string()).optional(),
 });
@@ -39,7 +39,6 @@ const AddEvent = ({ isOpen, onClose, onSuccess, editData }) => {
     resolver: zodResolver(eventSchema),
     defaultValues: {
       name: "",
-      icon: "",
       description: "",
       tags: [],
     },
@@ -49,14 +48,12 @@ const AddEvent = ({ isOpen, onClose, onSuccess, editData }) => {
 
   useEffect(() => {
     if (editData) {
-      const { name, icon, description, tags } = editData?.data || {};
+      const { name,description, tags } = editData?.data || {};
       reset({
         name: name || "",
-        icon: icon || "",
         description: description || "",
         tags: tags || [],
       });
-      setImagePreview(icon);
     }
   }, [editData, reset]);
 
@@ -97,21 +94,13 @@ const AddEvent = ({ isOpen, onClose, onSuccess, editData }) => {
     setTagInput("");
     reset({
       name: "",
-      icon: "",
       description: "",
       tags: [],
     });
     onClose();
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const imageUrl = "https://cdn.scoreapp.com/site/uploads/2024/09/Common-issues-of-organising-events_-1024x512.png"
-      setImagePreview(imageUrl);
-      setValue("icon", imageUrl);
-    }
-  };
+
 
   const handleAddTag = () => {
     if (tagInput.trim()) {
@@ -162,36 +151,6 @@ const AddEvent = ({ isOpen, onClose, onSuccess, editData }) => {
             )}
           </div>
 
-          <div>
-            <label className={labelClass}>Icon</label>
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              id="file-upload"
-              onChange={handleFileChange}
-            />
-            <label
-              htmlFor="file-upload"
-              className="cursor-pointer w-full border border-gray-200 rounded-lg px-3 py-3 flex items-center justify-between"
-            >
-              <span className="text-sm text-gray-700">Choose Image</span>
-              <ArrowUpTrayIcon className="w-5 h-5 text-gray-500" />
-            </label>
-            {errors.icon && (
-              <p className="text-red-500 text-sm">{errors.icon.message}</p>
-            )}
-          </div>
-
-          {imagePreview && (
-            <div className="mt-3">
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="mt-2 w-32 h-32 object-cover rounded-lg border border-gray-300"
-              />
-            </div>
-          )}
 
           <div>
             <label className={labelClass}>Description</label>

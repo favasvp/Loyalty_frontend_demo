@@ -1,5 +1,5 @@
-import { XMarkIcon } from "@heroicons/react/24/outline";
-import React, { useEffect } from "react";
+import { ArrowUpTrayIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -8,10 +8,12 @@ import useUiStore from "../../store/ui";
 import { useTriggerServices } from "../../hooks/useTriggerServices";
 import { useTriggerEvents } from "../../hooks/useTriggerEvents";
 import Select from "react-select";
+import uploadApi from "../../api/upload";
 
 const serviceSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
   description: z.string().min(5, "Description must be at least 5 characters"),
+  // icon: z.string().url("Invalid image URL"),
   triggerEvent: z
     .array(z.string())
     .nonempty("At least one event must be selected"),
@@ -30,12 +32,14 @@ const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
     defaultValues: {
       title: "",
       description: "",
+      icon: "",
       triggerEvent: [],
     },
   });
 
   const { useCreateTriggerService, useUpdateTriggerService } =
     useTriggerServices();
+  const [imagePreview, setImagePreview] = useState(null);
   const createMutation = useCreateTriggerService();
   const updateMutation = useUpdateTriggerService();
   const { addToast } = useUiStore();
@@ -46,18 +50,43 @@ const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
     if (editData?.data) {
       reset({
         title: editData.data.title || "",
+        icon: editData.data.icon || "",
         description: editData.data.description || "",
         triggerEvent:
           editData.data.triggerEvent.map((event) => event._id) || [],
       });
+      setImagePreview(editData?.data?.icon);
     }
   }, [editData, reset]);
 
-  const onSubmit = (formData) => {
-    if (editData) {
-      updateMutation.mutate(
-        { id: editData?.data?._id, triggerServiceData: formData },
-        {
+  const onSubmit = async (formData) => {
+    try {
+      let imageUrl = formData.icon;
+      const file = watch("icon");
+      if (file instanceof File) {
+        const uploadResponse = await uploadApi.uploadImage(file);
+        imageUrl = uploadResponse.data?.url;
+      }
+      const formDataToSubmit = { ...formData, icon: imageUrl };
+      if (editData) {
+        updateMutation.mutate(
+          { id: editData?.data?._id, triggerServiceData: formDataToSubmit },
+          {
+            onSuccess: (data) => {
+              addToast({ type: "success", message: data?.message });
+              onSuccess?.();
+              resetAndClose();
+            },
+            onError: (error) => {
+              addToast({
+                type: "error",
+                message: error?.response?.data?.message,
+              });
+            },
+          }
+        );
+      } else {
+        createMutation.mutate(formDataToSubmit, {
           onSuccess: (data) => {
             addToast({ type: "success", message: data?.message });
             onSuccess?.();
@@ -69,28 +98,27 @@ const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
               message: error?.response?.data?.message,
             });
           },
-        }
-      );
-    } else {
-      createMutation.mutate(formData, {
-        onSuccess: (data) => {
-          addToast({ type: "success", message: data?.message });
-          onSuccess?.();
-          resetAndClose();
-        },
-        onError: (error) => {
-          addToast({ type: "error", message: error?.response?.data?.message });
-        },
-      });
+        });
+      }
+    } catch (e) {
+      addToast({ type: "error", message: e.message });
     }
   };
   const resetAndClose = () => {
     reset({
       title: "",
       description: "",
+      icon: "",
       triggerEvent: [],
     });
     onClose();
+  };
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
+      setValue("icon", file);
+    }
   };
   if (!isOpen) return null;
   const inputClass =
@@ -137,7 +165,36 @@ const AddService = ({ isOpen, onClose, onSuccess, editData }) => {
               </p>
             )}
           </div>
+          <div>
+            <label className={labelClass}>Icon</label>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              id="file-upload"
+              onChange={handleFileChange}
+            />
+            <label
+              htmlFor="file-upload"
+              className="cursor-pointer w-full border border-gray-200 rounded-lg px-3 py-3 flex items-center justify-between"
+            >
+              <span className="text-sm text-gray-700">Choose Image</span>
+              <ArrowUpTrayIcon className="w-5 h-5 text-gray-500" />
+            </label>
+            {errors.icon && (
+              <p className="text-red-500 text-sm">{errors.icon.message}</p>
+            )}
+          </div>
 
+          {imagePreview && (
+            <div className="mt-3">
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="mt-2 w-32 h-32 object-cover rounded-lg border border-gray-300"
+              />
+            </div>
+          )}
           <div>
             <label className={labelClass}>Trigger Event</label>
             <Select

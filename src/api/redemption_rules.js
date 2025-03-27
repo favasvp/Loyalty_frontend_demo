@@ -17,6 +17,7 @@ const rulesAndExpirySettingsApi = {
     return response.data;
   },
 
+
 };
 
 export default rulesAndExpirySettingsApi;

@@ -31,10 +31,10 @@ const PointsCard = ({ criteria, onClick, onEdit, onDelete }) => {
       </div>
 
       <div className="flex items-center mb-3">
-        {criteria?.eventType?.icon && (
+        {criteria?.serviceType?.icon && (
           <img
-            src={criteria.eventType.icon}
-            alt={criteria.eventType.name}
+            src={criteria.serviceType.icon}
+            alt={criteria.serviceType.name}
             className="w-10 h-10 mr-3 rounded"
           />
         )}

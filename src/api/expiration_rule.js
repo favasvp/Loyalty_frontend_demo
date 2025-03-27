@@ -12,8 +12,16 @@ const rulesAndRedemptionSettingsApi = {
   },
 
   // Update rules and expiry settings
-  updateRules: async (rulesData) => {
+  addRules: async (rulesData) => {
     const response = await apiClient.post(rootUrl, rulesData);
+    return response.data;
+  },
+  updateRules: async (id,rulesData) => {
+    const response = await apiClient.put(`${rootUrl}/${id}`,rulesData);
+    return response.data;
+  },
+  getRulesByAppId: async (appId) => {
+    const response = await apiClient.get(`${rootUrl}/app/${appId}`);
     return response.data;
   },
 

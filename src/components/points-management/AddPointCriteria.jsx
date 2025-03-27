@@ -56,8 +56,6 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
     if (editData) {
       const serviceTypeId =
         editData.serviceType?._id || editData.serviceType || "";
-
-      console.log("ServiceType ID to set:", serviceTypeId);
       setValue("eventType", editData.eventType?._id || "");
       if (serviceTypeId) {
         setValue("serviceType", serviceTypeId);
@@ -96,8 +94,8 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
     }
   }, [editData, setValue, triggerServices]);
   const paymentMethodOptions = [
-    { value: "Khedmah-site", label: "Khedmah-site" },
-    { value: "KhedmahPay-Wallet", label: "KhedmahPay-Wallet" },
+    { value: "Khedmah-Pay", label: "Khedmah-Pay" },
+    { value: "Khedmah-Wallet", label: "Khedmah-Wallet" },
   ];
 
   const pointTypeOptions = [
@@ -211,7 +209,7 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
                 )}
               </div>
               <div>
-                <label className={labelClass}>Trigger Service</label>
+                <label className={labelClass}>Service Provider</label>
                 <select
                   {...register("serviceType", {
                     required: "Trigger Service is required",

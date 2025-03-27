@@ -170,9 +170,7 @@ const TriggerEvents = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Name
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Icon
-              </th>
+          
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Description
               </th>
@@ -197,13 +195,7 @@ const TriggerEvents = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {item?.name}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <img
-                      src={item?.icon}
-                      alt="icon"
-                      className="w-6 h-6 object-contain"
-                    />
-                  </td>
+               
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {item?.description}
                   </td>

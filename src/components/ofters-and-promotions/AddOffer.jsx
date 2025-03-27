@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { XMarkIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useBrands } from "../../hooks/useBrand";
@@ -10,26 +10,38 @@ import { useOffers } from "../../hooks/useOffers";
 import { useTiers } from "../../hooks/useTiers";
 
 const AddOffer = ({ isOpen, onClose, editData }) => {
-  if (!isOpen) return null;
-
+  const [selectedOfferType, setSelectedOfferType] = useState(null);
   const { useGetBrands } = useBrands();
   const { data: merchants } = useGetBrands();
   const { useGetCategory } = useCategory();
   const { data: couponCategories } = useGetCategory();
   const { useGetAppTypes } = useAppTypes();
   const { data: appTypes } = useGetAppTypes();
-  const{useCreateMerchantOffer}=useOffers();
+  const { useCreateMerchantOffer } = useOffers();
   const createMutation = useCreateMerchantOffer();
   const { addToast } = useUiStore();
-  const{useGetTiers}=useTiers();
+  const { useGetTiers } = useTiers();
   const { data: tiers } = useGetTiers();
-  const { 
-    register, 
-    control, 
-    handleSubmit, 
-    setValue, 
-    watch, 
-    formState: { errors } 
+
+  const offerTypes = useMemo(
+    () => [
+      {
+        id: "dynamic",
+        title: "Dynamic Offer",
+        description: "Dynamic offer ",
+      },
+     
+    ],
+    []
+  );
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
   } = useForm({
     defaultValues: {
       code: "",
@@ -56,18 +68,19 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
         maxUsagePerPeriod: 0,
         maxTotalUsage: null,
       },
-      conditions: {
-        appType: [],
-        minTransactionValue: 0,
-        maxTransactionValue: null,
-        applicablePaymentMethods: [],
-      },
+      conditions: [
+        {
+          appType: [],
+          minTransactionValue: 0,
+          maxTransactionValue: null,
+          applicablePaymentMethods: [],
+        }
+      ],
       termsAndConditions: [],
-    }
+    },
   });
 
-  const watchTermsAndConditions = watch("termsAndConditions");
-
+  if (!isOpen) return null;
   const userTypeOptions = [
     { value: "NEW", label: "New Users" },
     { value: "EXISTING", label: "Existing Users" },
@@ -75,23 +88,27 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
     { value: "ALL", label: "All Users" },
   ];
 
-  const appTypeOptions = appTypes?.data?.map(appType => ({
-    value: appType._id,
-    label: appType.name
-  })) || [];
-  const tierOptions = tiers?.data?.map(appType => ({
-    value: appType._id,
-    label: appType.name
-  })) || [];
+  const appTypeOptions =
+    appTypes?.data?.map((appType) => ({
+      value: appType._id,
+      label: appType.name,
+    })) || [];
+
+  const tierOptions =
+    tiers?.data?.map((appType) => ({
+      value: appType._id,
+      label: appType.name,
+    })) || [];
 
   const paymentMethodOptions = [
-    { value: 'Khedmah-site', label: 'Khedmah-site' },
-    { value: 'KhedmahPay-Wallet', label: 'KhedmahPay-Wallet' },
-    { value: 'ALL', label: 'All Payment Methods' }
+    { value: "Khedmah-Pay", label: "Khedmah-Pay" },
+    { value: "Khedmah-Wallet", label: "Khedmah-Wallet" },
   ];
 
+  const watchTermsAndConditions = watch("termsAndConditions");
+
   const onSubmit = (data) => {
-    const formData={
+    const formData = {
       merchantId: data.merchantId,
       title: data.title,
       description: data.description,
@@ -107,8 +124,8 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
         endDate: data.validityPeriod.endDate,
       },
       eligibilityCriteria: {
-        userTypes: data.eligibilityCriteria.userTypes.map(item => item.value),
-        tiers: data.eligibilityCriteria.tiers.map(item => item.value),
+        userTypes: data.eligibilityCriteria.userTypes.map((item) => item.value),
+        tiers: data.eligibilityCriteria.tiers.map((item) => item.value),
         minPointsBalance: data.eligibilityCriteria.minPointsBalance,
       },
       usagePolicy: {
@@ -116,32 +133,31 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
         maxUsagePerPeriod: data.usagePolicy.maxUsagePerPeriod,
         maxTotalUsage: data.usagePolicy.maxTotalUsage,
       },
-      conditions: {
-        appType: data.conditions.appType.map(item => item.value),
-        minTransactionValue: data.conditions.minTransactionValue,
-        maxTransactionValue: data.conditions.maxTransactionValue,
-        applicablePaymentMethods: data.conditions.applicablePaymentMethods.map(item => item.value),
-      },
+      conditions: data.conditions.map(condition => ({
+        appType: condition.appType.map(item => item.value),
+        minTransactionValue: condition.minTransactionValue,
+        maxTransactionValue: condition.maxTransactionValue,
+        applicablePaymentMethods: condition.applicablePaymentMethods.map(item => item.value),
+      })),
       termsAndConditions: data.termsAndConditions,
     };
-      
+
     console.log("Submitting offer:", formData);
-    
+
     createMutation.mutate(formData, {
-        onSuccess: (data) => {
-          addToast({
-            type: "success",
-            message: data?.message,
-          });
-        },
-        onError: (error) => {
-          addToast({
-            type: "error",
-            message: error?.response?.data?.message,
-          });
-        },
-      });
-    // onClose();
+      onSuccess: (data) => {
+        addToast({
+          type: "success",
+          message: data?.message,
+        });
+      },
+      onError: (error) => {
+        addToast({
+          type: "error",
+          message: error?.response?.data?.message,
+        });
+      },
+    });
   };
 
   const addTermsAndCondition = () => {
@@ -154,12 +170,70 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
     const updatedTerms = currentTerms.filter((_, i) => i !== index);
     setValue("termsAndConditions", updatedTerms);
   };
+const handleBack = () => {
+  setSelectedOfferType(null);
+  onClose();
+}
+const addCondition = () => {
+  const currentConditions = watch("conditions") || [];
+  setValue("conditions", [...currentConditions, {
+    appType: [],
+    minTransactionValue: 0,
+    maxTransactionValue: null,
+    applicablePaymentMethods: [],
+  }]);
+};
 
+const removeCondition = (index) => {
+  const currentConditions = watch("conditions") || [];
+  const updatedConditions = currentConditions.filter((_, i) => i !== index);
+  setValue("conditions", updatedConditions);
+};
   const inputClass =
     "w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors";
   const labelClass = "block text-xs font-medium text-gray-500 mb-1";
   const sectionHeadingClass = "text-sm font-medium text-gray-700 mb-3";
   const cardClass = "bg-white p-4 rounded-lg shadow-sm border border-gray-100";
+
+  if (!selectedOfferType) {
+    return (
+      <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg w-full max-w-2xl p-6">
+          <div className="flex justify-between items-center border-b pb-4 mb-4">
+            <h2 className="text-lg font-medium text-gray-800">
+              Select Offer Type
+            </h2>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <XMarkIcon className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            {offerTypes.map((type) => (
+              <div
+                key={type.id}
+                onClick={() => setSelectedOfferType(type.id)}
+                className="border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors group"
+              >
+                <h3 className="text-sm font-semibold text-gray-700 mb-2 group-hover:text-green-600">
+                  {type.title}
+                </h3>
+                <p className="text-xs text-gray-500 group-hover:text-green-500">
+                  {type.description}
+                </p>
+                <div className="mt-3 flex justify-end">
+                  <PlusIcon className="w-5 h-5 text-gray-400 group-hover:text-green-600" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 mt-10">
@@ -169,7 +243,8 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
             {editData ? "Edit Offer" : "Add New Offer"}
           </h2>
           <button
-            onClick={onClose}
+            onClick={handleBack}
+
             className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
           >
             <XMarkIcon className="w-5 h-5" />
@@ -187,21 +262,33 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
                   className={inputClass}
                   placeholder="Enter unique offer code"
                 />
-                {errors.code && <p className="text-red-500 text-xs mt-1">{errors.code.message}</p>}
+                {errors.code && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.code.message}
+                  </p>
+                )}
               </div>
               <div>
                 <label className={labelClass}>Title</label>
                 <input
-                  {...register("title", { required: "Offer title is required" })}
+                  {...register("title", {
+                    required: "Offer title is required",
+                  })}
                   className={inputClass}
                   placeholder="Offer title"
                 />
-                {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>}
+                {errors.title && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.title.message}
+                  </p>
+                )}
               </div>
               <div>
                 <label className={labelClass}>Merchant</label>
                 <select
-                  {...register("merchantId", { required: "Merchant is required" })}
+                  {...register("merchantId", {
+                    required: "Merchant is required",
+                  })}
                   className={inputClass}
                 >
                   <option value="">Select Merchant</option>
@@ -211,12 +298,18 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
                     </option>
                   ))}
                 </select>
-                {errors.merchantId && <p className="text-red-500 text-xs mt-1">{errors.merchantId.message}</p>}
+                {errors.merchantId && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.merchantId.message}
+                  </p>
+                )}
               </div>
               <div>
                 <label className={labelClass}>Coupon Category</label>
                 <select
-                  {...register("couponCategoryId", { required: "Coupon Category is required" })}
+                  {...register("couponCategoryId", {
+                    required: "Coupon Category is required",
+                  })}
                   className={inputClass}
                 >
                   <option value="">Select Coupon Category</option>
@@ -226,18 +319,28 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
                     </option>
                   ))}
                 </select>
-                {errors.couponCategoryId && <p className="text-red-500 text-xs mt-1">{errors.couponCategoryId.message}</p>}
+                {errors.couponCategoryId && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.couponCategoryId.message}
+                  </p>
+                )}
               </div>
             </div>
             <div className="mt-4">
               <label className={labelClass}>Description</label>
               <textarea
-                {...register("description", { required: "Description is required" })}
+                {...register("description", {
+                  required: "Description is required",
+                })}
                 className={inputClass}
                 placeholder="Offer description"
                 rows={3}
               />
-              {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>}
+              {errors.description && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.description.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -247,39 +350,56 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
               <div>
                 <label className={labelClass}>Discount Type</label>
                 <select
-                  {...register("discountDetails.type", { required: "Discount type is required" })}
+                  {...register("discountDetails.type", {
+                    required: "Discount type is required",
+                  })}
                   className={inputClass}
                 >
                   <option value="">Select Type</option>
                   <option value="PERCENTAGE">Percentage</option>
                   <option value="FIXED">Fixed Amount</option>
                 </select>
-                {errors.discountDetails?.type && <p className="text-red-500 text-xs mt-1">{errors.discountDetails.type.message}</p>}
+                {errors.discountDetails?.type && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.discountDetails.type.message}
+                  </p>
+                )}
               </div>
               <div>
                 <label className={labelClass}>Discount Value</label>
                 <input
                   type="number"
-                  {...register("discountDetails.value", { 
+                  {...register("discountDetails.value", {
                     required: "Discount value is required",
-                    min: { value: 0, message: "Discount value must be positive" }
+                    min: {
+                      value: 0,
+                      message: "Discount value must be positive",
+                    },
                   })}
                   className={inputClass}
                   placeholder="Discount amount"
                 />
-                {errors.discountDetails?.value && <p className="text-red-500 text-xs mt-1">{errors.discountDetails.value.message}</p>}
+                {errors.discountDetails?.value && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.discountDetails.value.message}
+                  </p>
+                )}
               </div>
               <div>
                 <label className={labelClass}>Redeemable Points</label>
                 <input
                   type="number"
                   {...register("redeemablePointsCount", {
-                    min: { value: 0, message: "Points must be non-negative" }
+                    min: { value: 0, message: "Points must be non-negative" },
                   })}
                   className={inputClass}
                   placeholder="Points required"
                 />
-                {errors.redeemablePointsCount && <p className="text-red-500 text-xs mt-1">{errors.redeemablePointsCount.message}</p>}
+                {errors.redeemablePointsCount && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.redeemablePointsCount.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -291,25 +411,39 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
                 <label className={labelClass}>Start Date</label>
                 <input
                   type="date"
-                  {...register("validityPeriod.startDate", { required: "Start date is required" })}
+                  {...register("validityPeriod.startDate", {
+                    required: "Start date is required",
+                  })}
                   className={inputClass}
                 />
-                {errors.validityPeriod?.startDate && <p className="text-red-500 text-xs mt-1">{errors.validityPeriod.startDate.message}</p>}
+                {errors.validityPeriod?.startDate && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.validityPeriod.startDate.message}
+                  </p>
+                )}
               </div>
               <div>
                 <label className={labelClass}>End Date</label>
                 <input
                   type="date"
-                  {...register("validityPeriod.endDate", { 
+                  {...register("validityPeriod.endDate", {
                     required: "End date is required",
                     validate: (value) => {
                       const startDate = watch("validityPeriod.startDate");
-                      return !startDate || new Date(value) >= new Date(startDate) || "End date must be after start date";
-                    }
+                      return (
+                        !startDate ||
+                        new Date(value) >= new Date(startDate) ||
+                        "End date must be after start date"
+                      );
+                    },
                   })}
                   className={inputClass}
                 />
-                {errors.validityPeriod?.endDate && <p className="text-red-500 text-xs mt-1">{errors.validityPeriod.endDate.message}</p>}
+                {errors.validityPeriod?.endDate && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.validityPeriod.endDate.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -378,12 +512,19 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
                 <input
                   type="number"
                   {...register("eligibilityCriteria.minPointsBalance", {
-                    min: { value: 0, message: "Minimum points must be non-negative" }
+                    min: {
+                      value: 0,
+                      message: "Minimum points must be non-negative",
+                    },
                   })}
                   className={inputClass}
                   placeholder="Minimum points required"
                 />
-                {errors.eligibilityCriteria?.minPointsBalance && <p className="text-red-500 text-xs mt-1">{errors.eligibilityCriteria.minPointsBalance.message}</p>}
+                {errors.eligibilityCriteria?.minPointsBalance && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.eligibilityCriteria.minPointsBalance.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -394,7 +535,9 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
               <div>
                 <label className={labelClass}>Usage Frequency</label>
                 <select
-                  {...register("usagePolicy.frequency", { required: "Usage frequency is required" })}
+                  {...register("usagePolicy.frequency", {
+                    required: "Usage frequency is required",
+                  })}
                   className={inputClass}
                 >
                   <option value="">Select Frequency</option>
@@ -403,98 +546,148 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
                   <option value="MONTHLY">Monthly</option>
                   <option value="TOTAL">Total</option>
                 </select>
-                {errors.usagePolicy?.frequency && <p className="text-red-500 text-xs mt-1">{errors.usagePolicy.frequency.message}</p>}
+                {errors.usagePolicy?.frequency && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.usagePolicy.frequency.message}
+                  </p>
+                )}
               </div>
               <div>
                 <label className={labelClass}>Max Usage Per Period</label>
                 <input
                   type="number"
-                  {...register("usagePolicy.maxUsagePerPeriod", { 
+                  {...register("usagePolicy.maxUsagePerPeriod", {
                     required: "Max usage is required",
-                    min: { value: 1, message: "Max usage must be at least 1" }
+                    min: { value: 1, message: "Max usage must be at least 1" },
                   })}
                   className={inputClass}
                   placeholder="Max uses"
                 />
-                {errors.usagePolicy?.maxUsagePerPeriod && <p className="text-red-500 text-xs mt-1">{errors.usagePolicy.maxUsagePerPeriod.message}</p>}
+                {errors.usagePolicy?.maxUsagePerPeriod && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.usagePolicy.maxUsagePerPeriod.message}
+                  </p>
+                )}
               </div>
               <div>
                 <label className={labelClass}>Max Total Usage</label>
                 <input
                   type="number"
                   {...register("usagePolicy.maxTotalUsage", {
-                    min: { value: 0, message: "Max total usage must be non-negative" }
+                    min: {
+                      value: 0,
+                      message: "Max total usage must be non-negative",
+                    },
                   })}
                   className={inputClass}
                   placeholder="Unlimited if left blank"
                 />
-                {errors.usagePolicy?.maxTotalUsage && <p className="text-red-500 text-xs mt-1">{errors.usagePolicy.maxTotalUsage.message}</p>}
+                {errors.usagePolicy?.maxTotalUsage && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.usagePolicy.maxTotalUsage.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>
 
           <div className={cardClass}>
-            <h3 className={sectionHeadingClass}>Offer Conditions</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>Applicable App Types</label>
-                <Controller
-                  name="conditions.appType"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      isMulti
-                      options={appTypeOptions}
-                      className="basic-multi-select"
-                      classNamePrefix="select"
-                    />
-                  )}
-                />
-              </div>
-              <div>
-                <label className={labelClass}>Applicable Payment Methods</label>
-                <Controller
-                  name="conditions.applicablePaymentMethods"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      isMulti
-                      options={paymentMethodOptions}
-                      className="basic-multi-select"
-                      classNamePrefix="select"
-                    />
-                  )}
-                />
-              </div>
+            <div className="flex justify-between items-center mb-3">
+              <h3 className={sectionHeadingClass}>Offer Conditions</h3>
+              <button
+                type="button"
+                onClick={addCondition}
+                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs bg-green-50 text-green-600 rounded-md hover:bg-green-100 transition-colors"
+              >
+                <PlusIcon className="w-3.5 h-3.5" />
+                Add Condition
+              </button>
             </div>
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div>
-                <label className={labelClass}>Minimum Transaction Value</label>
-                <input
-                  type="number"
-                  {...register("conditions.minTransactionValue", {
-                    min: { value: 0, message: "Minimum transaction value must be non-negative" }
-                  })}
-                  className={inputClass}
-                  placeholder="Minimum transaction value"
-                />
-                {errors.conditions?.minTransactionValue && <p className="text-red-500 text-xs mt-1">{errors.conditions.minTransactionValue.message}</p>}
+
+            {watch("conditions").map((condition, conditionIndex) => (
+              <div key={conditionIndex} className="border-b pb-4 mb-4 last:border-b-0">
+                <div className="flex justify-between items-center mb-3">
+                  <h4 className="text-xs font-medium text-gray-600">Condition {conditionIndex + 1}</h4>
+                  {watch("conditions").length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeCondition(conditionIndex)}
+                      className="text-red-500 hover:bg-red-50 p-1 rounded"
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelClass}>Applicable App Types</label>
+                    <Controller
+                      name={`conditions.${conditionIndex}.appType`}
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          isMulti
+                          options={appTypeOptions}
+                          className="basic-multi-select"
+                          classNamePrefix="select"
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Applicable Payment Methods</label>
+                    <Controller
+                      name={`conditions.${conditionIndex}.applicablePaymentMethods`}
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          isMulti
+                          options={paymentMethodOptions}
+                          className="basic-multi-select"
+                          classNamePrefix="select"
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <label className={labelClass}>Minimum Transaction Value</label>
+                    <input
+                      type="number"
+                      {...register(`conditions.${conditionIndex}.minTransactionValue`, {
+                        min: { value: 0, message: "Minimum transaction value must be non-negative" }
+                      })}
+                      className={inputClass}
+                      placeholder="Minimum transaction value"
+                    />
+                    {errors.conditions?.[conditionIndex]?.minTransactionValue && 
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.conditions[conditionIndex].minTransactionValue.message}
+                      </p>
+                    }
+                  </div>
+                  <div>
+                    <label className={labelClass}>Maximum Transaction Value</label>
+                    <input
+                      type="number"
+                      {...register(`conditions.${conditionIndex}.maxTransactionValue`, {
+                        min: { value: 0, message: "Maximum transaction value must be non-negative" }
+                      })}
+                      className={inputClass}
+                      placeholder="Maximum transaction value (optional)"
+                    />
+                    {errors.conditions?.[conditionIndex]?.maxTransactionValue && 
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.conditions[conditionIndex].maxTransactionValue.message}
+                      </p>
+                    }
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className={labelClass}>Maximum Transaction Value</label>
-                <input
-                  type="number"
-                  {...register("conditions.maxTransactionValue", {
-                    min: { value: 0, message: "Maximum transaction value must be non-negative" }
-                  })}
-                  className={inputClass}
-                  placeholder="Maximum transaction value (optional)"
-                />
-                {errors.conditions?.maxTransactionValue && <p className="text-red-500 text-xs mt-1">{errors.conditions.maxTransactionValue.message}</p>}
-              </div>
-            </div>
+            ))}
           </div>
 
           <div className={cardClass}>
@@ -514,7 +707,7 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
                 <input
                   type="text"
                   {...register(`termsAndConditions.${index}`, {
-                    required: "Term cannot be empty"
+                    required: "Term cannot be empty",
                   })}
                   className={inputClass}
                   placeholder={`Term ${index + 1}`}
@@ -526,7 +719,11 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
                 >
                   <TrashIcon className="w-4 h-4" />
                 </button>
-                {errors.termsAndConditions?.[index] && <p className="text-red-500 text-xs ml-2">{errors.termsAndConditions[index].message}</p>}
+                {errors.termsAndConditions?.[index] && (
+                  <p className="text-red-500 text-xs ml-2">
+                    {errors.termsAndConditions[index].message}
+                  </p>
+                )}
               </div>
             ))}
           </div>

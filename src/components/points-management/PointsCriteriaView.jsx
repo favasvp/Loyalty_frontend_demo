@@ -20,22 +20,22 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/10 z-50">
       <div className="relative bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[80vh] overflow-hidden flex flex-col mt-17">
-      
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            {selectedCriteria?.data?.appType?.icon && (
+            {selectedCriteria?.data?.serviceType?.icon && (
               <img
-                src={selectedCriteria?.data?.appType?.icon}
-                alt={selectedCriteria?.data?.appType?.name}
+                src={selectedCriteria?.data?.serviceType?.icon}
+                alt={selectedCriteria?.data?.serviceType?.title}
                 className="w-14 h-14 rounded-lg shadow-sm"
               />
             )}
             <div>
               <h2 className="text-xl font-bold text-gray-800">
-                {selectedCriteria?.data?.appType?.name || "Loyalty Program"}
+                {selectedCriteria?.data?.serviceType?.title ||
+                  "Service Details"}
               </h2>
               <p className="text-gray-600 text-sm">
-                {selectedCriteria?.data?.appType?.description || ""}
+                {selectedCriteria?.data?.serviceType?.description || ""}
               </p>
             </div>
           </div>
@@ -59,9 +59,7 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
           </div>
         </div>
 
-        {/* Content */}
         <div className="p-6 space-y-5 overflow-auto">
-          {/* Event Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
               <h3 className="text-gray-800 font-medium mb-3 text-sm uppercase tracking-wide">
@@ -103,8 +101,44 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
               </div>
             </div>
           </div>
-
-          {/* Transaction Conditions */}
+          <div className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
+            <h3 className="text-gray-800 font-medium mb-3 text-sm uppercase tracking-wide">
+              App Type Details
+            </h3>
+            <div className="flex items-center gap-4">
+              {selectedCriteria?.data?.appType?.icon && (
+                <img
+                  src={selectedCriteria?.data?.appType?.icon}
+                  alt={selectedCriteria?.data?.appType?.name}
+                  className="w-16 h-16 rounded-lg shadow-sm object-cover"
+                />
+              )}
+              <div className="flex-grow space-y-2">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-800">
+                      {selectedCriteria?.data?.appType?.name || "N/A"}
+                    </h4>
+                    <p className="text-gray-500 text-sm">
+                      {selectedCriteria?.data?.appType?.description ||
+                        "No description available"}
+                    </p>
+                  </div>
+                  <span
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                      selectedCriteria?.data?.appType?.isActive
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {selectedCriteria?.data?.appType?.isActive
+                      ? "Active"
+                      : "Inactive"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>{" "}
           <div className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
             <h3 className="text-gray-800 font-medium mb-3 text-sm uppercase tracking-wide">
               Transaction Conditions
@@ -156,8 +190,6 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
               </div>
             </div>
           </div>
-
-          {/* Point System */}
           <div className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
             <h3 className="text-gray-800 font-medium mb-3 text-sm uppercase tracking-wide">
               Point System
@@ -181,8 +213,6 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
               ))}
             </div>
           </div>
-
-          {/* Created & Updated Date */}
           <div className="flex justify-between text-xs text-gray-400 pt-2">
             <div>Created: {formatDate(selectedCriteria?.data?.createdAt)}</div>
             <div>Updated: {formatDate(selectedCriteria?.data?.updatedAt)}</div>

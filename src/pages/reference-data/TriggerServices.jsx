@@ -111,7 +111,7 @@ const TriggerServices = () => {
         <div>
           {" "}
           <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-            Trigger Services
+          Service Providers
           </h1>
           <p className="text-xs text-gray-500 mt-1">
             {" "}
@@ -170,6 +170,9 @@ const TriggerServices = () => {
                 Title
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Image
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Description
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -194,6 +197,13 @@ const TriggerServices = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {item?.title}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <img
+                      src={item?.icon}
+                      alt="icon"
+                      className="w-6 h-6 object-contain"
+                    />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {item?.description}

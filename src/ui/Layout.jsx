@@ -30,6 +30,7 @@ const Layout = ({ children }) => {
             {children}
           </div>
         </main>
+        
         <footer className="fixed bottom-0 w-full bg-white text-gray-600 text-center py-4 shadow-md">
           <p className="text-sm">
             © {new Date().getFullYear()} CBS Loyalty. All rights reserved. |{" "}

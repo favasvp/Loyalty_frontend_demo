@@ -94,8 +94,8 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
     }
   }, [editData, setValue, triggerServices]);
   const paymentMethodOptions = [
-    { value: "Khedmah-Pay", label: "Khedmah-Pay" },
-    { value: "Khedmah-Wallet", label: "Khedmah-Wallet" },
+    { value: "Khedmah-Pay", label: "Payment Method 1" },
+    { value: "Khedmah-Wallet", label: "Payment Method 2" },
   ];
 
   const pointTypeOptions = [

@@ -202,7 +202,7 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
                     index > 0 ? "border-t border-gray-100" : ""
                   }`}
                 >
-                  <div className="p-3 bg-gray-50">{point.paymentMethod}</div>
+                  <div className="p-3 bg-gray-50">{point.paymentMethod=="Khedmah-site"?"Payment Method 1":"Payment Method 2"}</div>
                   <div className="p-3 capitalize">{point.pointType}</div>
                   <div className="p-3 font-medium">
                     {point.pointType === "percentage"

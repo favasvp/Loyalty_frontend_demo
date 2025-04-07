@@ -47,7 +47,7 @@ export const Conversion = () => {
     <div>
       <h3 className="text-lg font-semibold mb-3">Points Conversion</h3>
       <p className="text-sm text-gray-600 mb-4">
-        Manage conversion rates between points and Khedmah coins.
+        Manage conversion rates between points and  coins.
       </p>
       <div className="bg-white rounded-lg p-5 shadow-xs border border-gray-100 mb-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">

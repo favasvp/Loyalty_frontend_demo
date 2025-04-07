@@ -1,37 +1,55 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useRedemptionRules } from "../../hooks/useRedemptionRules";
 import useUiStore from "../../store/ui";
 import { useTiers } from "../../hooks/useTiers";
+import { useAppTypes } from "../../hooks/useAppTypes";
 
-const AddRedemption = ({ isOpen, onClose, editData }) => {
+const AddRedemption = ({ isOpen, onClose, editData, id }) => {
   if (!isOpen) return null;
 
   const { useGetTiers } = useTiers();
   const { data: Tiers } = useGetTiers();
+  const { useGetAppTypes } = useAppTypes();
+  const { data: appTypes } = useGetAppTypes();
 
-  const [formData, setFormData] = useState({
-    minimum_points_required: "",
-    maximum_points_per_day: "",
-    tier_multipliers: [],
+  const {
+    control,
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      minimum_points_required: "",
+      maximum_points_per_day: "",
+      tier_multipliers: [],
+    },
   });
 
-  const { useUpdateRedemptionRules } = useRedemptionRules();
+  useEffect(() => {
+    if (id) {
+      setValue("appType", id);
+    }
+  }, [id, setValue]);
+  const { useUpdateRedemptionRules,useCreateRedemptionRules } = useRedemptionRules();
   const updateMutation = useUpdateRedemptionRules();
+  const createMutation = useCreateRedemptionRules();
   const { addToast } = useUiStore();
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (Tiers?.data) {
-      const allTiers = Tiers?.data.map((tier) => ({
-        tier_id: tier._id, 
-        multiplier: 1, 
+      const allTiers = Tiers.data.map((tier) => ({
+        tier_id: tier._id,
+        multiplier: 0,
       }));
 
       if (editData) {
         const updatedMultipliers = allTiers.map((tier) => {
           const existingMultiplier = editData?.tier_multipliers?.find(
-            (item) => item?.tier_id?._id === tier.tier_id
+            (item) => item?.tier_id === tier.tier_id
           );
           return {
             tier_id: tier.tier_id,
@@ -39,51 +57,58 @@ const AddRedemption = ({ isOpen, onClose, editData }) => {
           };
         });
 
-        setFormData({
+        reset({
           minimum_points_required: editData?.minimum_points_required || "",
           maximum_points_per_day: editData?.maximum_points_per_day || "",
           tier_multipliers: updatedMultipliers,
         });
       } else {
-        setFormData((prev) => ({
-          ...prev,
-          tier_multipliers: allTiers,
-        }));
+        setValue("tier_multipliers", allTiers);
       }
     }
-  }, [editData, Tiers]);
+  }, [editData, Tiers, reset, setValue]);
 
-  const handleMultiplierChange = (index, value) => {
-    setFormData((prev) => {
-      const updatedMultipliers = [...prev.tier_multipliers];
-      updatedMultipliers[index].multiplier = value;
-      return { ...prev, tier_multipliers: updatedMultipliers };
-    });
+  const onSubmit = (formData) => {
+    if (editData) {
+      updateMutation.mutate( {
+        id: editData?._id,
+        rulesData:formData,
+      }, {
+        onSuccess: (data) => {
+          addToast({
+            type: "success",
+            message: data?.message || "Redemption rules updated successfully",
+          });
+          onClose?.();
+        },
+        onError: (error) => {
+          addToast({
+            type: "error",
+            message:
+              error?.response?.data?.message ||
+              "Failed to update redemption rules",
+          });
+        },
+      });
+    } else {
+      createMutation.mutate(formData, {
+        onSuccess: (res) => {
+          addToast({ type: "success", message: res?.message });
+          reset();
+          onClose();
+        },
+        onError: (error) => {
+          addToast({
+            type: "error",
+            message: error?.response?.data?.message,
+          });
+        },
+      });
+    }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    updateMutation.mutate(formData, {
-      onSuccess: (data) => {
-        addToast({
-          type: "success",
-          message: data?.message || "Redemption rules updated successfully",
-        });
-        setIsLoading(false);
-        onClose?.();
-      },
-      onError: (error) => {
-        addToast({
-          type: "error",
-          message: error?.response?.data?.message || "Failed to update redemption rules",
-        });
-        setIsLoading(false);
-      },
-    });
-  };
-
-  const inputClass = "w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors";
+  const inputClass =
+    "w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors";
   const labelClass = "block text-xs font-medium text-gray-500 mb-1";
   const sectionHeadingClass = "text-sm font-medium text-gray-700 mb-3";
   const cardClass = "bg-white p-4 rounded-lg shadow-sm border border-gray-100";
@@ -97,7 +122,7 @@ const AddRedemption = ({ isOpen, onClose, editData }) => {
           </h2>
           <button
             onClick={() => {
-              setFormData({});
+              reset();
               onClose();
             }}
             className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
@@ -106,7 +131,7 @@ const AddRedemption = ({ isOpen, onClose, editData }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-6">
           <div className={cardClass}>
             <h3 className={sectionHeadingClass}>Basic Settings</h3>
             <div className="grid grid-cols-2 gap-4">
@@ -114,14 +139,18 @@ const AddRedemption = ({ isOpen, onClose, editData }) => {
                 <label className={labelClass}>Minimum Points Required</label>
                 <input
                   type="number"
-                  name="minimum_points_required"
-                  value={formData.minimum_points_required}
-                  onChange={(e) =>
-                    setFormData({ ...formData, minimum_points_required: e.target.value })
-                  }
+                  {...register("minimum_points_required", {
+                    required: "Minimum points is required",
+                    min: { value: 0, message: "Must be a positive number" },
+                  })}
                   className={inputClass}
                   placeholder="Enter minimum points"
                 />
+                {errors.minimum_points_required && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.minimum_points_required.message}
+                  </p>
+                )}
                 <div className="text-xs text-gray-500 mt-1">
                   Minimum points needed for redemption
                 </div>
@@ -130,17 +159,40 @@ const AddRedemption = ({ isOpen, onClose, editData }) => {
                 <label className={labelClass}>Maximum Points Per Day</label>
                 <input
                   type="number"
-                  name="maximum_points_per_day"
-                  value={formData.maximum_points_per_day}
-                  onChange={(e) =>
-                    setFormData({ ...formData, maximum_points_per_day: e.target.value })
-                  }
+                  {...register("maximum_points_per_day", {
+                    required: "Maximum points is required",
+                    min: { value: 0, message: "Must be a positive number" },
+                  })}
                   className={inputClass}
                   placeholder="Enter maximum points"
                 />
+                {errors.maximum_points_per_day && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.maximum_points_per_day.message}
+                  </p>
+                )}
                 <div className="text-xs text-gray-500 mt-1">
                   Maximum points redeemable per day
                 </div>
+              </div>
+              <div>
+                <label className={labelClass}>App Type</label>
+                <select
+                  {...register("appType", { required: "App Type is required" })}
+                  className={inputClass}
+                >
+                  <option value="">Select App</option>
+                  {appTypes?.data?.map((item) => (
+                    <option key={item._id} value={item._id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.appType && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.appTypes.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -148,26 +200,46 @@ const AddRedemption = ({ isOpen, onClose, editData }) => {
           <div className={cardClass}>
             <h3 className={sectionHeadingClass}>Tier Multipliers</h3>
             <div className="space-y-3">
-              {formData.tier_multipliers.map((tierMultiplier, index) => {
-                const tierName = Tiers?.data?.find((tier) => tier._id === tierMultiplier.tier_id)?.name;
-
-                return (
-                  <div key={tierMultiplier.tier_id} className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <div className="w-24 text-sm text-gray-700 font-medium">
-                      {tierName}
-                    </div>
-                    <div className="flex-1">
-                      <input
-                        type="number"
-                        value={tierMultiplier.multiplier}
-                        onChange={(e) => handleMultiplierChange(index, e.target.value)}
-                        className={inputClass}
-                        placeholder="Multiplier value"
-                      />
-                    </div>
+              {Tiers?.data?.map((tier, index) => (
+                <div
+                  key={tier._id}
+                  className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-200"
+                >
+                  <div className="w-24 text-sm text-gray-700 font-medium">
+                    {tier.name}
                   </div>
-                );
-              })}
+                  <div className="flex-1">
+                    <Controller
+                      name={`tier_multipliers.${index}.multiplier`}
+                      control={control}
+                      defaultValue={1}
+                      rules={{
+                        required: "Multiplier is required",
+                        min: {
+                          value: 0,
+                          message: "Must be a non-negative number",
+                        },
+                      }}
+                      render={({ field }) => (
+                        <input
+                          type="number"
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(Number(e.target.value));
+                          }}
+                          className={inputClass}
+                          placeholder="Multiplier value"
+                        />
+                      )}
+                    />
+                    <input
+                      type="hidden"
+                      {...register(`tier_multipliers.${index}.tier_id`)}
+                      value={tier._id}
+                    />
+                  </div>
+                </div>
+              ))}
               <div className="text-xs text-gray-500 mt-1">
                 Multipliers for maximum points per day based on member tier
               </div>
@@ -178,7 +250,7 @@ const AddRedemption = ({ isOpen, onClose, editData }) => {
             <button
               type="button"
               onClick={() => {
-                setFormData({});
+                reset();
                 onClose();
               }}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
@@ -187,10 +259,9 @@ const AddRedemption = ({ isOpen, onClose, editData }) => {
             </button>
             <button
               type="submit"
-              disabled={isLoading}
               className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
-              {isLoading ? "Saving..." : "Save Rules"}
+              Save Rules
             </button>
           </div>
         </form>

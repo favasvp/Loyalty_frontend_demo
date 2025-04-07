@@ -132,6 +132,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       icon: TagIcon,
       subItems: [
         {
+          label: "Khedma Offers",
+          path: "/khedma-offers",
+          icon: TicketIcon,
+        },
+        {
           label: "Merchant Offers",
           path: "/merchant-offers",
           icon: TicketIcon,
@@ -144,7 +149,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       icon: Cog6ToothIcon,
       subItems: [
         {
-          label: "Users",
+          label: "Sub Admin",
           path: "/users",
           icon: UsersIcon,
         },

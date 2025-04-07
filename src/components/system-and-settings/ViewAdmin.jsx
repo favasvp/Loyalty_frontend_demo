@@ -1,19 +1,9 @@
 import { ShieldCheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import StyledButton from "../../ui/StyledButton";
 
-const ViewAdmin = ({ isOpen, onClose }) => {
+const ViewAdmin = ({ isOpen, onClose,data }) => {
   if (!isOpen) return null;
-  const userRole = {
-    name: "Administrator",
-    description: "Has full access to all management features.",
-    permissions: [
-      "roleManagement_modify",
-      "adminManagement_view",
-      "eventManagement_modify",
-      "collegeManagement_view",
-      "newsManagement_modify",
-    ],
-  };
+
 
   return (
     <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 mt-10 overflow-y-auto">
@@ -37,19 +27,19 @@ const ViewAdmin = ({ isOpen, onClose }) => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <ShieldCheckIcon className="w-5 h-5" />
-                  <span className="font-medium">{userRole.name}</span>
+                  <span className="font-medium">{data?.role.name}</span>
                 </div>
               </div>
             </div>
 
-            {userRole && (
+            {data?.role && (
               <div className="space-y-4">
                 <div>
                   <h3 className="font-medium text-gray-900 mb-2">
                     Description
                   </h3>
                   <p className="text-sm text-gray-600">
-                    {userRole.description}
+                    {data?.role.description}
                   </p>
                 </div>
 
@@ -58,7 +48,7 @@ const ViewAdmin = ({ isOpen, onClose }) => {
                     Access Level
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {userRole.permissions.map((perm) => (
+                    {data?.role.permissions.map((perm) => (
                       <span
                         key={perm}
                         className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700"

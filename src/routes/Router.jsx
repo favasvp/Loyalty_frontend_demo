@@ -18,19 +18,17 @@ import Rules from "../pages/points-management/Rules";
 import Reports from "../pages/audit/Reports";
 import Theme from "../pages/system-and-settings/Theme";
 import { AuthProvider } from "../ui/AuthProvider";
-
-// Root layout with AuthProvider
 import TriggerEvents from "../pages/reference-data/TriggerEvents";
 import TriggerServices from "../pages/reference-data/TriggerServices";
 import AuthLogs from "../pages/audit/AuthLogs";
 import Support from "../pages/customer-management/Support";
+import KhedmahOffer from "../pages/ofters-and-promotions/KhedmahOffer";
 const RootLayout = () => (
   <AuthProvider>
     <Outlet />
   </AuthProvider>
 );
 
-// Protected layout with Layout component
 const ProtectedLayout = () => (
   <Layout>
     <Outlet />
@@ -52,6 +50,7 @@ const router = createBrowserRouter([
           { path: "/customers", element: <Customer /> },
           { path: "/users", element: <Users /> },
           { path: "/role", element: <Role /> },
+          { path: "/khedma-offers", element: <KhedmahOffer /> },
           { path: "/merchant-offers", element: <MerchantOfters /> },
           { path: "/system-logs", element: <Privacy /> },
           { path: "/api-logs", element: <ApiLogs /> },

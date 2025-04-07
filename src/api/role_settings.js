@@ -1,6 +1,6 @@
 import apiClient from "./client";
 
-const rootUrl = "/role-settings";
+const rootUrl = "/roles-settings";
 
 const roleSettingsApi = {
 

@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
-import rulesAndRedemptionSettingsApi from "../api/expiration_rule";
+import rulesAndExpirationSettingsApi from "../api/expiration_rule";
 
 export function useExpirationRules() {
   const queryClient = useQueryClient();
@@ -9,14 +8,14 @@ export function useExpirationRules() {
   const useGetExpirationRules = () => {
     return useQuery({
       queryKey: ["expirationRules"],
-      queryFn: () => rulesAndRedemptionSettingsApi.getExpiration(),
+      queryFn: () => rulesAndExpirationSettingsApi.getExpiration(),
       staleTime: 5 * 60 * 1000, // 5 minutes
     });
   };
   const useCreateExpiration = () => {
     return useMutation({
       mutationFn: (formData) =>
-        rulesAndRedemptionSettingsApi.addRules(formData),
+        rulesAndExpirationSettingsApi.addRules(formData),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["expirationRules"] });
       },
@@ -26,7 +25,7 @@ export function useExpirationRules() {
   const useUpdateExpirationRules = () => {
     return useMutation({
       mutationFn: ({ id, rulesData }) =>
-        rulesAndRedemptionSettingsApi.updateRules(id, rulesData),
+        rulesAndExpirationSettingsApi.updateRules(id, rulesData),
       onSuccess: (data, variables) => {
         queryClient.invalidateQueries({ queryKey: ["expirationRules"] });
         queryClient.invalidateQueries({
@@ -38,7 +37,7 @@ export function useExpirationRules() {
   const useGetExpirationByApp = (id) => {
     return useQuery({
       queryKey: ["expirationRules", id],
-      queryFn: () => rulesAndRedemptionSettingsApi.getRulesByAppId(id),
+      queryFn: () => rulesAndExpirationSettingsApi.getRulesByAppId(id),
       enabled: !!id,
       staleTime: 2 * 60 * 1000, // 2 minutes
     });

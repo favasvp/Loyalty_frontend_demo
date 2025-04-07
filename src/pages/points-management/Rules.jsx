@@ -92,7 +92,7 @@ const Rules = () => {
           ))}
         </div>
         <div className="bg-white p-6 shadow-md rounded-lg">
-          {activeTab === "redemption" && <Redemption />}
+          {activeTab === "redemption" && <Redemption id={selectedAppType}/>}
           {activeTab === "expiration" && <Expiration id={selectedAppType} />}
           {activeTab === "conversion" && <Conversion />}
         </div>

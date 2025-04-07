@@ -1,5 +1,5 @@
-import apiClient from "./client";
-
+import apiClient from "./client"
+const baseURL=import.meta.env.VITE_API
 const rootUrl = "http://localhost:3002/api/v1/auth";
 
 // Authentication API service

@@ -12,6 +12,9 @@ import StyledSearchInput from "../../ui/StyledSearchInput";
 import StyledButton from "../../ui/StyledButton";
 import RefreshButton from "../../ui/RefreshButton";
 import Loader from "../../ui/Loader";
+import { useSubAdmin } from "../../hooks/useSubAdmin";
+import useUiStore from "../../store/ui";
+import AddSubAdmin from "../../components/system-and-settings/AddSubAdmin";
 
 const Users = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -21,48 +24,85 @@ const Users = () => {
   const [viewOpen, setViewOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState("");
-  const [data, setData] = useState([
-    { id: 1, name: "John Doe", pointsRequired: 120, status: "Active" },
-    { id: 2, name: "Jane Smith", pointsRequired: 90, status: "Inactive" },
-    { id: 3, name: "Alice Johnson", pointsRequired: 150, status: "Active" },
-    { id: 4, name: "Michael Brown", pointsRequired: 80, status: "Pending" },
-    { id: 5, name: "Emily Davis", pointsRequired: 110, status: "Active" },
-  ]);
-  // const fetchData = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const response = await
-  //     setData(response?.data || []);
-  //     setLastUpdated(new Date().toLocaleString());
-  //     setTotalCount(response?.data?totalCount || 0);
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchData();
-  // }, []);
+  const [data, setData] = useState(null);
+  const { useGetSubAdminById, useDeleteSubAdmin, useGetSubAdmin } =
+    useSubAdmin();
+  const { data: triggerSubAdminData } = useGetSubAdminById(data?.id);
+  const {
+    data: subAdmins,
+    isLoading,
+    error,
+    refetch,
+    dataUpdatedAt,
+  } = useGetSubAdmin();
+  const deleteMutation = useDeleteSubAdmin();
+  const { addToast } = useUiStore();
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return data?.slice(startIndex, startIndex + itemsPerPage);
-  }, [data, currentPage, itemsPerPage]);
+    return subAdmins?.data?.slice(startIndex, startIndex + itemsPerPage);
+  }, [subAdmins?.data, currentPage, itemsPerPage]);
   const handleRowSelect = (id) => {
     setSelectedRows((prev) =>
       prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
     );
   };
-  const handleEdit = () => {};
+  const handleEdit = (id) => {
+    setData({ id });
+    setAddOpen(true);
+  };
+  const handleDeleteOpen = async (id) => {
+    setData(id);
+    setDeleteOpen(true);
+  };
+
   const handleSelectAll = () => {
-    if (selectedRows.length === data.length) {
+    const allRowIds = paginatedData?.map((item) => item?._id) || [];
+    if (selectedRows.length === allRowIds?.length) {
       setSelectedRows([]);
     } else {
-      setSelectedRows(data.map((item) => item.id));
+      setSelectedRows(allRowIds);
     }
+  };
+  const handleDelete = () => {
+    deleteMutation.mutate(data, {
+      onSuccess: (response) => {
+        addToast({
+          type: "success",
+          message: response?.message,
+        });
+      },
+      onError: (error) => {
+        addToast({
+          type: "error",
+          message: error?.response?.data?.message,
+        });
+      },
+    });
+    setDeleteOpen(false);
+    setData(null);
+  };
+  const handleBulkDelete = async () => {
+    if (!selectedRows.length) return;
+    await Promise.all(
+      selectedRows.map((id) =>
+        deleteMutation.mutateAsync(id, {
+          onSuccess: () => {
+            addToast({
+              type: "success",
+              message: `Item deleted successfully!`,
+            });
+          },
+          onError: (error) => {
+            addToast({
+              type: "error",
+              message: error?.response?.data?.message,
+            });
+          },
+        })
+      )
+    );
+
+    setSelectedRows([]);
   };
   return (
     <>
@@ -70,7 +110,7 @@ const Users = () => {
         <div>
           {" "}
           <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-            User Management
+            Sub Admin Management
           </h1>
           <p className="text-xs text-gray-500 mt-1">
             Manage system users and their access
@@ -78,11 +118,13 @@ const Users = () => {
         </div>
         <div className="flex items-center gap-4">
           <p className="text-xs text-gray-500 mt-1">
-            Last Updated: {lastUpdated ? lastUpdated : "Fetching..."}
+            Last Updated: {new Date(dataUpdatedAt).toLocaleString()}
           </p>
           <RefreshButton
-            //  onClick={fetchData}
-            isLoading={loading}
+            onClick={() => {
+              refetch();
+            }}
+            isLoading={isLoading}
           />
         </div>
       </div>{" "}
@@ -101,14 +143,14 @@ const Users = () => {
           <StyledButton
             name={
               <>
-                <span className="text-lg leading-none">+</span> Add Customer
+                <span className="text-lg leading-none">+</span> Add Sub Admin
               </>
             }
             onClick={() => setAddOpen(true)}
           />
         </div>
       </div>
-      {loading ? (
+      {isLoading ? (
         <Loader />
       ) : (
         <StyledTable
@@ -119,6 +161,7 @@ const Users = () => {
             setCurrentPage,
             setItemsPerPage,
             selectedRows,
+            handleBulkDelete,
           }}
         >
           <thead className="bg-gray-50 w-full">
@@ -127,7 +170,12 @@ const Users = () => {
                 <input
                   type="checkbox"
                   onChange={handleSelectAll}
-                  checked={selectedRows.length === data.length}
+                  checked={
+                    paginatedData?.length > 0 &&
+                    paginatedData.every((item) =>
+                      selectedRows?.includes(item._id)
+                    )
+                  }
                   className="cursor-pointer w-4 h-4 align-middle"
                 />
               </th>
@@ -135,7 +183,7 @@ const Users = () => {
                 Name
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Points
+                Email
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
@@ -146,51 +194,71 @@ const Users = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {paginatedData?.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50">
-                <td className="px-4 py-4">
-                  <input
-                    type="checkbox"
-                    onChange={() => handleRowSelect(item.id)}
-                    checked={selectedRows.includes(item.id)}
-                    className="cursor-pointer"
-                  />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item.name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {item.pointsRequired}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 py-1 text-xs font-medium rounded-full">
-                    {item.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <button
-                      className="text-slate-400 hover:text-blue-700 p-1 rounded-lg hover:bg-blue-50"
-                      onClick={() => setViewOpen(true)}
+            {paginatedData?.length > 0 ? (
+              paginatedData?.map((item) => (
+                <tr key={item.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-4">
+                    <input
+                      type="checkbox"
+                      onChange={() => handleRowSelect(item?._id)}
+                      checked={selectedRows.includes(item?._id)}
+                      className="cursor-pointer"
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {item.email}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        item?.status
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
                     >
-                      <EyeIcon className="w-4 h-4" />
-                    </button>
-                    <button
-                      className="text-slate-400 hover:text-green-700 p-1 rounded-lg hover:bg-green-50"
-                      onClick={() => handleEdit(item.id)}
-                    >
-                      <PencilIcon className="w-4 h-4" />
-                    </button>
-                    <button
-                      className="text-slate-400 hover:text-red-700 p-1 rounded-lg hover:bg-red-50"
-                      onClick={() => setDeleteOpen(true)}
-                    >
-                      <TrashIcon className="w-4 h-4" />
-                    </button>
-                  </div>
+                      {item?.status ? "Active" : "Inactive"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="text-slate-400 hover:text-blue-700 p-1 rounded-lg hover:bg-blue-50"
+                        onClick={() => {
+                          setViewOpen(true);
+                          setData({ id: item?._id });
+                        }}
+                      >
+                        <EyeIcon className="w-4 h-4" />
+                      </button>
+                      <button
+                        className="text-slate-400 hover:text-green-700 p-1 rounded-lg hover:bg-green-50"
+                        onClick={() => handleEdit(item?._id)}
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </button>
+                      <button
+                        className="text-slate-400 hover:text-red-700 p-1 rounded-lg hover:bg-red-50"
+                        onClick={() => handleDeleteOpen(item?._id)}
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan="5"
+                  className="px-6 py-4 text-center text-gray-500 text-sm"
+                >
+                  No data available
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </StyledTable>
       )}
@@ -198,8 +266,21 @@ const Users = () => {
         isOpen={deleteOpen}
         onClose={() => setDeleteOpen(false)}
         data={"User"}
+        onConfirm={handleDelete}
       />
-      <ViewAdmin isOpen={viewOpen} onClose={() => setViewOpen(false)} />
+      <ViewAdmin
+        isOpen={viewOpen}
+        onClose={() => setViewOpen(false)}
+        data={triggerSubAdminData?.data}
+      />
+      <AddSubAdmin
+        isOpen={addOpen}
+        onClose={() => {
+          setAddOpen(false);
+          setData(null);
+        }}
+        editData={triggerSubAdminData?.data}
+      />
     </>
   );
 };

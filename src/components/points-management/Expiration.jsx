@@ -10,6 +10,7 @@ import {
 import AddExpiration from "./AddExpiration";
 import UpcomingExpiration from "./UpComingExpiration";
 import { useExpirationRules } from "../../hooks/useExpirationRules";
+import Loader from "../../ui/Loader";
 
 const Expiration = ({ id }) => {
   const [open, setOpen] = useState(false);
@@ -20,9 +21,7 @@ const Expiration = ({ id }) => {
 
   if (isLoading) {
     return (
-      <div className="text-center py-6 text-gray-500">
-        Loading expiration rules...
-      </div>
+   <Loader/>
     );
   }
 

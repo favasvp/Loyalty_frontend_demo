@@ -174,20 +174,6 @@ const ApiLogs = () => {
             />
           </div>
 
-          <div className="flex flex-col">
-            <label htmlFor="adminName" className="text-xs text-gray-600 mb-1">
-              Admin Name
-            </label>
-            <input
-              id="adminName"
-              type="text"
-              name="adminName"
-              value={filters.adminName}
-              onChange={handleFilterChange}
-              className={inputClass}
-              placeholder="Search by name"
-            />
-          </div>
 
           <div className="flex flex-col">
             <label htmlFor="status" className="text-xs text-gray-600 mb-1">

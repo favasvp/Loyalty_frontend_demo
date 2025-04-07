@@ -3,7 +3,7 @@ import apiClient from "./client";
 const rootUrl = "/point-expiry-rules";
 
 // Rules and expiry settings API service
-const rulesAndRedemptionSettingsApi = {
+const rulesAndExpirationSettingsApi = {
   // Get rules and expiry settings
    // Get rules and expiry settings
    getExpiration: async () => {
@@ -27,4 +27,4 @@ const rulesAndRedemptionSettingsApi = {
 
 };
 
-export default rulesAndRedemptionSettingsApi;
+export default rulesAndExpirationSettingsApi;

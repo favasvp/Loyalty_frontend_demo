@@ -13,10 +13,15 @@ const SdkAccess = () => {
   const appTypes = appTypeData?.data;
 
   const [selectedAppType, setSelectedAppType] = useState(null);
-  const { useGetSdkAccessKeyGen, useUpdateSdkAccessKey } = useSdkAccessKeyGen();
+  const {
+    useGetSdkAccessKeyGen,
+    useUpdateSdkAccessKey,
+    useGenerateSdkAccessKey,
+  } = useSdkAccessKeyGen();
   const { data: sdkAccessKeyGen } = useGetSdkAccessKeyGen(selectedAppType);
   const [copySuccess, setCopySuccess] = useState(false);
   const updateMutation = useUpdateSdkAccessKey();
+  const createMutation = useGenerateSdkAccessKey();
   useEffect(() => {
     if (appTypes && appTypes.length > 0) {
       setSelectedAppType(appTypes[0]._id);
@@ -24,7 +29,10 @@ const SdkAccess = () => {
   }, [appTypes]);
   const handleCreateAccess = () => {
     if (selectedAppType) {
-      // Integration for creating access key will go here
+      console.log("create access for app type", selectedAppType);
+      createMutation.mutate({
+        app_id: selectedAppType,
+      });
     }
   };
 
@@ -185,28 +193,31 @@ const SdkAccess = () => {
                     </button>
                   </div>
                 </div>
+                {sdkAccessKeyGen?.data?.key?.permissions && (
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-700 mb-3">
+                      Permissions
+                    </h3>
 
-                <div>
-                  <h3 className="text-sm font-medium text-gray-700 mb-3">
-                    Permissions
-                  </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {Object.entries(sdkAccessKeyGen.data.key.permissions).map(
-                      ([permission, isEnabled]) =>
-                        isEnabled && (
-                          <div
-                            key={permission}
-                            className="bg-gray-50 p-2 rounded-lg text-center"
-                          >
-                            <span className="text-xs font-medium text-gray-800">
-                              {permission.replace("_", " ")}
-                            </span>
-                          </div>
-                        )
-                    )}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {Object.entries(
+                        sdkAccessKeyGen?.data?.key?.permissions
+                      )?.map(
+                        ([permission, isEnabled]) =>
+                          isEnabled && (
+                            <div
+                              key={permission}
+                              className="bg-gray-50 p-2 rounded-lg text-center"
+                            >
+                              <span className="text-xs font-medium text-gray-800">
+                                {permission.replace("_", " ")}
+                              </span>
+                            </div>
+                          )
+                      )}
+                    </div>
                   </div>
-                </div>
-
+                )}
                 <div className="pt-4 mt-4 border-t border-gray-200">
                   <h3 className="text-sm font-medium text-gray-900 mb-3">
                     Quick Start Guide

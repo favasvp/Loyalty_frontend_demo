@@ -20,19 +20,17 @@ export function useSdkAccessKeyGen() {
   // Generate SDK access key
   const useGenerateSdkAccessKey = () => {
     return useMutation({
-      mutationFn: (sdkAccessKeyGenData) =>
-        sdkAccessKeyGenApi.generateSdkAccessKey(sdkAccessKeyGenData),
+      mutationFn: (params) => sdkAccessKeyGenApi.generateSdkAccessKey(params),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["sdkAccessKeyGen"] });
       },
     });
   };
-
+  
   // Update SDK access key
   const useUpdateSdkAccessKey = () => {
     return useMutation({
-      mutationFn: (id) =>
-        sdkAccessKeyGenApi.updateSdkAccessKey(id),
+      mutationFn: (id) => sdkAccessKeyGenApi.updateSdkAccessKey(id),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["sdkAccessKeyGen"] });
       },

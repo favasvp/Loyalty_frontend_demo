@@ -9,10 +9,11 @@ const sdkAccessKeyGenApi = {
     return response.data;
   },
 
-  // Create new sdk access key gen
-  generateSdkAccessKey: async (sdkAccessKeyGenData) => {
-    const response = await apiClient.post(rootUrl, sdkAccessKeyGenData);
-    return response.data;
+  // Create new sdk access key gen// sdkAccessKeyGenApi.js
+  generateSdkAccessKey: (params) => {
+    return apiClient.post(`${rootUrl}`,{}, {
+      params,
+    });
   },
   updateSdkAccessKey: async (id) => {
     const response = await apiClient.put(`${rootUrl}/${id}`);

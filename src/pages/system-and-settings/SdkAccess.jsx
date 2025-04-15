@@ -56,16 +56,7 @@ const SdkAccess = () => {
   };
   return (
     <div className="p-8 space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-gray-900">SDK Access</h1>
-        <a
-          href="/docs/integration"
-          className="flex items-center text-sm text-green-600 hover:text-green-700"
-        >
-          <BookOpenIcon className="w-5 h-5 mr-1" />
-          View Documentation
-        </a>
-      </div>
+      
 
       {appTypes && appTypes.length > 0 && (
         <div className="mb-6">

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { XMarkIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useBrands } from "../../hooks/useBrand";
@@ -6,31 +6,41 @@ import { useCategory } from "../../hooks/useCategory";
 import Select from "react-select";
 import { useAppTypes } from "../../hooks/useAppTypes";
 import useUiStore from "../../store/ui";
-import { useOffers } from "../../hooks/useOffers";
 import { useTiers } from "../../hooks/useTiers";
+import { useTriggerServices } from "../../hooks/useTriggerServices";
+import { useTriggerEvents } from "../../hooks/useTriggerEvents";
+import { useKhedmahOffer } from "../../hooks/useKhedmahOffer";
 
-const AddKhedmahOfter = ({ isOpen, onClose, editData }) => {
+const AddKhedmahOffer = ({ isOpen, onClose, editData }) => {
   const [selectedOfferType, setSelectedOfferType] = useState(null);
-  const { useGetBrands } = useBrands();
-  const { data: merchants } = useGetBrands();
-  const { useGetCategory } = useCategory();
-  const { data: couponCategories } = useGetCategory();
   const { useGetAppTypes } = useAppTypes();
   const { data: appTypes } = useGetAppTypes();
-  const { useCreateMerchantOffer } = useOffers();
-  const createMutation = useCreateMerchantOffer();
   const { addToast } = useUiStore();
   const { useGetTiers } = useTiers();
   const { data: tiers } = useGetTiers();
-
+  const { useGetTriggerServices } = useTriggerServices();
+  const { data: services } = useGetTriggerServices();
+  const { useGetTriggerEvents } = useTriggerEvents();
+  const { data: triggerEvents } = useGetTriggerEvents();
+  const { useCreateKhedmahOffer } = useKhedmahOffer();
+  const createMutation = useCreateKhedmahOffer();
+  const appTypeOptions =
+    appTypes?.data?.map((appType) => ({
+      value: appType._id,
+      label: appType.name,
+    })) || [];
   const offerTypes = useMemo(
     () => [
       {
-        id: "dynamic",
-        title: "Dynamic Offer",
-        description: "Dynamic offer ",
+        id: "DISCOUNT",
+        title: "Discount",
+        description: "Percentage or fixed amount discount",
       },
-     
+      {
+        id: "FLAT_OFFER",
+        title: "Flat Offer",
+        description: "Fixed price offer",
+      },
     ],
     []
   );
@@ -41,14 +51,17 @@ const AddKhedmahOfter = ({ isOpen, onClose, editData }) => {
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      code: "",
       title: "",
       description: "",
-      merchantId: "",
-      couponCategoryId: "",
+      posterImage: "",
+      serviceCategory: "",
+      eventType: "",
+      offerType: "DISCOUNT",
+      isActive: true,
       discountDetails: {
         type: "",
         value: "",
@@ -61,26 +74,142 @@ const AddKhedmahOfter = ({ isOpen, onClose, editData }) => {
       eligibilityCriteria: {
         userTypes: [],
         tiers: [],
+        minTransactionHistory: 0,
         minPointsBalance: 0,
       },
       usagePolicy: {
         frequency: "",
         maxUsagePerPeriod: 0,
         maxTotalUsage: null,
+        userLimit: null,
       },
-      conditions: [
-        {
-          appType: [],
-          minTransactionValue: 0,
-          maxTransactionValue: null,
-          applicablePaymentMethods: [],
-        }
-      ],
+      conditions: {
+        appType: [],
+        minTransactionValue: 0,
+        maxTransactionValue: null,
+        applicablePaymentMethods: [],
+      },
       termsAndConditions: [],
+      redemptionInstructions: "",
     },
   });
+  useEffect(() => {
+    if (editData) {
+      const formatDate = (dateString) => {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        return date.toISOString().split("T")[0];
+      };
 
+      setValue("title", editData.title || "");
+      setValue("description", editData.description || "");
+      setValue("posterImage", editData.posterImage || "");
+      setValue("serviceCategory", editData.serviceCategory?._id || "");
+      setValue("eventType", editData.eventType?._id || "");
+      setValue("offerType", editData.offerType || "DISCOUNT");
+      setValue(
+        "isActive",
+        editData.isActive !== undefined ? editData.isActive : true
+      );
+      setValue("redeemablePointsCount", editData.redeemablePointsCount || 0);
+
+      if (editData.discountDetails) {
+        setValue("discountDetails.type", editData.discountDetails.type || "");
+        setValue("discountDetails.value", editData.discountDetails.value || "");
+      }
+
+      if (editData.validityPeriod) {
+        setValue(
+          "validityPeriod.startDate",
+          formatDate(editData.validityPeriod.startDate)
+        );
+        setValue(
+          "validityPeriod.endDate",
+          formatDate(editData.validityPeriod.endDate)
+        );
+      }
+
+      if (editData.eligibilityCriteria) {
+        const userTypeOptions = (
+          editData.eligibilityCriteria.userTypes || []
+        ).map((type) => ({
+          value: type,
+          label:
+            type === "NEW"
+              ? "New Users"
+              : type === "EXISTING"
+              ? "Existing Users"
+              : type === "PREMIUM"
+              ? "Premium Users"
+              : "All Users",
+        }));
+        setValue("eligibilityCriteria.userTypes", userTypeOptions);
+
+        const tierOptions = (editData.eligibilityCriteria.tiers || []).map(
+          (tierId) => ({
+            value: tierId,
+            label: tiers?.data?.find((t) => t._id === tierId)?.name || tierId,
+          })
+        );
+        setValue("eligibilityCriteria.tiers", tierOptions);
+
+        setValue(
+          "eligibilityCriteria.minTransactionHistory",
+          editData.eligibilityCriteria.minTransactionHistory || 0
+        );
+        setValue(
+          "eligibilityCriteria.minPointsBalance",
+          editData.eligibilityCriteria.minPointsBalance || 0
+        );
+      }
+
+      if (editData.usagePolicy) {
+        setValue("usagePolicy.frequency", editData.usagePolicy.frequency || "");
+        setValue(
+          "usagePolicy.maxUsagePerPeriod",
+          editData.usagePolicy.maxUsagePerPeriod || 0
+        );
+        setValue(
+          "usagePolicy.maxTotalUsage",
+          editData.usagePolicy.maxTotalUsage || null
+        );
+        setValue(
+          "usagePolicy.userLimit",
+          editData.usagePolicy.userLimit || null
+        );
+      }
+
+      if (editData.conditions) {
+        const paymentMethodOptions = (
+          editData.conditions.applicablePaymentMethods || []
+        ).map((method) => ({
+          value: method,
+          label:
+            method === "Khedmah-site"
+              ? "Khedmah Site"
+              : method === "KhedmahPay-Wallet"
+              ? "Khedmah Wallet"
+              : "All Payment Methods",
+        }));
+        setValue("conditions.applicablePaymentMethods", paymentMethodOptions);
+
+        setValue(
+          "conditions.minTransactionValue",
+          editData.conditions.minTransactionValue || 0
+        );
+        setValue(
+          "conditions.maxTransactionValue",
+          editData.conditions.maxTransactionValue || null
+        );
+        setValue("appType", editData.appType || "");
+      }
+
+      setValue("termsAndConditions", editData.termsAndConditions || []);
+      setValue("redemptionInstructions", editData.redemptionInstructions || "");
+    }
+  }, [editData, setValue, tiers]);
   if (!isOpen) return null;
+
   const userTypeOptions = [
     { value: "NEW", label: "New Users" },
     { value: "EXISTING", label: "Existing Users" },
@@ -88,36 +217,37 @@ const AddKhedmahOfter = ({ isOpen, onClose, editData }) => {
     { value: "ALL", label: "All Users" },
   ];
 
-  const appTypeOptions =
-    appTypes?.data?.map((appType) => ({
-      value: appType._id,
-      label: appType.name,
-    })) || [];
-
   const tierOptions =
-    tiers?.data?.map((appType) => ({
-      value: appType._id,
-      label: appType.name,
+    tiers?.data?.map((tier) => ({
+      value: tier._id,
+      label: tier.name,
     })) || [];
 
   const paymentMethodOptions = [
-    { value: "Khedmah-Pay", label: "Khedmah-Pay" },
-    { value: "Khedmah-Wallet", label: "Khedmah-Wallet" },
+    { value: "Khedmah-site", label: "Khedmah Site" },
+    { value: "KhedmahPay-Wallet", label: "Khedmah Wallet" },
+    { value: "ALL", label: "All Payment Methods" },
   ];
 
   const watchTermsAndConditions = watch("termsAndConditions");
+  const watchOfferType = watch("offerType");
 
   const onSubmit = (data) => {
     const formData = {
-      merchantId: data.merchantId,
       title: data.title,
       description: data.description,
-      code: data.code,
-      couponCategoryId: data.couponCategoryId,
-      discountDetails: {
-        type: data.discountDetails.type,
-        value: data.discountDetails.value,
-      },
+      posterImage: data.posterImage,
+      serviceCategory: data.serviceCategory,
+      eventType: data.eventType || null,
+      offerType: data.offerType,
+      isActive: data.isActive,
+      discountDetails:
+        data.offerType === "DISCOUNT"
+          ? {
+              type: data.discountDetails.type,
+              value: data.discountDetails.value,
+            }
+          : undefined,
       redeemablePointsCount: data.redeemablePointsCount,
       validityPeriod: {
         startDate: data.validityPeriod.startDate,
@@ -126,23 +256,26 @@ const AddKhedmahOfter = ({ isOpen, onClose, editData }) => {
       eligibilityCriteria: {
         userTypes: data.eligibilityCriteria.userTypes.map((item) => item.value),
         tiers: data.eligibilityCriteria.tiers.map((item) => item.value),
+        minTransactionHistory: data.eligibilityCriteria.minTransactionHistory,
         minPointsBalance: data.eligibilityCriteria.minPointsBalance,
       },
       usagePolicy: {
         frequency: data.usagePolicy.frequency,
         maxUsagePerPeriod: data.usagePolicy.maxUsagePerPeriod,
         maxTotalUsage: data.usagePolicy.maxTotalUsage,
+        userLimit: data.usagePolicy.userLimit,
       },
-      conditions: data.conditions.map(condition => ({
-        appType: condition.appType.map(item => item.value),
-        minTransactionValue: condition.minTransactionValue,
-        maxTransactionValue: condition.maxTransactionValue,
-        applicablePaymentMethods: condition.applicablePaymentMethods.map(item => item.value),
-      })),
+      conditions: {
+        minTransactionValue: data.conditions.minTransactionValue,
+        appType: data?.conditions.appType.map(item => item.value),
+        maxTransactionValue: data.conditions.maxTransactionValue,
+        applicablePaymentMethods: data.conditions.applicablePaymentMethods.map(
+          (item) => item.value
+        ),
+      },
       termsAndConditions: data.termsAndConditions,
+      redemptionInstructions: data.redemptionInstructions,
     };
-
-    console.log("Submitting offer:", formData);
 
     createMutation.mutate(formData, {
       onSuccess: (data) => {
@@ -150,6 +283,8 @@ const AddKhedmahOfter = ({ isOpen, onClose, editData }) => {
           type: "success",
           message: data?.message,
         });
+        reset();
+        onClose();
       },
       onError: (error) => {
         addToast({
@@ -170,81 +305,27 @@ const AddKhedmahOfter = ({ isOpen, onClose, editData }) => {
     const updatedTerms = currentTerms.filter((_, i) => i !== index);
     setValue("termsAndConditions", updatedTerms);
   };
-const handleBack = () => {
-  setSelectedOfferType(null);
-  onClose();
-}
-const addCondition = () => {
-  const currentConditions = watch("conditions") || [];
-  setValue("conditions", [...currentConditions, {
-    appType: [],
-    minTransactionValue: 0,
-    maxTransactionValue: null,
-    applicablePaymentMethods: [],
-  }]);
-};
 
-const removeCondition = (index) => {
-  const currentConditions = watch("conditions") || [];
-  const updatedConditions = currentConditions.filter((_, i) => i !== index);
-  setValue("conditions", updatedConditions);
-};
+  const handleBack = () => {
+    setSelectedOfferType(null);
+    onClose();
+  };
+
   const inputClass =
     "w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors";
   const labelClass = "block text-xs font-medium text-gray-500 mb-1";
   const sectionHeadingClass = "text-sm font-medium text-gray-700 mb-3";
   const cardClass = "bg-white p-4 rounded-lg shadow-sm border border-gray-100";
 
-  if (!selectedOfferType) {
-    return (
-      <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg w-full max-w-2xl p-6">
-          <div className="flex justify-between items-center border-b pb-4 mb-4">
-            <h2 className="text-lg font-medium text-gray-800">
-              Select Offer Type
-            </h2>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
-            >
-              <XMarkIcon className="w-5 h-5" />
-            </button>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-4">
-            {offerTypes.map((type) => (
-              <div
-                key={type.id}
-                onClick={() => setSelectedOfferType(type.id)}
-                className="border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors group"
-              >
-                <h3 className="text-sm font-semibold text-gray-700 mb-2 group-hover:text-green-600">
-                  {type.title}
-                </h3>
-                <p className="text-xs text-gray-500 group-hover:text-green-500">
-                  {type.description}
-                </p>
-                <div className="mt-3 flex justify-end">
-                  <PlusIcon className="w-5 h-5 text-gray-400 group-hover:text-green-600" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 mt-10">
       <div className="bg-white rounded-lg w-full max-w-4xl p-4 max-h-[80vh] overflow-y-auto mt-17">
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-lg font-medium text-gray-800">
-            {editData ? "Edit Offer" : "Add New Offer"}
+            {editData ? "Edit Offer" : "Add New Khedmah Offer"}
           </h2>
           <button
             onClick={handleBack}
-
             className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
           >
             <XMarkIcon className="w-5 h-5" />
@@ -255,19 +336,6 @@ const removeCondition = (index) => {
           <div className={cardClass}>
             <h3 className={sectionHeadingClass}>Basic Offer Details</h3>
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>Offer Code</label>
-                <input
-                  {...register("code", { required: "Offer code is required" })}
-                  className={inputClass}
-                  placeholder="Enter unique offer code"
-                />
-                {errors.code && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.code.message}
-                  </p>
-                )}
-              </div>
               <div>
                 <label className={labelClass}>Title</label>
                 <input
@@ -284,46 +352,78 @@ const removeCondition = (index) => {
                 )}
               </div>
               <div>
-                <label className={labelClass}>Merchant</label>
+                <label className={labelClass}>Offer Type</label>
                 <select
-                  {...register("merchantId", {
-                    required: "Merchant is required",
+                  {...register("offerType", {
+                    required: "Offer type is required",
                   })}
                   className={inputClass}
                 >
-                  <option value="">Select Merchant</option>
-                  {merchants?.data?.map((merchant) => (
-                    <option key={merchant._id} value={merchant._id}>
-                      {merchant.title}
+                  {offerTypes.map((type) => (
+                    <option key={type.id} value={type.id}>
+                      {type.title}
                     </option>
                   ))}
                 </select>
-                {errors.merchantId && (
+                {errors.offerType && (
                   <p className="text-red-500 text-xs mt-1">
-                    {errors.merchantId.message}
+                    {errors.offerType.message}
                   </p>
                 )}
               </div>
               <div>
-                <label className={labelClass}>Coupon Category</label>
+                <label className={labelClass}>Service Category</label>
                 <select
-                  {...register("couponCategoryId", {
-                    required: "Coupon Category is required",
+                  {...register("serviceCategory", {
+                    required: "Service category is required",
                   })}
                   className={inputClass}
                 >
-                  <option value="">Select Coupon Category</option>
-                  {couponCategories?.data?.map((category) => (
-                    <option key={category._id} value={category._id}>
-                      {category.title}
+                  <option value="">Select Service Category</option>
+                  {services?.data?.map((service) => (
+                    <option key={service._id} value={service._id}>
+                      {service.title}
                     </option>
                   ))}
                 </select>
-                {errors.couponCategoryId && (
+                {errors.serviceCategory && (
                   <p className="text-red-500 text-xs mt-1">
-                    {errors.couponCategoryId.message}
+                    {errors.serviceCategory.message}
                   </p>
                 )}
+              </div>
+              <div>
+                <label className={labelClass}>Event Type (Optional)</label>
+                <select {...register("eventType")} className={inputClass}>
+                  <option value="">Select Event Type</option>
+                  {triggerEvents?.data?.map((event) => (
+                    <option key={event._id} value={event._id}>
+                      {event.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className={labelClass}>Poster Image URL</label>
+                <input
+                  {...register("posterImage", {
+                    required: "Poster image is required",
+                  })}
+                  className={inputClass}
+                  placeholder="Image URL"
+                />
+                {errors.posterImage && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.posterImage.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className={labelClass}>Status</label>
+                <select {...register("isActive")} className={inputClass}>
+                  <option value={true}>Active</option>
+                  <option value={false}>Inactive</option>
+                </select>
               </div>
             </div>
             <div className="mt-4">
@@ -344,65 +444,73 @@ const removeCondition = (index) => {
             </div>
           </div>
 
-          <div className={cardClass}>
-            <h3 className={sectionHeadingClass}>Discount Configuration</h3>
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className={labelClass}>Discount Type</label>
-                <select
-                  {...register("discountDetails.type", {
-                    required: "Discount type is required",
-                  })}
-                  className={inputClass}
-                >
-                  <option value="">Select Type</option>
-                  <option value="PERCENTAGE">Percentage</option>
-                  <option value="FIXED">Fixed Amount</option>
-                </select>
-                {errors.discountDetails?.type && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.discountDetails.type.message}
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className={labelClass}>Discount Value</label>
-                <input
-                  type="number"
-                  {...register("discountDetails.value", {
-                    required: "Discount value is required",
-                    min: {
-                      value: 0,
-                      message: "Discount value must be positive",
-                    },
-                  })}
-                  className={inputClass}
-                  placeholder="Discount amount"
-                />
-                {errors.discountDetails?.value && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.discountDetails.value.message}
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className={labelClass}>Redeemable Points</label>
-                <input
-                  type="number"
-                  {...register("redeemablePointsCount", {
-                    min: { value: 0, message: "Points must be non-negative" },
-                  })}
-                  className={inputClass}
-                  placeholder="Points required"
-                />
-                {errors.redeemablePointsCount && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.redeemablePointsCount.message}
-                  </p>
-                )}
+          {watchOfferType === "DISCOUNT" && (
+            <div className={cardClass}>
+              <h3 className={sectionHeadingClass}>Discount Configuration</h3>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className={labelClass}>Discount Type</label>
+                  <select
+                    {...register("discountDetails.type", {
+                      required:
+                        watchOfferType === "DISCOUNT"
+                          ? "Discount type is required"
+                          : false,
+                    })}
+                    className={inputClass}
+                  >
+                    <option value="">Select Type</option>
+                    <option value="PERCENTAGE">Percentage</option>
+                    <option value="FIXED">Fixed Amount</option>
+                  </select>
+                  {errors.discountDetails?.type && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.discountDetails.type.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className={labelClass}>Discount Value</label>
+                  <input
+                    type="number"
+                    {...register("discountDetails.value", {
+                      required:
+                        watchOfferType === "DISCOUNT"
+                          ? "Discount value is required"
+                          : false,
+                      min: {
+                        value: 0,
+                        message: "Discount value must be positive",
+                      },
+                    })}
+                    className={inputClass}
+                    placeholder="Discount amount"
+                  />
+                  {errors.discountDetails?.value && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.discountDetails.value.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className={labelClass}>Redeemable Points</label>
+                  <input
+                    type="number"
+                    {...register("redeemablePointsCount", {
+                      min: { value: 0, message: "Points must be non-negative" },
+                    })}
+                    className={inputClass}
+                    placeholder="Points required"
+                  />
+                  {errors.redeemablePointsCount && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.redeemablePointsCount.message}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           <div className={cardClass}>
             <h3 className={sectionHeadingClass}>Offer Validity</h3>
@@ -526,12 +634,34 @@ const removeCondition = (index) => {
                   </p>
                 )}
               </div>
+              <div>
+                <label className={labelClass}>
+                  Minimum Transaction History
+                </label>
+                <input
+                  type="number"
+                  {...register("eligibilityCriteria.minTransactionHistory", {
+                    min: {
+                      value: 0,
+                      message:
+                        "Minimum transaction history must be non-negative",
+                    },
+                  })}
+                  className={inputClass}
+                  placeholder="Minimum past transactions"
+                />
+                {errors.eligibilityCriteria?.minTransactionHistory && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.eligibilityCriteria.minTransactionHistory.message}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
           <div className={cardClass}>
             <h3 className={sectionHeadingClass}>Usage Policy</h3>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>Usage Frequency</label>
                 <select
@@ -588,106 +718,105 @@ const removeCondition = (index) => {
                   </p>
                 )}
               </div>
+              <div>
+                <label className={labelClass}>User Limit</label>
+                <input
+                  type="number"
+                  {...register("usagePolicy.userLimit", {
+                    min: {
+                      value: 0,
+                      message: "User limit must be non-negative",
+                    },
+                  })}
+                  className={inputClass}
+                  placeholder="Unlimited if left blank"
+                />
+                {errors.usagePolicy?.userLimit && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.usagePolicy.userLimit.message}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
           <div className={cardClass}>
-            <div className="flex justify-between items-center mb-3">
-              <h3 className={sectionHeadingClass}>Offer Conditions</h3>
-              <button
-                type="button"
-                onClick={addCondition}
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs bg-green-50 text-green-600 rounded-md hover:bg-green-100 transition-colors"
-              >
-                <PlusIcon className="w-3.5 h-3.5" />
-                Add Condition
-              </button>
-            </div>
+            <h3 className={sectionHeadingClass}>Offer Conditions</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>Applicable App Types</label>
 
-            {watch("conditions").map((condition, conditionIndex) => (
-              <div key={conditionIndex} className="border-b pb-4 mb-4 last:border-b-0">
-                <div className="flex justify-between items-center mb-3">
-                  <h4 className="text-xs font-medium text-gray-600">Condition {conditionIndex + 1}</h4>
-                  {watch("conditions").length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeCondition(conditionIndex)}
-                      className="text-red-500 hover:bg-red-50 p-1 rounded"
-                    >
-                      <TrashIcon className="w-4 h-4" />
-                    </button>
+                <Controller
+                  name={`conditions.appType`}
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      isMulti
+                      options={appTypeOptions}
+                      className="basic-multi-select"
+                      classNamePrefix="select"
+                    />
                   )}
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className={labelClass}>Applicable App Types</label>
-                    <Controller
-                      name={`conditions.${conditionIndex}.appType`}
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          isMulti
-                          options={appTypeOptions}
-                          className="basic-multi-select"
-                          classNamePrefix="select"
-                        />
-                      )}
-                    />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Applicable Payment Methods</label>
-                    <Controller
-                      name={`conditions.${conditionIndex}.applicablePaymentMethods`}
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          isMulti
-                          options={paymentMethodOptions}
-                          className="basic-multi-select"
-                          classNamePrefix="select"
-                        />
-                      )}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <div>
-                    <label className={labelClass}>Minimum Transaction Value</label>
-                    <input
-                      type="number"
-                      {...register(`conditions.${conditionIndex}.minTransactionValue`, {
-                        min: { value: 0, message: "Minimum transaction value must be non-negative" }
-                      })}
-                      className={inputClass}
-                      placeholder="Minimum transaction value"
-                    />
-                    {errors.conditions?.[conditionIndex]?.minTransactionValue && 
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.conditions[conditionIndex].minTransactionValue.message}
-                      </p>
-                    }
-                  </div>
-                  <div>
-                    <label className={labelClass}>Maximum Transaction Value</label>
-                    <input
-                      type="number"
-                      {...register(`conditions.${conditionIndex}.maxTransactionValue`, {
-                        min: { value: 0, message: "Maximum transaction value must be non-negative" }
-                      })}
-                      className={inputClass}
-                      placeholder="Maximum transaction value (optional)"
-                    />
-                    {errors.conditions?.[conditionIndex]?.maxTransactionValue && 
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.conditions[conditionIndex].maxTransactionValue.message}
-                      </p>
-                    }
-                  </div>
-                </div>
+                />
               </div>
-            ))}
+              <div>
+                <label className={labelClass}>Applicable Payment Methods</label>
+                <Controller
+                  name="conditions.applicablePaymentMethods"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      isMulti
+                      options={paymentMethodOptions}
+                      className="basic-multi-select"
+                      classNamePrefix="select"
+                    />
+                  )}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div>
+                <label className={labelClass}>Minimum Transaction Value</label>
+                <input
+                  type="number"
+                  {...register("conditions.minTransactionValue", {
+                    min: {
+                      value: 0,
+                      message: "Minimum transaction value must be non-negative",
+                    },
+                  })}
+                  className={inputClass}
+                  placeholder="Minimum transaction value"
+                />
+                {errors.conditions?.minTransactionValue && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.conditions.minTransactionValue.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className={labelClass}>Maximum Transaction Value</label>
+                <input
+                  type="number"
+                  {...register("conditions.maxTransactionValue", {
+                    min: {
+                      value: 0,
+                      message: "Maximum transaction value must be non-negative",
+                    },
+                  })}
+                  className={inputClass}
+                  placeholder="Maximum transaction value (optional)"
+                />
+                {errors.conditions?.maxTransactionValue && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.conditions.maxTransactionValue.message}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className={cardClass}>
@@ -728,6 +857,23 @@ const removeCondition = (index) => {
             ))}
           </div>
 
+          <div className={cardClass}>
+            <h3 className={sectionHeadingClass}>Redemption Instructions</h3>
+            <textarea
+              {...register("redemptionInstructions", {
+                required: "Redemption instructions are required",
+              })}
+              className={inputClass}
+              placeholder="Instructions for redeeming this offer"
+              rows={3}
+            />
+            {errors.redemptionInstructions && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.redemptionInstructions.message}
+              </p>
+            )}
+          </div>
+
           <div className="flex justify-end gap-3 pt-2 border-t mt-4">
             <button
               type="button"
@@ -749,4 +895,4 @@ const removeCondition = (index) => {
   );
 };
 
-export default AddKhedmahOfter;
+export default AddKhedmahOffer;

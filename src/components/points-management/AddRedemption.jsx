@@ -179,7 +179,7 @@ const AddRedemption = ({ isOpen, onClose, editData, id }) => {
                 <label className={labelClass}>App Type</label>
                 <select
                   {...register("appType", { required: "App Type is required" })}
-                  className={inputClass}
+                  className={inputClass} disabled
                 >
                   <option value="">Select App</option>
                   {appTypes?.data?.map((item) => (

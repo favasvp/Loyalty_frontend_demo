@@ -159,6 +159,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           icon: LockClosedIcon,
         },
         {
+          label: "SDK & API Access",
+          path: "/sdk-access",
+          icon: CodeBracketIcon,
+        },
+        {
           label: "Theme Settings",
           path: "/theme",
           icon: Cog6ToothIcon,

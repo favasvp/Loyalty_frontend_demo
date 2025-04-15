@@ -23,6 +23,7 @@ import TriggerServices from "../pages/reference-data/TriggerServices";
 import AuthLogs from "../pages/audit/AuthLogs";
 import Support from "../pages/customer-management/Support";
 import KhedmahOffer from "../pages/ofters-and-promotions/KhedmahOffer";
+import SdkAccess from "../pages/system-and-settings/SdkAccess";
 const RootLayout = () => (
   <AuthProvider>
     <Outlet />
@@ -63,6 +64,7 @@ const router = createBrowserRouter([
           { path: "/trigger-events", element: <TriggerEvents /> },
           { path: "/trigger-services", element: <TriggerServices /> },
           { path: "/auth-logs", element: <AuthLogs /> },
+          { path: "/sdk-access", element: <SdkAccess /> },
           { path: "/support", element: <Support /> },
         ],
       },

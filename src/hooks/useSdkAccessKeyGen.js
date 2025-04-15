@@ -8,10 +8,11 @@ export function useSdkAccessKeyGen() {
   const queryClient = useQueryClient();
 
   // Get SDK access key
-  const useGetSdkAccessKeyGen = () => {
+  const useGetSdkAccessKeyGen = (id) => {
     return useQuery({
-      queryKey: ["sdkAccessKeyGen"],
-      queryFn: () => sdkAccessKeyGenApi.getSdkAccessKeyGen(),
+      queryKey: ["sdkAccessKeyGen", id],
+      queryFn: () => sdkAccessKeyGenApi.getSdkAccessKeyGen(id),
+      enabled: !!id,
       staleTime: 5 * 60 * 1000, // 5 minutes
     });
   };
@@ -30,8 +31,8 @@ export function useSdkAccessKeyGen() {
   // Update SDK access key
   const useUpdateSdkAccessKey = () => {
     return useMutation({
-      mutationFn: (sdkAccessKeyGenData) =>
-        sdkAccessKeyGenApi.updateSdkAccessKey(sdkAccessKeyGenData),
+      mutationFn: (id) =>
+        sdkAccessKeyGenApi.updateSdkAccessKey(id),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["sdkAccessKeyGen"] });
       },

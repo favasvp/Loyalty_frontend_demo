@@ -22,8 +22,9 @@ const AddKhedmahOffer = ({ isOpen, onClose, editData }) => {
   const { data: services } = useGetTriggerServices();
   const { useGetTriggerEvents } = useTriggerEvents();
   const { data: triggerEvents } = useGetTriggerEvents();
-  const { useCreateKhedmahOffer } = useKhedmahOffer();
+  const { useCreateKhedmahOffer ,updateKhedmahOffer} = useKhedmahOffer();
   const createMutation = useCreateKhedmahOffer();
+  const updateMutation = updateKhedmahOffer();
   const appTypeOptions =
     appTypes?.data?.map((appType) => ({
       value: appType._id,
@@ -276,7 +277,24 @@ const AddKhedmahOffer = ({ isOpen, onClose, editData }) => {
       termsAndConditions: data.termsAndConditions,
       redemptionInstructions: data.redemptionInstructions,
     };
-
+if (editData) {
+    updateMutation.mutate(
+      { id: editData?._id, data: formData },
+      {
+        onSuccess: (data) => {
+          addToast({ type: "success", message: data?.message });
+          reset();
+          onClose?.();
+        },
+        onError: (error) => {
+          addToast({
+            type: "error",
+            message: error?.response?.data?.message,
+          });
+        },
+      }
+    );
+  } else {  
     createMutation.mutate(formData, {
       onSuccess: (data) => {
         addToast({
@@ -293,6 +311,7 @@ const AddKhedmahOffer = ({ isOpen, onClose, editData }) => {
         });
       },
     });
+  }
   };
 
   const addTermsAndCondition = () => {

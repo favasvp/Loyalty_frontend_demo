@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { XMarkIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useBrands } from "../../hooks/useBrand";
@@ -9,38 +9,33 @@ import useUiStore from "../../store/ui";
 import { useOffers } from "../../hooks/useOffers";
 import { useTiers } from "../../hooks/useTiers";
 
-const AddOffer = ({ isOpen, onClose, editData }) => {
-  const [selectedOfferType, setSelectedOfferType] = useState(null);
+const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
+  const [selectedOfferType, setSelectedOfferType] = useState(offerType || null);
   const { useGetBrands } = useBrands();
   const { data: merchants } = useGetBrands();
   const { useGetCategory } = useCategory();
   const { data: couponCategories } = useGetCategory();
   const { useGetAppTypes } = useAppTypes();
   const { data: appTypes } = useGetAppTypes();
-  const { useCreateMerchantOffer } = useOffers();
+  const { useCreateMerchantOffer, updateMerchantOffer } = useOffers();
   const createMutation = useCreateMerchantOffer();
+  const updateMutation = updateMerchantOffer();
   const { addToast } = useUiStore();
   const { useGetTiers } = useTiers();
   const { data: tiers } = useGetTiers();
 
-  const offerTypes = useMemo(
-    () => [
-      {
-        id: "dynamic",
-        title: "Dynamic Offer",
-        description: "Dynamic offer ",
-      },
-     
-    ],
-    []
-  );
-
+  useEffect(() => {
+    if (offerType) {
+      setSelectedOfferType(offerType);
+    }
+  }, [offerType]);
   const {
     register,
     control,
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -49,6 +44,7 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
       description: "",
       merchantId: "",
       couponCategoryId: "",
+      redemptionUrl: "",
       discountDetails: {
         type: "",
         value: "",
@@ -74,11 +70,174 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
           minTransactionValue: 0,
           maxTransactionValue: null,
           applicablePaymentMethods: [],
-        }
+        },
       ],
       termsAndConditions: [],
     },
   });
+  useEffect(() => {
+    if (editData) {
+      setSelectedOfferType(editData.type);
+
+      setValue("title", editData.title);
+      setValue("description", editData.description);
+      setValue("merchantId", editData.merchantId);
+      setValue("couponCategoryId", editData.couponCategoryId);
+      setValue("redeemablePointsCount", editData.redeemablePointsCount);
+
+      if (editData.type === "PRE_GENERATED" && editData.code) {
+        setValue("code", editData.code);
+      }
+
+      if (editData.type === "ONE_TIME_LINK" && editData.redemptionUrl) {
+        setValue("redemptionUrl", editData.redemptionUrl);
+      }
+
+      if (editData.discountDetails) {
+        setValue("discountDetails.type", editData.discountDetails.type);
+        setValue("discountDetails.value", editData.discountDetails.value);
+      }
+
+      if (editData.validityPeriod) {
+        const formatDate = (dateString) => {
+          const date = new Date(dateString);
+          return date.toISOString().split("T")[0];
+        };
+
+        setValue(
+          "validityPeriod.startDate",
+          formatDate(editData.validityPeriod.startDate)
+        );
+        setValue(
+          "validityPeriod.endDate",
+          formatDate(editData.validityPeriod.endDate)
+        );
+      }
+
+      if (editData.eligibilityCriteria) {
+        const userTypeOptions = [
+          { value: "NEW", label: "New Users" },
+          { value: "EXISTING", label: "Existing Users" },
+          { value: "PREMIUM", label: "Premium Users" },
+          { value: "ALL", label: "All Users" },
+        ];
+
+        const selectedUserTypes = editData.eligibilityCriteria.userTypes
+          .map((type) => {
+            return userTypeOptions.find((option) => option.value === type);
+          })
+          .filter(Boolean);
+
+        setValue("eligibilityCriteria.userTypes", selectedUserTypes);
+
+        if (tiers?.data) {
+          const tierOptions = tiers.data.map((tier) => ({
+            value: tier._id,
+            label: tier.name,
+          }));
+
+          const selectedTiers = editData.eligibilityCriteria.tiers
+            .map((tierId) => {
+              return tierOptions.find((option) => option.value === tierId);
+            })
+            .filter(Boolean);
+
+          setValue("eligibilityCriteria.tiers", selectedTiers);
+        }
+
+        if (editData.eligibilityCriteria.minTransactionHistory !== undefined) {
+          setValue(
+            "eligibilityCriteria.minPointsBalance",
+            editData.eligibilityCriteria.minTransactionHistory
+          );
+        } else if (
+          editData.eligibilityCriteria.minPointsBalance !== undefined
+        ) {
+          setValue(
+            "eligibilityCriteria.minPointsBalance",
+            editData.eligibilityCriteria.minPointsBalance
+          );
+        }
+      }
+
+      if (editData.usagePolicy) {
+        setValue("usagePolicy.frequency", editData.usagePolicy.frequency);
+        setValue(
+          "usagePolicy.maxUsagePerPeriod",
+          editData.usagePolicy.maxUsagePerPeriod
+        );
+        setValue(
+          "usagePolicy.maxTotalUsage",
+          editData.usagePolicy.maxTotalUsage
+        );
+      }
+
+      if (editData.conditions && editData.conditions.length > 0) {
+        const appTypeOptions =
+          appTypes?.data?.map((appType) => ({
+            value: appType._id,
+            label: appType.name,
+          })) || [];
+
+        const paymentMethodOptions = [
+          { value: "Khedmah-Pay", label: "Khedmah-Pay" },
+          { value: "Khedmah-Wallet", label: "Khedmah-Wallet" },
+        ];
+
+        const formattedConditions = editData.conditions.map((condition) => {
+          const selectedAppTypes = condition.appType
+            .map((typeId) => {
+              return appTypeOptions.find((option) => option.value === typeId);
+            })
+            .filter(Boolean);
+
+          const selectedPaymentMethods = condition.applicablePaymentMethods
+            .map((method) => {
+              return paymentMethodOptions.find(
+                (option) => option.value === method
+              );
+            })
+            .filter(Boolean);
+
+          return {
+            appType: selectedAppTypes,
+            minTransactionValue: condition.minTransactionValue,
+            maxTransactionValue: condition.maxTransactionValue,
+            applicablePaymentMethods: selectedPaymentMethods,
+          };
+        });
+
+        setValue("conditions", formattedConditions);
+      }
+
+      if (
+        editData.termsAndConditions &&
+        editData.termsAndConditions.length > 0
+      ) {
+        setValue("termsAndConditions", editData.termsAndConditions);
+      }
+    }
+  }, [editData, setValue, appTypes, tiers]);
+  const offerTypes = useMemo(
+    () => [
+      {
+        id: "DYNAMIC",
+        title: "Dynamic Offer",
+        description: "Dynamic offer ",
+      },
+      {
+        id: "ONE_TIME_LINK",
+        title: "One Time Link",
+        description: "One time link offer",
+      },
+      {
+        id: "PRE_GENERATED",
+        title: "Pre Generated",
+        description: "Pre generated offer",
+      },
+    ],
+    []
+  );
 
   if (!isOpen) return null;
   const userTypeOptions = [
@@ -111,8 +270,9 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
     const formData = {
       merchantId: data.merchantId,
       title: data.title,
+      posterImage:
+        "https://img.freepik.com/free-vector/sale-offer-label-banner-discount-offer-promotion_157027-1250.jpg",
       description: data.description,
-      code: data.code,
       couponCategoryId: data.couponCategoryId,
       discountDetails: {
         type: data.discountDetails.type,
@@ -128,36 +288,68 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
         tiers: data.eligibilityCriteria.tiers.map((item) => item.value),
         minPointsBalance: data.eligibilityCriteria.minPointsBalance,
       },
+      type: selectedOfferType,
       usagePolicy: {
         frequency: data.usagePolicy.frequency,
         maxUsagePerPeriod: data.usagePolicy.maxUsagePerPeriod,
         maxTotalUsage: data.usagePolicy.maxTotalUsage,
       },
-      conditions: data.conditions.map(condition => ({
-        appType: condition.appType.map(item => item.value),
+      conditions: data.conditions.map((condition) => ({
+        appType: condition.appType.map((item) => item.value),
         minTransactionValue: condition.minTransactionValue,
         maxTransactionValue: condition.maxTransactionValue,
-        applicablePaymentMethods: condition.applicablePaymentMethods.map(item => item.value),
+        applicablePaymentMethods: condition.applicablePaymentMethods.map(
+          (item) => item.value
+        ),
       })),
       termsAndConditions: data.termsAndConditions,
     };
 
-    console.log("Submitting offer:", formData);
+    if (selectedOfferType === "PRE_GENERATED" && data.code) {
+      formData.code = data.code;
+    }
 
-    createMutation.mutate(formData, {
-      onSuccess: (data) => {
-        addToast({
-          type: "success",
-          message: data?.message,
-        });
-      },
-      onError: (error) => {
-        addToast({
-          type: "error",
-          message: error?.response?.data?.message,
-        });
-      },
-    });
+    if (selectedOfferType === "ONE_TIME_LINK" && data.redemptionUrl) {
+      formData.redemptionUrl = data.redemptionUrl;
+    }
+    if (editData) {
+      updateMutation.mutate(
+        {
+          id: editData?._id,
+          offerData: formData,
+        },
+        {
+          onSuccess: (data) => {
+            addToast({ type: "success", message: data?.data });
+            reset();
+            onClose();
+          },
+          onError: (error) => {
+            addToast({
+              type: "error",
+              message: error?.response?.data?.message,
+            });
+          },
+        }
+      );
+    } else {
+      createMutation.mutate(formData, {
+        onSuccess: (data) => {
+          addToast({
+            type: "success",
+            message: data?.data,
+          });
+          reset();
+          onClose();
+        },
+        onError: (error) => {
+          addToast({
+            type: "error",
+            message: error?.response?.data?.message,
+          });
+        },
+      });
+    }
   };
 
   const addTermsAndCondition = () => {
@@ -170,25 +362,32 @@ const AddOffer = ({ isOpen, onClose, editData }) => {
     const updatedTerms = currentTerms.filter((_, i) => i !== index);
     setValue("termsAndConditions", updatedTerms);
   };
-const handleBack = () => {
-  setSelectedOfferType(null);
-  onClose();
-}
-const addCondition = () => {
-  const currentConditions = watch("conditions") || [];
-  setValue("conditions", [...currentConditions, {
-    appType: [],
-    minTransactionValue: 0,
-    maxTransactionValue: null,
-    applicablePaymentMethods: [],
-  }]);
-};
 
-const removeCondition = (index) => {
-  const currentConditions = watch("conditions") || [];
-  const updatedConditions = currentConditions.filter((_, i) => i !== index);
-  setValue("conditions", updatedConditions);
-};
+  const handleBack = () => {
+    setSelectedOfferType(null);
+    reset();
+    onClose();
+  };
+
+  const addCondition = () => {
+    const currentConditions = watch("conditions") || [];
+    setValue("conditions", [
+      ...currentConditions,
+      {
+        appType: [],
+        minTransactionValue: 0,
+        maxTransactionValue: null,
+        applicablePaymentMethods: [],
+      },
+    ]);
+  };
+
+  const removeCondition = (index) => {
+    const currentConditions = watch("conditions") || [];
+    const updatedConditions = currentConditions.filter((_, i) => i !== index);
+    setValue("conditions", updatedConditions);
+  };
+
   const inputClass =
     "w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors";
   const labelClass = "block text-xs font-medium text-gray-500 mb-1";
@@ -244,7 +443,6 @@ const removeCondition = (index) => {
           </h2>
           <button
             onClick={handleBack}
-
             className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
           >
             <XMarkIcon className="w-5 h-5" />
@@ -255,19 +453,42 @@ const removeCondition = (index) => {
           <div className={cardClass}>
             <h3 className={sectionHeadingClass}>Basic Offer Details</h3>
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>Offer Code</label>
-                <input
-                  {...register("code", { required: "Offer code is required" })}
-                  className={inputClass}
-                  placeholder="Enter unique offer code"
-                />
-                {errors.code && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.code.message}
-                  </p>
-                )}
-              </div>
+              {selectedOfferType === "PRE_GENERATED" && (
+                <div>
+                  <label className={labelClass}>Offer Code</label>
+                  <input
+                    {...register("code", {
+                      required: "Offer code is required",
+                    })}
+                    className={inputClass}
+                    placeholder="Enter unique offer code"
+                  />
+                  {errors.code && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.code.message}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {selectedOfferType === "ONE_TIME_LINK" && (
+                <div>
+                  <label className={labelClass}>Redemption URL</label>
+                  <input
+                    {...register("redemptionUrl", {
+                      required: "Redemption URL is required",
+                    })}
+                    className={inputClass}
+                    placeholder="Enter redemption URL"
+                  />
+                  {errors.redemptionUrl && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.redemptionUrl.message}
+                    </p>
+                  )}
+                </div>
+              )}
+
               <div>
                 <label className={labelClass}>Title</label>
                 <input
@@ -605,9 +826,14 @@ const removeCondition = (index) => {
             </div>
 
             {watch("conditions").map((condition, conditionIndex) => (
-              <div key={conditionIndex} className="border-b pb-4 mb-4 last:border-b-0">
+              <div
+                key={conditionIndex}
+                className="border-b pb-4 mb-4 last:border-b-0"
+              >
                 <div className="flex justify-between items-center mb-3">
-                  <h4 className="text-xs font-medium text-gray-600">Condition {conditionIndex + 1}</h4>
+                  <h4 className="text-xs font-medium text-gray-600">
+                    Condition {conditionIndex + 1}
+                  </h4>
                   {watch("conditions").length > 1 && (
                     <button
                       type="button"
@@ -636,7 +862,9 @@ const removeCondition = (index) => {
                     />
                   </div>
                   <div>
-                    <label className={labelClass}>Applicable Payment Methods</label>
+                    <label className={labelClass}>
+                      Applicable Payment Methods
+                    </label>
                     <Controller
                       name={`conditions.${conditionIndex}.applicablePaymentMethods`}
                       control={control}
@@ -654,36 +882,62 @@ const removeCondition = (index) => {
                 </div>
                 <div className="grid grid-cols-2 gap-4 mt-4">
                   <div>
-                    <label className={labelClass}>Minimum Transaction Value</label>
+                    <label className={labelClass}>
+                      Minimum Transaction Value
+                    </label>
                     <input
                       type="number"
-                      {...register(`conditions.${conditionIndex}.minTransactionValue`, {
-                        min: { value: 0, message: "Minimum transaction value must be non-negative" }
-                      })}
+                      {...register(
+                        `conditions.${conditionIndex}.minTransactionValue`,
+                        {
+                          min: {
+                            value: 0,
+                            message:
+                              "Minimum transaction value must be non-negative",
+                          },
+                        }
+                      )}
                       className={inputClass}
                       placeholder="Minimum transaction value"
                     />
-                    {errors.conditions?.[conditionIndex]?.minTransactionValue && 
+                    {errors.conditions?.[conditionIndex]
+                      ?.minTransactionValue && (
                       <p className="text-red-500 text-xs mt-1">
-                        {errors.conditions[conditionIndex].minTransactionValue.message}
+                        {
+                          errors.conditions[conditionIndex].minTransactionValue
+                            .message
+                        }
                       </p>
-                    }
+                    )}
                   </div>
                   <div>
-                    <label className={labelClass}>Maximum Transaction Value</label>
+                    <label className={labelClass}>
+                      Maximum Transaction Value
+                    </label>
                     <input
                       type="number"
-                      {...register(`conditions.${conditionIndex}.maxTransactionValue`, {
-                        min: { value: 0, message: "Maximum transaction value must be non-negative" }
-                      })}
+                      {...register(
+                        `conditions.${conditionIndex}.maxTransactionValue`,
+                        {
+                          min: {
+                            value: 0,
+                            message:
+                              "Maximum transaction value must be non-negative",
+                          },
+                        }
+                      )}
                       className={inputClass}
                       placeholder="Maximum transaction value (optional)"
                     />
-                    {errors.conditions?.[conditionIndex]?.maxTransactionValue && 
+                    {errors.conditions?.[conditionIndex]
+                      ?.maxTransactionValue && (
                       <p className="text-red-500 text-xs mt-1">
-                        {errors.conditions[conditionIndex].maxTransactionValue.message}
+                        {
+                          errors.conditions[conditionIndex].maxTransactionValue
+                            .message
+                        }
                       </p>
-                    }
+                    )}
                   </div>
                 </div>
               </div>

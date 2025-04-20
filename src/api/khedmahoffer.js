@@ -1,4 +1,3 @@
-import { get } from "react-hook-form";
 import apiClient from "./client";
 const rootUrl = "/kedmah-offers";
 const khedmahofferApi = {

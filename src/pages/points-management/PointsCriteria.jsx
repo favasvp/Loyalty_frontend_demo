@@ -1,10 +1,13 @@
 import StyledSearchInput from "../../ui/StyledSearchInput";
 import StyledButton from "../../ui/StyledButton";
 import PointsCard from "../../ui/point-managememt/PointsCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  ArrowPathIcon,
   CheckIcon,
+  ClockIcon,
   CodeBracketIcon,
+  CurrencyDollarIcon,
   DocumentTextIcon,
   PencilIcon,
   XMarkIcon,
@@ -16,14 +19,22 @@ import AddPointCriteria from "../../components/points-management/AddPointCriteri
 import PointsCriteriaView from "../../components/points-management/PointsCriteriaView";
 import DeleteModal from "../../ui/DeleteModal";
 import useUiStore from "../../store/ui";
+import { useAppTypes } from "../../hooks/useAppTypes";
 const PointsCriteria = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [open, setOpen] = useState(false);
-  const { useGetPointsCriteria, useGetPointsCriteriaById,useDeletePointsCriteria } =
-    usePointsCriteria();
+  const {
+    useGetPointsCriteria,
+    useGetPointsCriteriaById,
+    useDeletePointsCriteria,
+  } = usePointsCriteria();
   const [Id, setId] = useState(null);
   const [selected, setSelected] = useState(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const { useGetAppTypes } = useAppTypes();
+  const { data: appTypeData } = useGetAppTypes();
+  const appTypes = appTypeData?.data;
+  const [activeTab, setActiveTab] = useState("all");
   const deleteMutation = useDeletePointsCriteria();
   const {
     data: pointsCriteriaData,
@@ -31,7 +42,19 @@ const PointsCriteria = () => {
     error,
     refetch,
     dataUpdatedAt,
-  } = useGetPointsCriteria();
+  } = useGetPointsCriteria(activeTab === "all" ? {} : { appType: activeTab });
+
+  const dynamicTabs = [
+    { id: "all", label: "All" },
+    ...(appTypes?.map((type) => ({
+      id: type._id,
+      label: type.name,
+    })) || []),
+  ];
+  useEffect(() => {
+    refetch();
+  }, [activeTab]);
+
   const pointsCriteria = pointsCriteriaData?.data;
   const { data: pointsCriteriaById } = useGetPointsCriteriaById(Id);
   const { addToast } = useUiStore();
@@ -92,20 +115,39 @@ const PointsCriteria = () => {
         {isLoading ? (
           <Loader />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {pointsCriteria.map((criteria) => (
-              <PointsCard
-                onClick={() => {
-                  setId(criteria?._id);
-                  setIsModalOpen(true);
-                }}
-                key={criteria._id}
-                criteria={criteria}
-                onEdit={() => handleEdit(criteria._id)}
-                onDelete={() => handleDeleteOpen(criteria?._id)}
-              />
-            ))}
-          </div>
+          <>
+            <div className="flex border-b border-gray-200 overflow-x-auto">
+              {dynamicTabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  className={`flex items-center gap-2 px-6 py-2 text-sm font-medium focus:outline-none transition-all whitespace-nowrap
+        ${
+          activeTab === tab.id
+            ? "border-b-2 border-green-600 text-green-600"
+            : "text-gray-500"
+        }`}
+                  onClick={() => setActiveTab(tab.id)}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+              {pointsCriteria.map((criteria) => (
+                <PointsCard
+                  onClick={() => {
+                    setId(criteria?._id);
+                    setIsModalOpen(true);
+                  }}
+                  key={criteria._id}
+                  criteria={criteria}
+                  onEdit={() => handleEdit(criteria._id)}
+                  onDelete={() => handleDeleteOpen(criteria?._id)}
+                />
+              ))}
+            </div>
+          </>
         )}
         <PointsCriteriaView
           id={Id}

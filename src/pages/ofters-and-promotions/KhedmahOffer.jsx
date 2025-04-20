@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowDownTrayIcon,
   Squares2X2Icon,
@@ -14,34 +14,39 @@ import Loader from "../../ui/Loader";
 import AddKhedmahOfter from "../../components/ofters-and-promotions/AddKhedmahOfter";
 import { useKhedmahOffer } from "../../hooks/useKhedmahOffer";
 import useUiStore from "../../store/ui";
+import moment from "moment";
 
 const KhedmahOffer = () => {
   const [activeView, setActiveView] = useState("grid");
   const [addOpen, setAddOpen] = useState(false);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [totalCount, setTotalCount] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState("");
   const [data, setData] = useState(null);
   const { getKhedmahOffers, khedmahofferById, deleteKhedmahOffer } =
     useKhedmahOffer();
   const deleteMutation = deleteKhedmahOffer();
   const { data: khedmahoffer } = khedmahofferById(data?.id);
-  const { data: offerData, isLoading,refetch,dataUpdatedAt } = getKhedmahOffers();
+  const {
+    data: offerData,
+    isLoading,
+    refetch,
+    dataUpdatedAt,
+  } = getKhedmahOffers();
   const offers = offerData?.data || [];
   const { addToast } = useUiStore();
 
+  useEffect(() => {
+    if (offers?.data?.total) {
+      setTotalCount(offers.data.total);
+    }
+  }, [offers]);
   const handleEdit = (id) => {
     setData({ id });
     setAddOpen(true);
   };
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+
   const handleDeleteOpen = async (id) => {
     setData(id);
     setDeleteOpen(true);
@@ -74,12 +79,11 @@ const KhedmahOffer = () => {
             Khedmah Offers
           </h1>
           <p className="text-xs text-gray-500 mt-1">
-          Last Updated: {new Date(dataUpdatedAt).toLocaleString()}
-
+            Last Updated: {new Date(dataUpdatedAt).toLocaleString()}
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full md:w-auto">
-          <RefreshButton isLoading={isLoading} onClick={() => refetch()}  />
+          <RefreshButton isLoading={isLoading} onClick={() => refetch()} />
           <StyledSearchInput
             placeholder="Search offers"
             className="w-full sm:w-auto"
@@ -128,7 +132,7 @@ const KhedmahOffer = () => {
         </button>
       </div>
 
-      {isLoading  ? (
+      {isLoading ? (
         <Loader />
       ) : (
         <div className="mt-6">
@@ -178,7 +182,9 @@ const KhedmahOffer = () => {
                       <div className="text-xs">
                         <span className="text-gray-500">Valid Until</span>
                         <p className="font-medium text-gray-900">
-                          {formatDate(offer.validityPeriod?.endDate)}
+                          {moment(offer.validityPeriod?.endDate).format(
+                            "DD MMM YYYY"
+                          )}
                         </p>
                       </div>
                     </div>
@@ -257,7 +263,9 @@ const KhedmahOffer = () => {
                         <div className="text-center text-xs">
                           <span className="text-gray-500">Valid Until</span>
                           <p className="font-medium text-gray-900">
-                            {formatDate(offer.validityPeriod?.endDate)}
+                            {moment(offer.validityPeriod?.endDate).format(
+                              "DD MMM YYYY"
+                            )}
                           </p>
                         </div>
                         <div className="text-center text-xs">
@@ -294,8 +302,42 @@ const KhedmahOffer = () => {
                 )
               )}
             </div>
-          )}
 
+          )}
+   <div className="mt-6 flex justify-end">
+            <nav className="flex flex-wrap items-center gap-1">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage <= 1}
+                className={`px-3 py-1 rounded-lg transition-all text-xs ${
+                  currentPage <= 1
+                    ? "text-gray-500 cursor-not-allowed"
+                    : "bg-green-500 text-white hover:bg-green-600"
+                }`}
+              >
+                Previous
+              </button>
+
+              <p className="text-sm text-gray-600">
+                Page {currentPage} of {Math.ceil(totalCount / itemsPerPage)}
+              </p>
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) =>
+                    Math.min(prev + 1, Math.ceil(totalCount / itemsPerPage))
+                  )
+                }
+                disabled={currentPage >= Math.ceil(totalCount / itemsPerPage)}
+                className={`px-3 py-1 rounded-lg transition-all text-xs ${
+                  currentPage >= Math.ceil(totalCount / itemsPerPage)
+                    ? "text-gray-500 cursor-not-allowed"
+                    : "bg-green-500 text-white hover:bg-green-600"
+                }`}
+              >
+                Next
+              </button>
+            </nav>
+          </div>
           <DeleteModal
             isOpen={deleteOpen}
             onClose={() => {
@@ -303,7 +345,6 @@ const KhedmahOffer = () => {
               // setSelectedOffer(null);
             }}
             onConfirm={handleDelete}
-
             data={"offer"}
           />
 

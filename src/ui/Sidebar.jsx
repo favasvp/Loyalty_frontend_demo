@@ -133,7 +133,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       subItems: [
         {
           label: "Khedma Offers",
-          path: "/khedma-offers",
+          path: "/khedmah-offers",
           icon: TicketIcon,
         },
         {

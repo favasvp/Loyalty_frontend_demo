@@ -110,7 +110,7 @@ const Users = () => {
         <div>
           {" "}
           <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-            Sub Admin Management
+            User Management
           </h1>
           <p className="text-xs text-gray-500 mt-1">
             Manage system users and their access
@@ -143,7 +143,7 @@ const Users = () => {
           <StyledButton
             name={
               <>
-                <span className="text-lg leading-none">+</span> Add Sub Admin
+                <span className="text-lg leading-none">+</span> Add User
               </>
             }
             onClick={() => setAddOpen(true)}

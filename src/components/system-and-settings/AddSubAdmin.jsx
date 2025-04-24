@@ -110,7 +110,7 @@ const AddSubAdmin = ({ isOpen, onClose, onSuccess, editData }) => {
       <div className="bg-white rounded-lg w-full max-w-md p-4 max-h-[80vh] min-h-[300px] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-gray-900">
-            {editData ? "Edit Sub Admin" : "Add Sub Admin"}
+            {editData ? "Edit User" : "Add User"}
           </h2>
           <button
             onClick={resetAndClose}
@@ -184,7 +184,7 @@ const AddSubAdmin = ({ isOpen, onClose, onSuccess, editData }) => {
               variant="tertiary"
             />
             <StyledButton
-              name={editData ? "Edit" : "Add Sub Admin"}
+              name={editData ? "Edit" : "Add User"}
               type="submit"
               variant="primary"
             />

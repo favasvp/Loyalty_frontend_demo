@@ -287,7 +287,10 @@ const KhedmahOffer = () => {
                         </div>
                       </div>
                       <div className="flex gap-3 ml-auto md:ml-4">
-                        <button className="text-gray-600 hover:text-gray-900 transition">
+                        <button
+                          className="text-gray-600 hover:text-gray-900 transition"
+                          onClick={() => handleEdit(offer?._id)}
+                        >
                           <PencilIcon className="w-4 h-4" />
                         </button>
                         <button
@@ -302,9 +305,8 @@ const KhedmahOffer = () => {
                 )
               )}
             </div>
-
           )}
-   <div className="mt-6 flex justify-end">
+          <div className="mt-6 flex justify-end">
             <nav className="flex flex-wrap items-center gap-1">
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}

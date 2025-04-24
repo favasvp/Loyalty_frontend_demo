@@ -373,6 +373,7 @@ const MerchantOffers = () => {
         isOpen={addOpen}
         onClose={() => {
           setAddOpen(false);
+          setData(null);
         }}
         editData={singleData?.data}
         offerType={singleData?.data?.type}

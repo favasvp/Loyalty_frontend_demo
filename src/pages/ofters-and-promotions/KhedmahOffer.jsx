@@ -352,6 +352,7 @@ const KhedmahOffer = () => {
             isOpen={addOpen}
             onClose={() => {
               setAddOpen(false);
+              setData(null);
             }}
             editData={khedmahoffer?.data}
           />

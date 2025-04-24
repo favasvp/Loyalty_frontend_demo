@@ -10,7 +10,8 @@ import useUiStore from "../../store/ui";
 const AddPointCriteria = ({ isOpen, onClose, editData }) => {
   if (!isOpen) return null;
 
-  const { useCreatePointsCriteria,useUpdatePointsCriteria } = usePointsCriteria();
+  const { useCreatePointsCriteria, useUpdatePointsCriteria } =
+    usePointsCriteria();
   const createMutation = useCreatePointsCriteria();
   const updateMutation = useUpdatePointsCriteria();
   const { addToast } = useUiStore();
@@ -33,6 +34,9 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
       eventType: "",
       serviceType: "",
       appType: "",
+      startDate: null,
+      endDate: null,
+      description: "",
       pointSystem: [{ paymentMethod: "", pointType: "", pointRate: "" }],
       conditions: {
         maxTransactions: {
@@ -52,50 +56,68 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
 
   const { data: triggerServices } =
     useGetTriggerServiceByTriggerEventId(watchEventType);
+
   useEffect(() => {
     if (editData) {
-      const serviceTypeId =
-        editData.serviceType?._id || editData.serviceType || "";
-      setValue("eventType", editData.eventType?._id || "");
-      if (serviceTypeId) {
-        setValue("serviceType", serviceTypeId);
-      }
+      setValue(
+        "eventType",
+        editData.eventType?._id || editData.eventType || ""
+      );
+      setValue(
+        "serviceType",
+        editData.serviceType?._id || editData.serviceType || ""
+      );
+      const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toISOString().split("T")[0];
+      };
 
-      setValue("appType", editData.appType?._id || "");
+      setValue("appType", editData.appType?._id || editData.appType || "");
       setValue("description", editData.description || "");
-      if (editData.pointSystem && editData.pointSystem.length > 0) {
+      setValue("startDate", formatDate(editData.startDate) || null);
+      setValue("endDate", formatDate(editData.endDate) || null);
+      if (editData.pointSystem?.length > 0) {
         setValue(
           "pointSystem",
           editData.pointSystem.map((item) => ({
-            paymentMethod: item.paymentMethod,
-            pointType: item.pointType,
-            pointRate: item.pointRate,
+            paymentMethod: item.paymentMethod || "",
+            pointType: item.pointType || "",
+            pointRate: item.pointRate || "",
           }))
         );
       }
+
       if (editData.conditions) {
-        setValue(
-          "conditions.maxTransactions.weekly",
-          editData.conditions.maxTransactions?.weekly || ""
-        );
-        setValue(
-          "conditions.maxTransactions.monthly",
-          editData.conditions.maxTransactions?.monthly || ""
-        );
-        setValue(
-          "conditions.transactionValueLimits.minValue",
-          editData.conditions.transactionValueLimits?.minValue || ""
-        );
-        setValue(
-          "conditions.transactionValueLimits.maxValue",
-          editData.conditions.transactionValueLimits?.maxValue || ""
-        );
+        const { maxTransactions, transactionValueLimits } = editData.conditions;
+
+        if (maxTransactions) {
+          setValue(
+            "conditions.maxTransactions.weekly",
+            maxTransactions.weekly || ""
+          );
+          setValue(
+            "conditions.maxTransactions.monthly",
+            maxTransactions.monthly || ""
+          );
+        }
+
+        if (transactionValueLimits) {
+          setValue(
+            "conditions.transactionValueLimits.minValue",
+            transactionValueLimits.minValue || ""
+          );
+          setValue(
+            "conditions.transactionValueLimits.maxValue",
+            transactionValueLimits.maxValue || ""
+          );
+        }
       }
     }
-  }, [editData, setValue, triggerServices]);
+  }, [editData, setValue]);
+
   const paymentMethodOptions = [
-    { value: "Khedmah-Pay", label: "Khedmah-Pay" },
-    { value: "Khedmah-Wallet", label: "Khedmah-Wallet" },
+    { value: "Card", label: "Card" },
+    { value: "Wallet", label: "Wallet" },
   ];
 
   const pointTypeOptions = [
@@ -105,61 +127,112 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
 
   const onSubmit = (data) => {
     const formData = {
-      ...data,
-      pointSystem: data.pointSystem.map((item) => ({
-        paymentMethod: item.paymentMethod,
-        pointType: item.pointType,
-        pointRate: item.pointRate,
-      })),
+      eventType: data.eventType,
+      serviceType: data.serviceType,
+      startDate: data?.startDate,
+      endDate: data.endDate,
+      appType: data.appType,
+      description: data.description,
     };
+
+    const validPointSystems = data.pointSystem.filter(
+      (item) => item.paymentMethod && item.pointType && item.pointRate
+    );
+
+    if (validPointSystems.length > 0) {
+      formData.pointSystem = validPointSystems;
+    }
+
+    const conditionFields = {
+      maxTransactions: {
+        weekly: data.conditions.maxTransactions.weekly,
+        monthly: data.conditions.maxTransactions.monthly,
+      },
+      transactionValueLimits: {
+        minValue: data.conditions.transactionValueLimits.minValue,
+        maxValue: data.conditions.transactionValueLimits.maxValue,
+      },
+    };
+
+    const hasMaxTransactions =
+      conditionFields.maxTransactions.weekly ||
+      conditionFields.maxTransactions.monthly;
+    const hasValueLimits =
+      conditionFields.transactionValueLimits.minValue ||
+      conditionFields.transactionValueLimits.maxValue;
+
+    if (hasMaxTransactions || hasValueLimits) {
+      formData.conditions = {};
+
+      if (hasMaxTransactions) {
+        formData.conditions.maxTransactions = {};
+        if (conditionFields.maxTransactions.weekly) {
+          formData.conditions.maxTransactions.weekly =
+            conditionFields.maxTransactions.weekly;
+        }
+        if (conditionFields.maxTransactions.monthly) {
+          formData.conditions.maxTransactions.monthly =
+            conditionFields.maxTransactions.monthly;
+        }
+      }
+
+      if (hasValueLimits) {
+        formData.conditions.transactionValueLimits = {};
+        if (conditionFields.transactionValueLimits.minValue) {
+          formData.conditions.transactionValueLimits.minValue =
+            conditionFields.transactionValueLimits.minValue;
+        }
+        if (conditionFields.transactionValueLimits.maxValue) {
+          formData.conditions.transactionValueLimits.maxValue =
+            conditionFields.transactionValueLimits.maxValue;
+        }
+      }
+    }
+
+    const handleResponse = (response, successAction) => {
+      addToast({
+        type: "success",
+        message: response?.message || "Operation successful",
+      });
+      successAction();
+    };
+
+    const handleError = (error) => {
+      addToast({
+        type: "error",
+        message: error?.response?.data?.message || "An error occurred",
+      });
+    };
+
     if (editData) {
       updateMutation.mutate(
         { id: editData?._id, criteriaData: formData },
         {
-          onSuccess: (data) => {
-            addToast({ type: "success", message: data?.message });
-            onClose?.();
-          },
-          onError: (error) => {
-            addToast({
-              type: "error",
-              message: error?.response?.data?.message,
-            });
-          },
+          onSuccess: (data) => handleResponse(data, onClose),
+          onError: handleError,
         }
       );
     } else {
-    createMutation.mutate(formData, {
-      onSuccess: (responseData) => {
-        addToast({
-          type: "success",
-          message: responseData?.message,
-        });
-        onClose?.();
-      },
-      onError: (error) => {
-        addToast({
-          type: "error",
-          message: error?.response?.data?.message,
-        });
-      },
-    });}
+      createMutation.mutate(formData, {
+        onSuccess: (data) => handleResponse(data, onClose),
+        onError: handleError,
+      });
+    }
   };
 
   const addPointSystem = () => {
-    const currentPointSystem = watchPointSystem || [];
     setValue("pointSystem", [
-      ...currentPointSystem,
+      ...watchPointSystem,
       { paymentMethod: "", pointType: "", pointRate: "" },
     ]);
   };
 
   const removePointSystem = (index) => {
-    const currentPointSystem = watchPointSystem || [];
-    if (currentPointSystem.length <= 1) return;
-
-    const updatedPointSystem = currentPointSystem.filter((_, i) => i !== index);
-    setValue("pointSystem", updatedPointSystem);
+    if (watchPointSystem.length <= 1) return;
+    setValue(
+      "pointSystem",
+      watchPointSystem.filter((_, i) => i !== index)
+    );
   };
 
   const inputClass =
@@ -173,7 +246,7 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
       <div className="bg-white rounded-lg w-full max-w-2xl p-4 max-h-[80vh] min-h-[300px] overflow-y-auto">
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-lg font-medium text-gray-800">
-            Add Point Criteria
+            {editData ? "Edit" : "Add"} Point Criteria
           </h2>
           <button
             onClick={onClose}
@@ -248,7 +321,7 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
                   </p>
                 )}
               </div>
-            </div>{" "}
+            </div>
             <div className="mt-4">
               <label className={labelClass}>Description</label>
               <textarea
@@ -263,6 +336,36 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
                   {errors.description.message}
                 </p>
               )}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>Start Date</label>
+                <input
+                  type="date"
+                  {...register("startDate", {
+                    required: "Start Date is required",
+                  })}
+                  className={inputClass}
+                />
+                {errors.startDate && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.startDate.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className={labelClass}>End Date</label>
+                <input
+                  type="date"
+                  {...register("endDate", { required: "End Date is required" })}
+                  className={inputClass}
+                />
+                {errors.endDate && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.endDate.message}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
@@ -309,9 +412,7 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
                     <div>
                       <label className={labelClass}>Payment Method</label>
                       <select
-                        {...register(`pointSystem.${index}.paymentMethod`, {
-                          required: "Payment method is required",
-                        })}
+                        {...register(`pointSystem.${index}.paymentMethod`)}
                         className={inputClass}
                       >
                         <option value="">Select Payment Method</option>
@@ -321,18 +422,11 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
                           </option>
                         ))}
                       </select>
-                      {errors.pointSystem?.[index]?.paymentMethod && (
-                        <p className="text-red-500 text-xs mt-1">
-                          {errors.pointSystem[index].paymentMethod.message}
-                        </p>
-                      )}
                     </div>
                     <div>
                       <label className={labelClass}>Point Type</label>
                       <select
-                        {...register(`pointSystem.${index}.pointType`, {
-                          required: "Point type is required",
-                        })}
+                        {...register(`pointSystem.${index}.pointType`)}
                         className={inputClass}
                       >
                         <option value="">Select Point Type</option>
@@ -342,31 +436,15 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
                           </option>
                         ))}
                       </select>
-                      {errors.pointSystem?.[index]?.pointType && (
-                        <p className="text-red-500 text-xs mt-1">
-                          {errors.pointSystem[index].pointType.message}
-                        </p>
-                      )}
                     </div>
                     <div>
                       <label className={labelClass}>Point Rate</label>
                       <input
                         type="text"
-                        {...register(`pointSystem.${index}.pointRate`, {
-                          required: "Point rate is required",
-                          pattern: {
-                            value: /^[0-9]+(\.[0-9]{1,2})?$/,
-                            message: "Invalid point rate format",
-                          },
-                        })}
+                        {...register(`pointSystem.${index}.pointRate`)}
                         placeholder="Enter rate"
                         className={inputClass}
                       />
-                      {errors.pointSystem?.[index]?.pointRate && (
-                        <p className="text-red-500 text-xs mt-1">
-                          {errors.pointSystem[index].pointRate.message}
-                        </p>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -387,39 +465,19 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
                     <label className={labelClass}>Weekly Limit</label>
                     <input
                       type="number"
-                      {...register("conditions.maxTransactions.weekly", {
-                        min: {
-                          value: 0,
-                          message: "Weekly limit must be non-negative",
-                        },
-                      })}
+                      {...register("conditions.maxTransactions.weekly")}
                       placeholder="Weekly max"
                       className={inputClass}
                     />
-                    {errors.conditions?.maxTransactions?.weekly && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.conditions.maxTransactions.weekly.message}
-                      </p>
-                    )}
                   </div>
                   <div>
                     <label className={labelClass}>Monthly Limit</label>
                     <input
                       type="number"
-                      {...register("conditions.maxTransactions.monthly", {
-                        min: {
-                          value: 0,
-                          message: "Monthly limit must be non-negative",
-                        },
-                      })}
+                      {...register("conditions.maxTransactions.monthly")}
                       placeholder="Monthly max"
                       className={inputClass}
                     />
-                    {errors.conditions?.maxTransactions?.monthly && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.conditions.maxTransactions.monthly.message}
-                      </p>
-                    )}
                   </div>
                 </div>
               </div>
@@ -434,50 +492,22 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
                     <input
                       type="number"
                       {...register(
-                        "conditions.transactionValueLimits.minValue",
-                        {
-                          min: {
-                            value: 0,
-                            message: "Minimum value must be non-negative",
-                          },
-                        }
+                        "conditions.transactionValueLimits.minValue"
                       )}
                       placeholder="Minimum value"
                       className={inputClass}
                     />
-                    {errors.conditions?.transactionValueLimits?.minValue && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {
-                          errors.conditions.transactionValueLimits.minValue
-                            .message
-                        }
-                      </p>
-                    )}
                   </div>
                   <div>
                     <label className={labelClass}>Maximum Value</label>
                     <input
                       type="number"
                       {...register(
-                        "conditions.transactionValueLimits.maxValue",
-                        {
-                          min: {
-                            value: 0,
-                            message: "Maximum value must be non-negative",
-                          },
-                        }
+                        "conditions.transactionValueLimits.maxValue"
                       )}
                       placeholder="Maximum value"
                       className={inputClass}
                     />
-                    {errors.conditions?.transactionValueLimits?.maxValue && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {
-                          errors.conditions.transactionValueLimits.maxValue
-                            .message
-                        }
-                      </p>
-                    )}
                   </div>
                 </div>
               </div>

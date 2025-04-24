@@ -205,9 +205,10 @@ const Categories = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {item?.title}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">
                     {item?.description}
                   </td>
+
                   <td className="px-6 py-4 whitespace-nowrap">
                     <img
                       src={item?.image}

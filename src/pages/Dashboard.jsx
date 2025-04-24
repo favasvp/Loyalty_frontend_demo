@@ -24,7 +24,7 @@ const Dashboard = () => {
       total: 12345,
       percentageChange: "+12%",
       color: "text-green-600",
-      Icon: CurrencyDollarIcon,
+      Icon: BanknotesIcon,
       bg: "bg-green-100",
     },
     {

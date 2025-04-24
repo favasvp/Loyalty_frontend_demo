@@ -149,7 +149,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       icon: Cog6ToothIcon,
       subItems: [
         {
-          label: "Sub Admin",
+          label: "Users",
           path: "/users",
           icon: UsersIcon,
         },

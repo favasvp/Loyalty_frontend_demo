@@ -12,17 +12,15 @@ import { useTriggerEvents } from "../../hooks/useTriggerEvents";
 import { useKhedmahOffer } from "../../hooks/useKhedmahOffer";
 
 const AddKhedmahOffer = ({ isOpen, onClose, editData }) => {
-  const [selectedOfferType, setSelectedOfferType] = useState(null);
   const { useGetAppTypes } = useAppTypes();
   const { data: appTypes } = useGetAppTypes();
   const { addToast } = useUiStore();
   const { useGetTiers } = useTiers();
   const { data: tiers } = useGetTiers();
-  const { useGetTriggerServices } = useTriggerServices();
-  const { data: services } = useGetTriggerServices();
+
   const { useGetTriggerEvents } = useTriggerEvents();
   const { data: triggerEvents } = useGetTriggerEvents();
-  const { useCreateKhedmahOffer ,updateKhedmahOffer} = useKhedmahOffer();
+  const { useCreateKhedmahOffer, updateKhedmahOffer } = useKhedmahOffer();
   const createMutation = useCreateKhedmahOffer();
   const updateMutation = updateKhedmahOffer();
   const appTypeOptions =
@@ -94,6 +92,11 @@ const AddKhedmahOffer = ({ isOpen, onClose, editData }) => {
       redemptionInstructions: "",
     },
   });
+  const watchEventType = watch("eventType");
+
+  const { useGetTriggerServiceByTriggerEventId } = useTriggerServices();
+  const { data: services } =
+    useGetTriggerServiceByTriggerEventId(watchEventType);
   useEffect(() => {
     if (editData) {
       const formatDate = (dateString) => {
@@ -268,7 +271,7 @@ const AddKhedmahOffer = ({ isOpen, onClose, editData }) => {
       },
       conditions: {
         minTransactionValue: data.conditions.minTransactionValue,
-        appType: data?.conditions.appType.map(item => item.value),
+        appType: data?.conditions.appType.map((item) => item.value),
         maxTransactionValue: data.conditions.maxTransactionValue,
         applicablePaymentMethods: data.conditions.applicablePaymentMethods.map(
           (item) => item.value
@@ -277,14 +280,32 @@ const AddKhedmahOffer = ({ isOpen, onClose, editData }) => {
       termsAndConditions: data.termsAndConditions,
       redemptionInstructions: data.redemptionInstructions,
     };
-if (editData) {
-    updateMutation.mutate(
-      { id: editData?._id, data: formData },
-      {
+    if (editData) {
+      updateMutation.mutate(
+        { id: editData?._id, data: formData },
+        {
+          onSuccess: (data) => {
+            addToast({ type: "success", message: data?.message });
+            reset();
+            onClose?.();
+          },
+          onError: (error) => {
+            addToast({
+              type: "error",
+              message: error?.response?.data?.message,
+            });
+          },
+        }
+      );
+    } else {
+      createMutation.mutate(formData, {
         onSuccess: (data) => {
-          addToast({ type: "success", message: data?.message });
+          addToast({
+            type: "success",
+            message: data?.message,
+          });
           reset();
-          onClose?.();
+          onClose();
         },
         onError: (error) => {
           addToast({
@@ -292,26 +313,8 @@ if (editData) {
             message: error?.response?.data?.message,
           });
         },
-      }
-    );
-  } else {  
-    createMutation.mutate(formData, {
-      onSuccess: (data) => {
-        addToast({
-          type: "success",
-          message: data?.message,
-        });
-        reset();
-        onClose();
-      },
-      onError: (error) => {
-        addToast({
-          type: "error",
-          message: error?.response?.data?.message,
-        });
-      },
-    });
-  }
+      });
+    }
   };
 
   const addTermsAndCondition = () => {
@@ -326,7 +329,8 @@ if (editData) {
   };
 
   const handleBack = () => {
-    setSelectedOfferType(null);
+    reset();
+
     onClose();
   };
 
@@ -391,6 +395,17 @@ if (editData) {
                 )}
               </div>
               <div>
+                <label className={labelClass}>Event Type (Optional)</label>
+                <select {...register("eventType")} className={inputClass}>
+                  <option value="">Select Event Type</option>
+                  {triggerEvents?.data?.map((event) => (
+                    <option key={event._id} value={event._id}>
+                      {event.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
                 <label className={labelClass}>Service Category</label>
                 <select
                   {...register("serviceCategory", {
@@ -411,17 +426,7 @@ if (editData) {
                   </p>
                 )}
               </div>
-              <div>
-                <label className={labelClass}>Event Type (Optional)</label>
-                <select {...register("eventType")} className={inputClass}>
-                  <option value="">Select Event Type</option>
-                  {triggerEvents?.data?.map((event) => (
-                    <option key={event._id} value={event._id}>
-                      {event.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+
               <div>
                 <label className={labelClass}>Poster Image URL</label>
                 <input
@@ -854,9 +859,7 @@ if (editData) {
               <div key={index} className="flex items-center mb-2">
                 <input
                   type="text"
-                  {...register(`termsAndConditions.${index}`, {
-                    required: "Term cannot be empty",
-                  })}
+                  {...register(`termsAndConditions.${index}`)}
                   className={inputClass}
                   placeholder={`Term ${index + 1}`}
                 />
@@ -867,11 +870,6 @@ if (editData) {
                 >
                   <TrashIcon className="w-4 h-4" />
                 </button>
-                {errors.termsAndConditions?.[index] && (
-                  <p className="text-red-500 text-xs ml-2">
-                    {errors.termsAndConditions[index].message}
-                  </p>
-                )}
               </div>
             ))}
           </div>
@@ -879,18 +877,11 @@ if (editData) {
           <div className={cardClass}>
             <h3 className={sectionHeadingClass}>Redemption Instructions</h3>
             <textarea
-              {...register("redemptionInstructions", {
-                required: "Redemption instructions are required",
-              })}
+              {...register("redemptionInstructions")}
               className={inputClass}
               placeholder="Instructions for redeeming this offer"
               rows={3}
             />
-            {errors.redemptionInstructions && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.redemptionInstructions.message}
-              </p>
-            )}
           </div>
 
           <div className="flex justify-end gap-3 pt-2 border-t mt-4">

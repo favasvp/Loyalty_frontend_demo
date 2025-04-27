@@ -68,14 +68,14 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
         editData.serviceType?._id || editData.serviceType || ""
       );
       const formatDate = (dateString) => {
+        if (!dateString) return null; 
         const date = new Date(dateString);
-        return date.toISOString().split("T")[0];
+        return isNaN(date.getTime()) ? null : date.toISOString().split("T")[0];
       };
-
       setValue("appType", editData.appType?._id || editData.appType || "");
-      setValue("description", editData.description || "");
-      setValue("startDate", formatDate(editData.startDate) || null);
-      setValue("endDate", formatDate(editData.endDate) || null);
+      setValue("description", editData?.description || "");
+      setValue("startDate", formatDate(editData?.startDate) || null);
+      setValue("endDate", formatDate(editData?.endDate) || null);
       if (editData.pointSystem?.length > 0) {
         setValue(
           "pointSystem",
@@ -271,7 +271,7 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
                   <option value="">Select Event</option>
                   {triggerEvents?.data?.map((item) => (
                     <option key={item._id} value={item._id}>
-                      {item.name}
+                      {item.name?.en}
                     </option>
                   ))}
                 </select>
@@ -292,7 +292,7 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
                   <option value="">Select Service</option>
                   {triggerServices?.data?.map((item) => (
                     <option key={item._id} value={item._id}>
-                      {item.title}
+                      {item.title?.en}
                     </option>
                   ))}
                 </select>

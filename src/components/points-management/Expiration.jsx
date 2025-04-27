@@ -86,23 +86,19 @@ const Expiration = ({ id }) => {
                 {ruleData?.data?.tier_extensions?.map(
                   ({ tier_id, additional_months }) => (
                     <div
-                      key={tier_id?.name}
+                      key={tier_id?.name?.en}
                       className="flex items-center gap-2 bg-gray-50 p-3 rounded-md"
                     >
                       <div
                         className="flex-shrink-0 w-2 h-8 rounded-full"
                         style={{
-                          backgroundColor:
-                            tier_id?.name?.toLowerCase() === "silver"
-                              ? "#C0C0C0"
-                              : tier_id?.name?.toLowerCase() === "gold"
-                              ? "#FFD700"
-                              : "#E5E4E2",
+                          backgroundColor: "#FFD700"
+                             
                         }}
                       />
                       <div>
                         <p className="text-xs text-gray-500 capitalize">
-                          {tier_id?.name}
+                          {tier_id?.name?.en}
                         </p>
                         <p className="font-medium text-gray-800">
                           {additional_months}months

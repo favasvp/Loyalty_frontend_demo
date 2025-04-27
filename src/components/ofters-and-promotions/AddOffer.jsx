@@ -11,6 +11,7 @@ import { useTiers } from "../../hooks/useTiers";
 
 const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
   const [selectedOfferType, setSelectedOfferType] = useState(offerType || null);
+  const [activeLanguage, setActiveLanguage] = useState("en");
   const { useGetBrands } = useBrands();
   const { data: merchants } = useGetBrands();
   const { useGetCategory } = useCategory();
@@ -40,8 +41,8 @@ const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
   } = useForm({
     defaultValues: {
       code: "",
-      title: "",
-      description: "",
+      title: { en: "", ar: "" },
+      description: { en: "", ar: "" },
       merchantId: "",
       couponCategoryId: "",
       redemptionUrl: "",
@@ -75,12 +76,19 @@ const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
       termsAndConditions: [],
     },
   });
+  const titleValue = watch(`title.${activeLanguage}`);
+  const descriptionValue = watch(`description.${activeLanguage}`);
   useEffect(() => {
     if (editData) {
       setSelectedOfferType(editData.type);
 
-      setValue("title", editData.title);
-      setValue("description", editData.description);
+      setValue("title.en", editData.title?.en || editData.title || "");
+      setValue("title.ar", editData.title?.ar || "");
+      setValue(
+        "description.en",
+        editData.description?.en || editData.description || ""
+      );
+      setValue("description.ar", editData.description?.ar || "");
       setValue("merchantId", editData.merchantId);
       setValue("couponCategoryId", editData.couponCategoryId);
       setValue("redeemablePointsCount", editData.redeemablePointsCount);
@@ -133,7 +141,7 @@ const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
         if (tiers?.data) {
           const tierOptions = tiers.data.map((tier) => ({
             value: tier._id,
-            label: tier.name,
+            label: tier.name?.en,
           }));
 
           const selectedTiers = editData.eligibilityCriteria.tiers
@@ -256,7 +264,7 @@ const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
   const tierOptions =
     tiers?.data?.map((appType) => ({
       value: appType._id,
-      label: appType.name,
+      label: appType?.name?.en,
     })) || [];
 
   const paymentMethodOptions = [
@@ -327,7 +335,7 @@ const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
           onError: (error) => {
             addToast({
               type: "error",
-              message: error?.response?.data?.message,
+              message: error?.response?.data?.data,
             });
           },
         }
@@ -345,7 +353,7 @@ const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
         onError: (error) => {
           addToast({
             type: "error",
-            message: error?.response?.data?.message,
+            message: error?.response?.data?.data,
           });
         },
       });
@@ -450,6 +458,32 @@ const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-6">
+          <div className="px-4 pt-4">
+            <div className="flex border rounded overflow-hidden mb-4">
+              <button
+                type="button"
+                onClick={() => setActiveLanguage("en")}
+                className={`flex-1 py-2 text-sm font-medium ${
+                  activeLanguage === "en"
+                    ? "bg-green-50 text-green-700"
+                    : "bg-white text-gray-500"
+                }`}
+              >
+                English
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveLanguage("ar")}
+                className={`flex-1 py-2 text-sm font-medium ${
+                  activeLanguage === "ar"
+                    ? "bg-green-50 text-green-700"
+                    : "bg-white text-gray-500"
+                }`}
+              >
+                Arabic
+              </button>
+            </div>
+          </div>
           <div className={cardClass}>
             <h3 className={sectionHeadingClass}>Basic Offer Details</h3>
             <div className="grid grid-cols-2 gap-4">
@@ -489,18 +523,22 @@ const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
                 </div>
               )}
 
-              <div>
-                <label className={labelClass}>Title</label>
+              <div className="col-span-2">
+                <label className={labelClass}>
+                  Title ({activeLanguage === "en" ? "English" : "Arabic"})
+                </label>
                 <input
-                  {...register("title", {
-                    required: "Offer title is required",
-                  })}
+                  {...register(`title.${activeLanguage}`)}
+                  value={titleValue} 
                   className={inputClass}
-                  placeholder="Offer title"
+                  placeholder={`Offer title in ${
+                    activeLanguage === "en" ? "English" : "Arabic"
+                  }`}
+                  dir={activeLanguage === "ar" ? "rtl" : "ltr"}
                 />
-                {errors.title && (
+                {errors.title?.[activeLanguage] && (
                   <p className="text-red-500 text-xs mt-1">
-                    {errors.title.message}
+                    {errors.title[activeLanguage].message}
                   </p>
                 )}
               </div>
@@ -515,7 +553,7 @@ const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
                   <option value="">Select Merchant</option>
                   {merchants?.data?.map((merchant) => (
                     <option key={merchant._id} value={merchant._id}>
-                      {merchant.title}
+                      {merchant.title?.en}
                     </option>
                   ))}
                 </select>
@@ -535,8 +573,8 @@ const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
                 >
                   <option value="">Select Coupon Category</option>
                   {couponCategories?.data?.map((category) => (
-                    <option key={category._id} value={category._id}>
-                      {category.title}
+                    <option key={category?._id} value={category?._id}>
+                      {category.title?.en}
                     </option>
                   ))}
                 </select>
@@ -548,18 +586,22 @@ const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
               </div>
             </div>
             <div className="mt-4">
-              <label className={labelClass}>Description</label>
+              <label className={labelClass}>
+                Description ({activeLanguage === "en" ? "English" : "Arabic"})
+              </label>
               <textarea
-                {...register("description", {
-                  required: "Description is required",
-                })}
+                {...register(`description.${activeLanguage}`)}
                 className={inputClass}
-                placeholder="Offer description"
+                placeholder={`Offer description in ${
+                  activeLanguage === "en" ? "English" : "Arabic"
+                }`}
                 rows={3}
+                value={descriptionValue} 
+                dir={activeLanguage === "ar" ? "rtl" : "ltr"}
               />
-              {errors.description && (
+              {errors.description?.[activeLanguage] && (
                 <p className="text-red-500 text-xs mt-1">
-                  {errors.description.message}
+                  {errors.description[activeLanguage].message}
                 </p>
               )}
             </div>

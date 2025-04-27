@@ -34,16 +34,16 @@ const PointsCard = ({ criteria, onClick, onEdit, onDelete }) => {
         {criteria?.serviceType?.icon && (
           <img
             src={criteria.serviceType.icon}
-            alt={criteria.serviceType.name}
+            alt={criteria.serviceType?.name?.en}
             className="w-10 h-10 mr-3 rounded"
           />
         )}
         <div className="pr-6">
           <h3 className="text-sm font-medium text-gray-900">
-            {criteria?.eventType?.name}
+            {criteria?.eventType?.name?.en}
           </h3>
           <p className="text-xs text-gray-500">
-            {criteria?.serviceType?.title}
+            {criteria?.serviceType?.title?.en}
           </p>
         </div>
       </div>
@@ -51,7 +51,7 @@ const PointsCard = ({ criteria, onClick, onEdit, onDelete }) => {
       <div className="space-y-2">
         {criteria?.description && (
           <p className="text-xs text-gray-600">
-            {criteria.description }
+            {criteria.description?.en }
           </p>
         )}
       </div>

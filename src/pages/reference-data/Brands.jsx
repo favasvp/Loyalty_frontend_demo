@@ -202,10 +202,10 @@ const Brands = () => {
                   />
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item?.title}
+                  {item?.title?.en}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {item?.description}
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">
+                  {item?.description?.en}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <img

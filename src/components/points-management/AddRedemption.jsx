@@ -206,7 +206,7 @@ const AddRedemption = ({ isOpen, onClose, editData, id }) => {
                   className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-200"
                 >
                   <div className="w-24 text-sm text-gray-700 font-medium">
-                    {tier.name}
+                    {tier?.name?.en}
                   </div>
                   <div className="flex-1">
                     <Controller

@@ -25,17 +25,17 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
             {selectedCriteria?.data?.serviceType?.icon && (
               <img
                 src={selectedCriteria?.data?.serviceType?.icon}
-                alt={selectedCriteria?.data?.serviceType?.title}
+                alt={selectedCriteria?.data?.serviceType?.title?.en}
                 className="w-14 h-14 rounded-lg shadow-sm"
               />
             )}
             <div>
               <h2 className="text-xl font-bold text-gray-800">
-                {selectedCriteria?.data?.serviceType?.title ||
+                {selectedCriteria?.data?.serviceType?.title?.en ||
                   "Service Details"}
               </h2>
               <p className="text-gray-600 text-sm">
-                {selectedCriteria?.data?.serviceType?.description || ""}
+                {selectedCriteria?.data?.serviceType?.description?.en || ""}
               </p>
             </div>
           </div>
@@ -69,13 +69,13 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
                 <div className="flex flex-col">
                   <span className="text-gray-500">Type</span>
                   <span className="font-medium">
-                    {selectedCriteria?.data?.eventType?.name || "N/A"}
+                    {selectedCriteria?.data?.eventType?.name?.en || "N/A"}
                   </span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-gray-500">Description</span>
                   <span>
-                    {selectedCriteria?.data?.eventType?.description || "N/A"}
+                    {selectedCriteria?.data?.eventType?.description?.en || "N/A"}
                   </span>
                 </div>
               </div>
@@ -89,13 +89,13 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
                 <div className="flex flex-col">
                   <span className="text-gray-500">Title</span>
                   <span className="font-medium">
-                    {selectedCriteria?.data?.serviceType?.title || "N/A"}
+                    {selectedCriteria?.data?.serviceType?.title?.en || "N/A"}
                   </span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-gray-500">Description</span>
                   <span>
-                    {selectedCriteria?.data?.serviceType?.description || "N/A"}
+                    {selectedCriteria?.data?.serviceType?.description?.en || "N/A"}
                   </span>
                 </div>
               </div>
@@ -173,7 +173,7 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
                   <div className="bg-gray-50 p-3 rounded-lg">
                     <div className="text-xs text-gray-500">Minimum</div>
                     <div className="text-lg font-medium">
-                      $
+                      OMR{" "}
                       {selectedCriteria?.data?.conditions
                         ?.transactionValueLimits?.minValue || "—"}
                     </div>
@@ -181,7 +181,7 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
                   <div className="bg-gray-50 p-3 rounded-lg">
                     <div className="text-xs text-gray-500">Maximum</div>
                     <div className="text-lg font-medium">
-                      $
+                      OMR {" "}
                       {selectedCriteria?.data?.conditions
                         ?.transactionValueLimits?.maxValue || "—"}
                     </div>

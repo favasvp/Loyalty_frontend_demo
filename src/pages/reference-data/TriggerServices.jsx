@@ -196,7 +196,7 @@ const TriggerServices = () => {
                     />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {item?.title}
+                    {item?.title?.en}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <img
@@ -205,13 +205,13 @@ const TriggerServices = () => {
                       className="w-6 h-6 object-contain"
                     />
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {item?.description}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">
+                    {item?.description?.en}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="px-2 py-1 text-sm text-gray-500  rounded-full">
                       {item?.triggerEvent
-                        ?.map((event) => event.name)
+                        ?.map((event) => event.name?.en)
                         .join(", ")}
                     </span>
                   </td>

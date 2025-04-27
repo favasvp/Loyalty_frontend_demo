@@ -12,15 +12,18 @@ import { useTriggerEvents } from "../../hooks/useTriggerEvents";
 import useUiStore from "../../store/ui";
 
 const eventSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  
-  description: z.string().min(1, "Description is required"),
+  name: z.object({
+    en: z.string().min(3, "English name is required (min 3 characters)"),
+  }),
+  description: z.object({
+    en: z.string().min(5, "English description is required (min 5 characters)"),
+  }),
   tags: z.array(z.string()).optional(),
 });
 
 const AddEvent = ({ isOpen, onClose, onSuccess, editData }) => {
-  const [imagePreview, setImagePreview] = useState(null);
   const [tagInput, setTagInput] = useState("");
+  const [activeLanguage, setActiveLanguage] = useState("en");
 
   const { useCreateTriggerEvent, useUpdateTriggerEvent } = useTriggerEvents();
   const createMutation = useCreateTriggerEvent();
@@ -38,8 +41,8 @@ const AddEvent = ({ isOpen, onClose, onSuccess, editData }) => {
   } = useForm({
     resolver: zodResolver(eventSchema),
     defaultValues: {
-      name: "",
-      description: "",
+      name: { en: "", ar: "" },
+      description: { en: "", ar: "" },
       tags: [],
     },
   });
@@ -48,10 +51,16 @@ const AddEvent = ({ isOpen, onClose, onSuccess, editData }) => {
 
   useEffect(() => {
     if (editData) {
-      const { name,description, tags } = editData?.data || {};
+      const { name, description, tags } = editData?.data || {};
       reset({
-        name: name || "",
-        description: description || "",
+        name: {
+          en: name?.en || name || "",
+          ar: name?.ar || "",
+        },
+        description: {
+          en: description?.en || description || "",
+          ar: description?.ar || "",
+        },
         tags: tags || [],
       });
     }
@@ -90,17 +99,14 @@ const AddEvent = ({ isOpen, onClose, onSuccess, editData }) => {
   };
 
   const resetAndClose = () => {
-    setImagePreview(null);
     setTagInput("");
     reset({
-      name: "",
-      description: "",
+      name: { en: "", ar: "" },
+      description: { en: "", ar: "" },
       tags: [],
     });
     onClose();
   };
-
-
 
   const handleAddTag = () => {
     if (tagInput.trim()) {
@@ -138,30 +144,64 @@ const AddEvent = ({ isOpen, onClose, onSuccess, editData }) => {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="flex border rounded overflow-hidden mb-4">
+            <button
+              type="button"
+              onClick={() => setActiveLanguage("en")}
+              className={`flex-1 py-2 text-sm font-medium ${
+                activeLanguage === "en"
+                  ? "bg-green-50 text-green-700"
+                  : "bg-white text-gray-500"
+              }`}
+            >
+              English
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveLanguage("ar")}
+              className={`flex-1 py-2 text-sm font-medium ${
+                activeLanguage === "ar"
+                  ? "bg-green-50 text-green-700"
+                  : "bg-white text-gray-500"
+              }`}
+            >
+              Arabic
+            </button>
+          </div>
+
           <div>
-            <label className={labelClass}>Title</label>
+            <label className={labelClass}>
+              Title ({activeLanguage === "en" ? "English" : "Arabic"})
+            </label>
             <input
-              {...register("name")}
+              {...register(`name.${activeLanguage}`)}
               type="text"
-              placeholder="Enter Name"
+              value={watch(`name.${activeLanguage}`)}
+              placeholder={`Enter ${activeLanguage === "en" ? "English" : "Arabic"} name`}
               className={inputClass}
+              dir={activeLanguage === "ar" ? "rtl" : "ltr"}
             />
-            {errors.name && (
-              <p className="text-red-500 text-sm">{errors.name.message}</p>
+            {errors.name?.[activeLanguage] && (
+              <p className="text-red-500 text-sm">
+                {errors.name[activeLanguage].message}
+              </p>
             )}
           </div>
 
-
           <div>
-            <label className={labelClass}>Description</label>
+            <label className={labelClass}>
+              Description ({activeLanguage === "en" ? "English" : "Arabic"})
+            </label>
             <textarea
-              {...register("description")}
-              placeholder="Enter description"
-              className={inputClass}
+              {...register(`description.${activeLanguage}`)}
+              placeholder={`Enter ${activeLanguage === "en" ? "English" : "Arabic"} description`}
+              className={`${inputClass} resize-none h-24`}
+              value={watch(`description.${activeLanguage}`)}
+              dir={activeLanguage === "ar" ? "rtl" : "ltr"}
             />
-            {errors.description && (
+            {errors.description?.[activeLanguage] && (
               <p className="text-red-500 text-sm">
-                {errors.description.message}
+                {errors.description[activeLanguage].message}
               </p>
             )}
           </div>
@@ -220,9 +260,10 @@ const AddEvent = ({ isOpen, onClose, onSuccess, editData }) => {
               variant="tertiary"
             />
             <StyledButton
-              name={editData ? "Edit" : "Add Event"}
+              name={editData ? "Update" : "Add Event"}
               type="submit"
               variant="primary"
+              disabled={createMutation.isLoading || updateMutation.isLoading}
             />
           </div>
         </form>

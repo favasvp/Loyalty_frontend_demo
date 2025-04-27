@@ -73,24 +73,24 @@ const Tiers = () => {
     return tiersList?.map((item) => (
       <tr key={item?._id} className="hover:bg-gray-50">
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-          {item?.name}
+          {item?.name?.en}
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
           {item?.points_required}
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          {Array.isArray(item?.description) ? item.description.join(", ") : ""}
+          {Array.isArray(item?.description?.en) ? item.description.en.join(", ") : ""}
         </td>
 
         <td className="px-6 py-4 whitespace-nowrap">
           <span
             className={`px-2 py-1 text-xs font-medium rounded-full ${
-              item?.status
+              item?.isActive
                 ? "bg-green-200 text-green-800"
                 : "bg-red-200 text-red-800"
             }`}
           >
-            {item?.status ? "Active" : "Inactive"}
+            {item?.isActive ? "Active" : "Inactive"}
           </span>
         </td>
 

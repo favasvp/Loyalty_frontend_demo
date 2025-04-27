@@ -193,11 +193,11 @@ const TriggerEvents = () => {
                     />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {item?.name}
+                    {item?.name?.en}
                   </td>
                
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {item?.description}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">
+                    {item?.description?.en}
                   </td>
 
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

@@ -13,11 +13,11 @@ import { useKhedmahOffer } from "../../hooks/useKhedmahOffer";
 
 const AddKhedmahOffer = ({ isOpen, onClose, editData }) => {
   const { useGetAppTypes } = useAppTypes();
+  const [activeLanguage, setActiveLanguage] = useState("en");
   const { data: appTypes } = useGetAppTypes();
   const { addToast } = useUiStore();
   const { useGetTiers } = useTiers();
   const { data: tiers } = useGetTiers();
-
   const { useGetTriggerEvents } = useTriggerEvents();
   const { data: triggerEvents } = useGetTriggerEvents();
   const { useCreateKhedmahOffer, updateKhedmahOffer } = useKhedmahOffer();
@@ -54,8 +54,8 @@ const AddKhedmahOffer = ({ isOpen, onClose, editData }) => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      title: "",
-      description: "",
+      title: { en: "", ar: "" },
+      description: { en: "", ar: "" },
       posterImage: "",
       serviceCategory: "",
       eventType: "",
@@ -97,6 +97,8 @@ const AddKhedmahOffer = ({ isOpen, onClose, editData }) => {
   const { useGetTriggerServiceByTriggerEventId } = useTriggerServices();
   const { data: services } =
     useGetTriggerServiceByTriggerEventId(watchEventType);
+  const titleValue = watch(`title.${activeLanguage}`);
+  const descriptionValue = watch(`description.${activeLanguage}`);
   useEffect(() => {
     if (editData) {
       const formatDate = (dateString) => {
@@ -105,8 +107,13 @@ const AddKhedmahOffer = ({ isOpen, onClose, editData }) => {
         return date.toISOString().split("T")[0];
       };
 
-      setValue("title", editData.title || "");
-      setValue("description", editData.description || "");
+      setValue("title.en", editData.title?.en || editData.title || "");
+      setValue("title.ar", editData.title?.ar || "");
+      setValue(
+        "description.en",
+        editData.description?.en || editData.description || ""
+      );
+      setValue("description.ar", editData.description?.ar || "");
       setValue("posterImage", editData.posterImage || "");
       setValue("serviceCategory", editData.serviceCategory?._id || "");
       setValue("eventType", editData.eventType?._id || "");
@@ -152,7 +159,7 @@ const AddKhedmahOffer = ({ isOpen, onClose, editData }) => {
         const tierOptions = (editData.eligibilityCriteria.tiers || []).map(
           (tierId) => ({
             value: tierId,
-            label: tiers?.data?.find((t) => t._id === tierId)?.name || tierId,
+            label: tiers?.data?.find((t) => t._id === tierId)?.name ?.en|| tierId,
           })
         );
         setValue("eligibilityCriteria.tiers", tierOptions);
@@ -224,7 +231,7 @@ const AddKhedmahOffer = ({ isOpen, onClose, editData }) => {
   const tierOptions =
     tiers?.data?.map((tier) => ({
       value: tier._id,
-      label: tier.name,
+      label: tier.name?.en,
     })) || [];
 
   const paymentMethodOptions = [
@@ -356,21 +363,51 @@ const AddKhedmahOffer = ({ isOpen, onClose, editData }) => {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-6">
+          <div className="px-4 pt-4">
+            <div className="flex border rounded overflow-hidden mb-4">
+              <button
+                type="button"
+                onClick={() => setActiveLanguage("en")}
+                className={`flex-1 py-2 text-sm font-medium ${
+                  activeLanguage === "en"
+                    ? "bg-green-50 text-green-700"
+                    : "bg-white text-gray-500"
+                }`}
+              >
+                English
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveLanguage("ar")}
+                className={`flex-1 py-2 text-sm font-medium ${
+                  activeLanguage === "ar"
+                    ? "bg-green-50 text-green-700"
+                    : "bg-white text-gray-500"
+                }`}
+              >
+                Arabic
+              </button>
+            </div>
+          </div>
           <div className={cardClass}>
             <h3 className={sectionHeadingClass}>Basic Offer Details</h3>
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>Title</label>
+              <div className="col-span-2">
+                <label className={labelClass}>
+                  Title ({activeLanguage === "en" ? "English" : "Arabic"})
+                </label>
                 <input
-                  {...register("title", {
-                    required: "Offer title is required",
-                  })}
+                  {...register(`title.${activeLanguage}`)}
+                  value={titleValue}
                   className={inputClass}
-                  placeholder="Offer title"
+                  placeholder={`Offer title in ${
+                    activeLanguage === "en" ? "English" : "Arabic"
+                  }`}
+                  dir={activeLanguage === "ar" ? "rtl" : "ltr"}
                 />
-                {errors.title && (
+                {errors.title?.[activeLanguage] && (
                   <p className="text-red-500 text-xs mt-1">
-                    {errors.title.message}
+                    {errors.title[activeLanguage].message}
                   </p>
                 )}
               </div>
@@ -400,7 +437,7 @@ const AddKhedmahOffer = ({ isOpen, onClose, editData }) => {
                   <option value="">Select Event Type</option>
                   {triggerEvents?.data?.map((event) => (
                     <option key={event._id} value={event._id}>
-                      {event.name}
+                      {event.name?.en}
                     </option>
                   ))}
                 </select>
@@ -416,7 +453,7 @@ const AddKhedmahOffer = ({ isOpen, onClose, editData }) => {
                   <option value="">Select Service Category</option>
                   {services?.data?.map((service) => (
                     <option key={service._id} value={service._id}>
-                      {service.title}
+                      {service.title?.en}
                     </option>
                   ))}
                 </select>
@@ -451,18 +488,22 @@ const AddKhedmahOffer = ({ isOpen, onClose, editData }) => {
               </div>
             </div>
             <div className="mt-4">
-              <label className={labelClass}>Description</label>
+              <label className={labelClass}>
+                Description ({activeLanguage === "en" ? "English" : "Arabic"})
+              </label>
               <textarea
-                {...register("description", {
-                  required: "Description is required",
-                })}
+                {...register(`description.${activeLanguage}`)}
                 className={inputClass}
-                placeholder="Offer description"
+                placeholder={`Offer description in ${
+                  activeLanguage === "en" ? "English" : "Arabic"
+                }`}
                 rows={3}
+                value={descriptionValue}
+                dir={activeLanguage === "ar" ? "rtl" : "ltr"}
               />
-              {errors.description && (
+              {errors.description?.[activeLanguage] && (
                 <p className="text-red-500 text-xs mt-1">
-                  {errors.description.message}
+                  {errors.description[activeLanguage].message}
                 </p>
               )}
             </div>

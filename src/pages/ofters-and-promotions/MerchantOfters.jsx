@@ -184,7 +184,7 @@ const MerchantOffers = () => {
                       />
                       <div className="min-w-0">
                         <h3 className="font-medium text-gray-900 text-sm truncate">
-                          {offer.title}
+                          {offer.title?.en}
                         </h3>
                         <p className="text-xs text-gray-500 truncate">
                           {offer.serviceCategory?.title || "Khedmah Service"}
@@ -260,12 +260,12 @@ const MerchantOffers = () => {
                     <div className="flex items-center gap-4 min-w-0 w-full md:w-auto mb-3 md:mb-0">
                       <img
                         src={offer.posterImage || offer.serviceCategory?.icon}
-                        alt={`${offer.title} Image`}
+                        alt={`${offer.title.en} Image`}
                         className="w-12 h-12 rounded-lg object-cover bg-gray-50 p-1"
                       />
                       <div className="min-w-0 flex-1">
                         <h3 className="font-medium text-gray-900 text-sm truncate">
-                          {offer.title}
+                          {offer.title?.en}
                         </h3>
                         <p className="text-xs text-gray-500 truncate">
                           {offer.serviceCategory?.title || "Khedmah Service"}

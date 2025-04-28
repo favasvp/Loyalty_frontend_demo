@@ -14,9 +14,11 @@ import useUiStore from "../../store/ui";
 const eventSchema = z.object({
   name: z.object({
     en: z.string().min(3, "English name is required (min 3 characters)"),
+    ar: z.string().optional(),
   }),
   description: z.object({
     en: z.string().min(5, "English description is required (min 5 characters)"),
+    ar: z.string().optional(),
   }),
   tags: z.array(z.string()).optional(),
 });

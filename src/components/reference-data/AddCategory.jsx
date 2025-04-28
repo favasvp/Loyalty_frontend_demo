@@ -11,10 +11,12 @@ import uploadApi from "../../api/upload";
 const schema = z.object({
   title: z.object({
     en: z.string().min(1, "English title is required"),
+    ar:z.string().optional(),
   }),
   image: z.any(),
   description: z.object({
     en: z.string().min(5, "English description must be at least 5 characters"),
+    ar:z.string().optional(),
   }),
 });
 

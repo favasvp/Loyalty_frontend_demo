@@ -13,9 +13,11 @@ import uploadApi from "../../api/upload";
 const serviceSchema = z.object({
   title: z.object({
     en: z.string().min(3, "English title is required (min 3 characters)"),
+    ar: z.string().optional(),
   }),
   description: z.object({
     en: z.string().min(5, "English description is required (min 5 characters)"),
+    ar: z.string().optional(),
   }),
   icon: z.any().optional(),
   triggerEvent: z

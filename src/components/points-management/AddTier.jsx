@@ -10,6 +10,7 @@ import useUiStore from "../../store/ui";
 const tierSchema = z.object({
   name: z.object({
     en: z.string().min(1, "English name is required"),
+    ar:z.string().optional(),
   }),
   points_required: z
     .number()

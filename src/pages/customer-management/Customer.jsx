@@ -227,7 +227,7 @@ const Customer = () => {
                     {item?.phone}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {item?.tier?.name}
+                    {item?.tier?.name?.en}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {item?.app_type?.map((type, index) => (

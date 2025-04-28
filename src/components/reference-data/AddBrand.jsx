@@ -11,9 +11,11 @@ import uploadApi from "../../api/upload";
 const schema = z.object({
   title: z.object({
     en: z.string().min(1, "English title is required"),
+    ar: z.string().optional(),
   }),
   description: z.object({
     en: z.string().min(5, "English description must be at least 5 characters"),
+    ar: z.string().optional(),
   }),
 });
 
@@ -44,12 +46,16 @@ const AddBrand = ({ isOpen, onClose, editData }) => {
 
   useEffect(() => {
     if (editData) {
-    
-
-      setValue("title.en", editData?.data?.title?.en ||  editData?.data?.title || "");
+      setValue(
+        "title.en",
+        editData?.data?.title?.en || editData?.data?.title || ""
+      );
       setValue("title.ar", editData?.data?.title?.ar || "");
       setValue("image", editData?.data?.image || "");
-      setValue("description.en", editData?.data?.description?.en ||  editData?.data?.description || "");
+      setValue(
+        "description.en",
+        editData?.data?.description?.en || editData?.data?.description || ""
+      );
       setValue("description.ar", editData?.data?.description?.ar || "");
       setImagePreview(editData?.data?.image);
     }
@@ -117,7 +123,7 @@ const AddBrand = ({ isOpen, onClose, editData }) => {
             {editData ? "Edit Brand" : "Add New Brand"}
           </h2>
           <button
-            onClick={() => resetAndClose()} 
+            onClick={() => resetAndClose()}
             className="text-gray-400 hover:text-gray-500"
           >
             <XMarkIcon className="w-5 h-5" />

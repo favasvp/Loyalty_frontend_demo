@@ -1,8 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { XMarkIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { useBrands } from "../../hooks/useBrand";
-import { useCategory } from "../../hooks/useCategory";
 import Select from "react-select";
 import { useAppTypes } from "../../hooks/useAppTypes";
 import useUiStore from "../../store/ui";

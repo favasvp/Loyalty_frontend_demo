@@ -10,6 +10,10 @@ const offersApi = {
     const response = await apiClient.post(`${rootUrl}/create`, offerData);
     return response.data;
   },
+  createBulkMerchantOffer: async (offerData) => {
+    const response = await apiClient.post(`${rootUrl}/bulk-create`, offerData);
+    return response.data;
+  },
   getMerchantOfferById: async (id) => {
     const response = await apiClient.get(`${rootUrl}/${id}`);
     return response.data;

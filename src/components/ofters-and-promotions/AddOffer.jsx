@@ -15,6 +15,7 @@ import { useOffers } from "../../hooks/useOffers";
 import { useTiers } from "../../hooks/useTiers";
 import ImageCropper from "../ImageCropper";
 import uploadApi from "../../api/upload";
+import BulkCouponUpload from "./BulkCouponUpload";
 
 const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
   const [selectedOfferType, setSelectedOfferType] = useState(offerType || null);
@@ -28,13 +29,21 @@ const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
   const { data: couponCategories } = useGetCategory();
   const { useGetAppTypes } = useAppTypes();
   const { data: appTypes } = useGetAppTypes();
-  const { useCreateMerchantOffer, updateMerchantOffer } = useOffers();
+  const {
+    useCreateMerchantOffer,
+    updateMerchantOffer,
+    useCreateBulkMerchantOffer,
+  } = useOffers();
   const createMutation = useCreateMerchantOffer();
+  const createBulkMutation = useCreateBulkMerchantOffer();
   const updateMutation = updateMerchantOffer();
   const { addToast } = useUiStore();
   const { useGetTiers } = useTiers();
   const { data: tiers } = useGetTiers();
-
+  const [bulkCodes, setBulkCodes] = useState([]);
+  const handleBulkCodesChange = (codes) => {
+    setBulkCodes(codes);
+  };
   useEffect(() => {
     if (offerType) {
       setSelectedOfferType(offerType);
@@ -107,7 +116,7 @@ const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
       setValue("redeemablePointsCount", editData.redeemablePointsCount);
 
       if (editData.type === "PRE_GENERATED" && editData.code) {
-        setValue("code", editData.code);
+        setValue("code", editData.code[0].pin);
       }
 
       if (editData.type === "ONE_TIME_LINK" && editData.redemptionUrl) {
@@ -256,6 +265,11 @@ const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
         title: "Pre Generated",
         description: "Pre generated offer",
       },
+      {
+        id: "BULK",
+        title: "Bulk Coupons",
+        description: "Upload multiple pre-generated coupon codes",
+      },
     ],
     []
   );
@@ -360,6 +374,10 @@ const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
     if (selectedOfferType === "ONE_TIME_LINK" && data.redemptionUrl) {
       formData.redemptionUrl = data.redemptionUrl;
     }
+    if (selectedOfferType === "BULK" && bulkCodes.length > 0) {
+      formData.codes = bulkCodes;
+    }
+
     if (editData) {
       updateMutation.mutate(
         {
@@ -380,6 +398,22 @@ const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
           },
         }
       );
+    } else if (selectedOfferType === "BULK") {
+      createBulkMutation.mutate(formData, {
+        onSuccess: (data) => {
+          addToast({
+            type: "success",
+            message: data?.data,
+          });
+          handleBack();
+        },
+        onError: (error) => {
+          addToast({
+            type: "error",
+            message: error?.response?.data?.data,
+          });
+        },
+      });
     } else {
       createMutation.mutate(formData, {
         onSuccess: (data) => {
@@ -415,7 +449,7 @@ const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
     setSelectedOfferType(null);
     reset();
     onClose();
-    setImagePreview(null);
+    setImagePreview("");
     setOriginalFile(null);
     setIsCropping(false);
   };
@@ -461,7 +495,7 @@ const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
             </button>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 gap-4">
             {offerTypes.map((type) => (
               <div
                 key={type.id}
@@ -716,6 +750,20 @@ const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
                   </p>
                 )}
               </div>
+              {selectedOfferType === "BULK" && (
+                <div className={cardClass}>
+                  <h3 className={sectionHeadingClass}>Bulk Coupon Codes</h3>
+                  <BulkCouponUpload
+                    onChange={handleBulkCodesChange}
+                    existingCodes={bulkCodes}
+                  />
+                  {bulkCodes.length === 0 && (
+                    <p className="text-red-500 text-xs mt-1">
+                      At least one coupon code is required
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className={cardClass}>

@@ -13,6 +13,15 @@ export function useOffers() {
       },
     });
   };
+  const useCreateBulkMerchantOffer = () => {
+    return useMutation({
+      mutationFn: (offerData) => offersApi.createBulkMerchantOffer(offerData),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["merchantOffers"] });
+        queryClient.invalidateQueries({ queryKey: ["activeOffers"] });
+      },
+    });
+  };
   const getMerchantOffers = (params) => {
     return useQuery({
       queryKey: ["merchantOffers", params],
@@ -53,5 +62,6 @@ export function useOffers() {
     offterfById,
     updateMerchantOffer,
     deleteMerchantOffer,
+    useCreateBulkMerchantOffer,
   };
 }

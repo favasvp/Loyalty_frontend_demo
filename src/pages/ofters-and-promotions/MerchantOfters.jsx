@@ -226,16 +226,8 @@ const MerchantOffers = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                      <span
-                        className={`text-xs px-2 py-1 rounded-full font-medium ${
-                          offer?.isActive
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-700"
-                        }`}
-                      >
-                        {offer?.isActive ? "Active" : "Inactive"}
-                      </span>
+                    <div className="flex items-end justify-end pt-2 border-t border-gray-100">
+                   
                       <div className="flex gap-3">
                         <button
                           className="text-gray-600 hover:text-gray-900 transition"

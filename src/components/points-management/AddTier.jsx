@@ -2,15 +2,16 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { XMarkIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon, TrashIcon, PlusIcon } from "@heroicons/react/24/outline";
 import StyledButton from "../../ui/StyledButton";
 import { useTiers } from "../../hooks/useTiers";
 import useUiStore from "../../store/ui";
+import { useAppTypes } from "../../hooks/useAppTypes";
 
 const tierSchema = z.object({
   name: z.object({
     en: z.string().min(1, "English name is required"),
-    ar:z.string().optional(),
+    ar: z.string().optional(),
   }),
   points_required: z
     .number()
@@ -20,10 +21,20 @@ const tierSchema = z.object({
     en: z.array(z.string()).optional(),
     ar: z.array(z.string()).optional(),
   }),
+  tier_point_multiplier: z.array(
+    z.object({
+      appType: z.string().min(1, "App Type is required"),
+      multiplier: z
+        .number()
+        .positive("Multiplier value must be greater than 0"),
+    })
+  ).min(1, "At least one multiplier is required"),
 });
 
 const AddTier = ({ isOpen, onClose, editData }) => {
   const [activeLanguage, setActiveLanguage] = useState("en");
+  const { useGetAppTypes } = useAppTypes();
+  const { data: appTypes } = useGetAppTypes();
 
   const {
     register,
@@ -40,6 +51,7 @@ const AddTier = ({ isOpen, onClose, editData }) => {
       points_required: "",
       isActive: true,
       description: { en: [], ar: [] },
+      tier_point_multiplier: [{ appType: "", multiplier: "" }],
     },
   });
 
@@ -47,6 +59,7 @@ const AddTier = ({ isOpen, onClose, editData }) => {
   const createMutation = useCreateTier();
   const updateMutation = useUpdateTier();
   const { addToast } = useUiStore();
+
   useEffect(() => {
     if (editData) {
       setValue("name.en", editData?.data?.name?.en || "");
@@ -54,9 +67,35 @@ const AddTier = ({ isOpen, onClose, editData }) => {
       setValue("points_required", editData?.data?.points_required || "");
       setValue("isActive", editData?.data?.isActive ?? true);
       setValue("description.en", editData?.data?.description?.en || []);
-      setValue("description.ar", editData?.data?.description?.ar  || []);
+      setValue("description.ar", editData?.data?.description?.ar || []);
+      setValue(
+        "tier_point_multiplier",
+        editData?.data?.tier_point_multiplier?.length > 0
+          ? editData.data.tier_point_multiplier.map((item) => ({
+              appType: item.appType?._id || item.appType || "",
+              multiplier: item.multiplier || "",
+            }))
+          : [{ appType: "", multiplier: "" }]
+      );
     }
   }, [editData, setValue]);
+
+  const watchMultipliers = watch("tier_point_multiplier");
+
+  const addMultiplier = () => {
+    setValue("tier_point_multiplier", [
+      ...watchMultipliers,
+      { appType: "", multiplier: "" },
+    ]);
+  };
+
+  const removeMultiplier = (index) => {
+    if (watchMultipliers.length <= 1) return;
+    setValue(
+      "tier_point_multiplier",
+      watchMultipliers.filter((_, i) => i !== index)
+    );
+  };
 
   const onSubmit = async (formData) => {
     const action = editData?.data ? updateMutation : createMutation;
@@ -72,6 +111,7 @@ const AddTier = ({ isOpen, onClose, editData }) => {
           points_required: "",
           isActive: true,
           description: { en: [], ar: [] },
+          tier_point_multiplier: [{ appType: "", multiplier: "" }],
         });
         onClose();
       },
@@ -81,14 +121,17 @@ const AddTier = ({ isOpen, onClose, editData }) => {
     });
   };
 
+  const inputClass =
+    "w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors";
+  const labelClass = "block text-xs font-medium text-gray-500 mb-1";
+  const sectionHeadingClass = "text-sm font-medium text-gray-700 mb-3";
+  const cardClass = "bg-white p-4 rounded-lg shadow-sm border border-gray-100";
+
   if (!isOpen) return null;
 
-  const inputClass =
-    "w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-green-500";
-
   return (
-    <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
+    <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 mt-10">
+      <div className="bg-white rounded-lg w-full max-w-lg max-h-[80vh] overflow-y-auto flex flex-col">
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-lg font-medium text-gray-900">
             {editData?.data ? "Edit Tier" : "Add New Tier"}
@@ -108,12 +151,9 @@ const AddTier = ({ isOpen, onClose, editData }) => {
           <div className="p-4 space-y-4">
             <div className="flex items-center space-x-4 mb-4">
               <div className="flex-1">
-                <label className="text-xs font-medium text-gray-500">
-                  Points Required
-                </label>
+                <label className={labelClass}>Points Required</label>
                 <input
                   type="number"
-                  
                   {...register("points_required", { valueAsNumber: true })}
                   className={inputClass}
                 />
@@ -166,7 +206,7 @@ const AddTier = ({ isOpen, onClose, editData }) => {
             </div>
 
             <div>
-              <label className="text-xs font-medium text-gray-500">
+              <label className={labelClass}>
                 Tier Name ({activeLanguage === "en" ? "English" : "Arabic"})
               </label>
               <input
@@ -184,7 +224,7 @@ const AddTier = ({ isOpen, onClose, editData }) => {
 
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label className="text-xs font-medium text-gray-500">
+                <label className={labelClass}>
                   Description ({activeLanguage === "en" ? "English" : "Arabic"})
                 </label>
                 <button
@@ -231,6 +271,100 @@ const AddTier = ({ isOpen, onClose, editData }) => {
                   </button>
                 </div>
               ))}
+            </div>
+
+            <div className={cardClass}>
+              <div className="flex justify-between items-center mb-3">
+                <h3 className={sectionHeadingClass}>Multiplier Configuration</h3>
+                <button
+                  type="button"
+                  onClick={addMultiplier}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 text-xs bg-green-50 text-green-600 rounded-md hover:bg-green-100 transition-colors"
+                >
+                  <PlusIcon className="w-3.5 h-3.5" />
+                  Add Multiplier
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                {watchMultipliers.map((multiplier, index) => (
+                  <div
+                    key={index}
+                    className="bg-gray-50 rounded-lg p-3 border border-gray-200"
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="flex items-center">
+                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-100 text-green-700 text-xs font-medium mr-2">
+                          {index + 1}
+                        </span>
+                        <h4 className="text-xs font-medium text-gray-700">
+                          Multiplier
+                        </h4>
+                      </div>
+                      {watchMultipliers.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeMultiplier(index)}
+                          className="text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-gray-200 transition-colors"
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className={labelClass}>App Type</label>
+                        <select
+                          {...register(`tier_point_multiplier.${index}.appType`, {
+                            required: "App Type is required",
+                          })}
+                          className={inputClass}
+                        >
+                          <option value="">Select App Type</option>
+                          {appTypes?.data?.map((item) => (
+                            <option key={item._id} value={item._id}>
+                              {item.name}
+                            </option>
+                          ))}
+                        </select>
+                        {errors.tier_point_multiplier?.[index]?.appType && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {errors.tier_point_multiplier[index].appType.message}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <label className={labelClass}>Multiplier Value</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          {...register(`tier_point_multiplier.${index}.multiplier`, {
+                            valueAsNumber: true,
+                            required: "Multiplier value is required",
+                            min: {
+                              value: 0.01,
+                              message: "Multiplier value must be greater than 0",
+                            },
+                          })}
+                          placeholder="Enter multiplier (e.g., 1.5)"
+                          className={inputClass}
+                        />
+                        {errors.tier_point_multiplier?.[index]?.multiplier && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {errors.tier_point_multiplier[index].multiplier.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {errors.tier_point_multiplier && !errors.tier_point_multiplier[0] && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.tier_point_multiplier.message}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 

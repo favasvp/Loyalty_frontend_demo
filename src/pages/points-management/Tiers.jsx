@@ -79,7 +79,25 @@ const Tiers = () => {
           {item?.points_required}
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          {Array.isArray(item?.description?.en) ? item.description.en.join(", ") : ""}
+          {Array.isArray(item?.description?.en)
+            ? item.description.en.join(", ")
+            : ""}
+        </td>
+        <td className="px-6 py-4 text-sm text-gray-500">
+          <div className="flex flex-wrap gap-2">
+            {item?.tier_point_multiplier?.length > 0 ? (
+              item.tier_point_multiplier.map(({ appType, multiplier, _id }) => (
+                <div
+                  key={_id}
+                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-600 border border-gray-200"
+                >
+                  {appType?.name || "Unknown App"}: {multiplier || "N/A"}
+                </div>
+              ))
+            ) : (
+              <span className="text-xs text-gray-400">No multipliers</span>
+            )}
+          </div>
         </td>
 
         <td className="px-6 py-4 whitespace-nowrap">
@@ -167,6 +185,9 @@ const Tiers = () => {
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Description
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Multiplier
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status

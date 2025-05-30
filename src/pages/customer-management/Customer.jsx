@@ -182,8 +182,14 @@ const Customer = () => {
                   className="cursor-pointer w-4 h-4 align-middle"
                 />
               </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Customer ID
+              </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Name
+              </th>
+               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+               Total Points
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Email
@@ -217,8 +223,14 @@ const Customer = () => {
                       className="cursor-pointer"
                     />
                   </td>
+                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item?.customer_id}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {item?.name}
+                  </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item?.total_points}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {item?.email}

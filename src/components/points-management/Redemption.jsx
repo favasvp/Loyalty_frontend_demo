@@ -1,11 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import StyledButton from "../../ui/StyledButton";
 import {
-  ChartBarIcon,
   CursorArrowRippleIcon,
   ExclamationTriangleIcon,
   HashtagIcon,
-  PaperClipIcon,
 } from "@heroicons/react/24/outline";
 import AddRedemption from "./AddRedemption";
 import { useRedemptionRules } from "../../hooks/useRedemptionRules";
@@ -71,38 +69,6 @@ const Redemption = ({ id }) => {
                       {ruleData?.data?.maximum_points_per_day}
                     </p>
                   </div>
-                </div>
-              </div>
-
-              <div>
-                <p className="flex items-center gap-2 text-gray-700 text-sm font-medium mb-3">
-                  <ChartBarIcon className="w-4 h-4 text-indigo-500" />
-                  Tier Multipliers
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  {ruleData?.data?.tier_multipliers?.map(
-                    ({ tier_id, multiplier }) => (
-                      <div
-                        key={tier_id?.name?.en}
-                        className="flex items-center gap-2 bg-gray-50 p-3 rounded-md"
-                      >
-                        <div
-                          className="flex-shrink-0 w-2 h-8 rounded-full"
-                          style={{
-                            backgroundColor:"#FFD700"
-                          }}
-                        />
-                        <div>
-                          <p className="text-xs text-gray-500 capitalize">
-                            {tier_id?.name?.en}
-                          </p>
-                          <p className="font-medium text-gray-800">
-                            x{multiplier}
-                          </p>
-                        </div>
-                      </div>
-                    )
-                  )}
                 </div>
               </div>
             </div>

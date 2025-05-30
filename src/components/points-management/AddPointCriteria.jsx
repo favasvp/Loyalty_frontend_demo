@@ -112,8 +112,17 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
           );
         }
       }
+     if (triggerServices?.data && editData.serviceType) {
+        const serviceTypeId = editData.serviceType?._id || editData.serviceType;
+        const isValidServiceType = triggerServices.data.some(
+          (item) => item._id === serviceTypeId
+        );
+        if (isValidServiceType) {
+          setValue("serviceType", serviceTypeId);
+        }
+      }
     }
-  }, [editData, setValue]);
+  }, [editData, setValue, triggerServices, ]);
 
   const paymentMethodOptions = [
     { value: "Khedmah-Pay", label: "Card" },

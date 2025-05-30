@@ -37,13 +37,19 @@ const Transactions = () => {
     return transactionList?.map((item) => (
       <tr key={item.id} className="hover:bg-gray-50">
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-          {item.name}
+          {item.customer_id?.name}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">
+          {item.transaction_type}
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          {item.pointsRequired}
+          {item.transaction_id}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          {item.points}
         </td>
         <td className="px-6 py-4 whitespace-nowrap">
-          <span className="px-2 py-1 text-xs font-medium rounded-full">
+          <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">
             {item.status}
           </span>
         </td>
@@ -95,6 +101,12 @@ const Transactions = () => {
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Name
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Transaction Type
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Transaction ID
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Points

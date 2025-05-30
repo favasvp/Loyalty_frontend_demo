@@ -44,19 +44,28 @@ const AddExpiration = ({ isOpen, onClose, editData, id }) => {
     if (id) {
       setValue("appType", id);
     }
-  }, [id, setValue]);
+    if (editData && Tiers?.data) {
+      // Construct tier_extensions array for all tiers
+      const tierExtensions = Tiers.data.map((tier) => ({
+        tier_id: tier._id,
+        additional_months: 0,
+      }));
 
-  useEffect(() => {
-    if (editData) {
-      const tierExtensionsMap = editData.tier_extensions?.reduce((acc, ext) => {
-        acc[ext.tier_id] = ext.additional_months;
-        return acc;
-      }, {});
+      // Populate additional_months from editData
+      if (editData.tier_extensions?.length > 0) {
+        editData.tier_extensions.forEach((ext) => {
+          const tierId = ext.tier_id?._id || ext.tier_id;
+          const index = tierExtensions.findIndex((t) => t.tier_id === tierId);
+          if (index !== -1) {
+            tierExtensions[index].additional_months = ext.additional_months || 0;
+          }
+        });
+      }
 
       reset({
         default_expiry_period: editData?.default_expiry_period || 0,
         grace_period: editData?.grace_period || 0,
-        tier_extensions: editData?.tier_extensions || [],
+        tier_extensions: tierExtensions,
         appType: editData?.appTypes || id || "",
         expiry_notifications: {
           first_reminder: editData?.expiry_notifications?.first_reminder || 0,
@@ -64,26 +73,18 @@ const AddExpiration = ({ isOpen, onClose, editData, id }) => {
           final_reminder: editData?.expiry_notifications?.final_reminder || 0,
         },
       });
-      if (Tiers?.data) {
-        Tiers.data.forEach((tier) => {
-          setValue(
-            `tier_extensions.${tier._id}`,
-            tierExtensionsMap?.[tier._id] || 0
-          );
-        });
-      }
     }
-  }, [editData, reset, Tiers, id, setValue]);
+  }, [editData, Tiers, id, reset, setValue]);
 
   const onSubmit = (formData) => {
     const preparedFormData = {
       ...formData,
-      tier_extensions: Tiers?.data
-        ?.map((tier) => ({
-          tier_id: tier._id,
-          additional_months: formData.tier_extensions[tier._id] || 0,
-        }))
-        .filter((ext) => ext.additional_months > 0),
+      tier_extensions: formData.tier_extensions
+        .filter((ext) => ext.additional_months > 0)
+        .map((ext) => ({
+          tier_id: ext.tier_id,
+          additional_months: Number(ext.additional_months),
+        })),
     };
 
     if (editData) {
@@ -231,7 +232,7 @@ const AddExpiration = ({ isOpen, onClose, editData, id }) => {
           <div className={cardClass}>
             <h3 className={sectionHeadingClass}>Tier-based Extensions</h3>
             <div className="space-y-3">
-              {Tiers?.data?.map((tier) => (
+              {Tiers?.data?.map((tier, index) => (
                 <div
                   key={tier._id}
                   className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-200"
@@ -241,7 +242,7 @@ const AddExpiration = ({ isOpen, onClose, editData, id }) => {
                   </div>
                   <div className="flex-1">
                     <Controller
-                      name={`tier_extensions.${tier._id}`}
+                      name={`tier_extensions[${index}].additional_months`}
                       control={control}
                       defaultValue={0}
                       render={({ field }) => (
@@ -257,6 +258,11 @@ const AddExpiration = ({ isOpen, onClose, editData, id }) => {
                           placeholder="Additional months"
                         />
                       )}
+                    />
+                    <input
+                      type="hidden"
+                      {...register(`tier_extensions[${index}].tier_id`)}
+                      value={tier._id}
                     />
                   </div>
                 </div>

@@ -2,6 +2,15 @@ import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import React from "react";
 
 const PointsCard = ({ criteria, onClick, onEdit, onDelete }) => {
+  // Format dates for display
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
   return (
     <div
       className="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow cursor-pointer flex flex-col h-full relative"
@@ -51,9 +60,16 @@ const PointsCard = ({ criteria, onClick, onEdit, onDelete }) => {
       <div className="space-y-2">
         {criteria?.description && (
           <p className="text-xs text-gray-600">
-            {criteria.description?.en }
+            {criteria.description?.en}
           </p>
         )}
+        <div className="text-xs text-gray-600">
+          <p><span className="font-medium">Code:</span> {criteria?.unique_code}</p>
+          <p>
+            <span className="font-medium">Valid:</span>{' '}
+            {formatDate(criteria?.startDate)} - {formatDate(criteria?.endDate)}
+          </p>
+        </div>
       </div>
 
       <div className="mt-auto pt-3">

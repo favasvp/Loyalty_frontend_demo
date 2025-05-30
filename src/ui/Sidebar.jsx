@@ -87,11 +87,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           path: "/customers",
           icon: UsersIcon,
         },
-        {
-          label: "Support",
-          path: "/support",
-          icon: ChatBubbleLeftRightIcon,
-        },
+        // {
+        //   label: "Support",
+        //   path: "/support",
+        //   icon: ChatBubbleLeftRightIcon,
+        // },
       ],
     },
     {

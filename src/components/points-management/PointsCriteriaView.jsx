@@ -1,6 +1,7 @@
 import React from "react";
 import { usePointsCriteria } from "../../hooks/usePointsCriteria";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import moment from "moment/moment";
 
 const PointsCriteriaView = ({ open, onClose, id }) => {
   const { useGetPointsCriteriaById } = usePointsCriteria();
@@ -21,24 +22,33 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
     <div className="fixed inset-0 flex items-center justify-center bg-black/10 z-50">
       <div className="relative bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[80vh] overflow-hidden flex flex-col mt-17">
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            {selectedCriteria?.data?.serviceType?.icon && (
-              <img
-                src={selectedCriteria?.data?.serviceType?.icon}
-                alt={selectedCriteria?.data?.serviceType?.title?.en}
-                className="w-14 h-14 rounded-lg shadow-sm"
-              />
-            )}
-            <div>
-              <h2 className="text-xl font-bold text-gray-800">
-                {selectedCriteria?.data?.serviceType?.title?.en ||
-                  "Service Details"}
-              </h2>
-              <p className="text-gray-600 text-sm">
-                {selectedCriteria?.data?.serviceType?.description?.en || ""}
-              </p>
-            </div>
-          </div>
+             <div className="flex items-center gap-4">
+      {selectedCriteria?.data?.serviceType?.icon && (
+        <img
+          src={selectedCriteria?.data?.serviceType?.icon}
+          alt={selectedCriteria?.data?.serviceType?.title?.en}
+          className="w-14 h-14 rounded-lg shadow-sm"
+        />
+      )}
+      <div>
+        <h2 className="text-xl font-bold text-gray-800">
+          {selectedCriteria?.data?.serviceType?.title?.en || "Service Details"}
+        </h2>
+        <p className="text-gray-600 text-sm">
+          {selectedCriteria?.data?.unique_code || ""}
+        </p>
+        <p className="text-gray-600 text-sm">
+          <span className="font-medium">Valid:</span>{' '}
+          {selectedCriteria?.data?.startDate
+            ? moment(selectedCriteria.data.startDate).format('MMM D, YYYY')
+            : 'N/A'}{' '}
+          -{' '}
+          {selectedCriteria?.data?.endDate
+            ? moment(selectedCriteria.data.endDate).format('MMM D, YYYY')
+            : 'N/A'}
+        </p>
+      </div>
+    </div>
           <div className="flex items-center gap-3">
             <span
               className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${

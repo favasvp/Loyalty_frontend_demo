@@ -2,16 +2,6 @@ import StyledSearchInput from "../../ui/StyledSearchInput";
 import StyledButton from "../../ui/StyledButton";
 import PointsCard from "../../ui/point-managememt/PointsCard";
 import { useEffect, useState } from "react";
-import {
-  ArrowPathIcon,
-  CheckIcon,
-  ClockIcon,
-  CodeBracketIcon,
-  CurrencyDollarIcon,
-  DocumentTextIcon,
-  PencilIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
 import RefreshButton from "../../ui/RefreshButton";
 import Loader from "../../ui/Loader";
 import { usePointsCriteria } from "../../hooks/usePointsCriteria";

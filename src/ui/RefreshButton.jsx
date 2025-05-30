@@ -5,7 +5,7 @@ const RefreshButton = ({ onClick, isLoading }) => {
     <button
       onClick={onClick}
       disabled={isLoading}
-      className={`p-2 rounded-lg border border-gray-300 hover:bg-gray-50 ${
+      className={`p-2 rounded-lg border border-gray-300 hover:bg-gray-50 cursor-pointer ${
         isLoading ? "opacity-50 cursor-not-allowed" : ""
       }`}
     >

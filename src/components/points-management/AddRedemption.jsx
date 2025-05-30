@@ -3,14 +3,11 @@ import { useForm, Controller } from "react-hook-form";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useRedemptionRules } from "../../hooks/useRedemptionRules";
 import useUiStore from "../../store/ui";
-import { useTiers } from "../../hooks/useTiers";
 import { useAppTypes } from "../../hooks/useAppTypes";
 
 const AddRedemption = ({ isOpen, onClose, editData, id }) => {
   if (!isOpen) return null;
 
-  const { useGetTiers } = useTiers();
-  const { data: Tiers } = useGetTiers();
   const { useGetAppTypes } = useAppTypes();
   const { data: appTypes } = useGetAppTypes();
 
@@ -25,7 +22,6 @@ const AddRedemption = ({ isOpen, onClose, editData, id }) => {
     defaultValues: {
       minimum_points_required: "",
       maximum_points_per_day: "",
-      tier_multipliers: [],
     },
   });
 
@@ -34,62 +30,46 @@ const AddRedemption = ({ isOpen, onClose, editData, id }) => {
       setValue("appType", id);
     }
   }, [id, setValue]);
-  const { useUpdateRedemptionRules,useCreateRedemptionRules } = useRedemptionRules();
+  const { useUpdateRedemptionRules, useCreateRedemptionRules } =
+    useRedemptionRules();
   const updateMutation = useUpdateRedemptionRules();
   const createMutation = useCreateRedemptionRules();
   const { addToast } = useUiStore();
 
   useEffect(() => {
-    if (Tiers?.data) {
-      const allTiers = Tiers.data.map((tier) => ({
-        tier_id: tier._id,
-        multiplier: 0,
-      }));
-
-      if (editData) {
-        const updatedMultipliers = allTiers.map((tier) => {
-          const existingMultiplier = editData?.tier_multipliers?.find(
-            (item) => item?.tier_id === tier.tier_id
-          );
-          return {
-            tier_id: tier.tier_id,
-            multiplier: existingMultiplier ? existingMultiplier.multiplier : 0,
-          };
-        });
-
-        reset({
-          minimum_points_required: editData?.minimum_points_required || "",
-          maximum_points_per_day: editData?.maximum_points_per_day || "",
-          tier_multipliers: updatedMultipliers,
-        });
-      } else {
-        setValue("tier_multipliers", allTiers);
-      }
+    if (editData) {
+      reset({
+        minimum_points_required: editData?.minimum_points_required || "",
+        maximum_points_per_day: editData?.maximum_points_per_day || "",
+      });
     }
-  }, [editData, Tiers, reset, setValue]);
+  }, [editData, reset, setValue]);
 
   const onSubmit = (formData) => {
     if (editData) {
-      updateMutation.mutate( {
-        id: editData?._id,
-        rulesData:formData,
-      }, {
-        onSuccess: (data) => {
-          addToast({
-            type: "success",
-            message: data?.message || "Redemption rules updated successfully",
-          });
-          onClose?.();
+      updateMutation.mutate(
+        {
+          id: editData?._id,
+          rulesData: formData,
         },
-        onError: (error) => {
-          addToast({
-            type: "error",
-            message:
-              error?.response?.data?.message ||
-              "Failed to update redemption rules",
-          });
-        },
-      });
+        {
+          onSuccess: (data) => {
+            addToast({
+              type: "success",
+              message: data?.message || "Redemption rules updated successfully",
+            });
+            onClose?.();
+          },
+          onError: (error) => {
+            addToast({
+              type: "error",
+              message:
+                error?.response?.data?.message ||
+                "Failed to update redemption rules",
+            });
+          },
+        }
+      );
     } else {
       createMutation.mutate(formData, {
         onSuccess: (res) => {
@@ -179,7 +159,8 @@ const AddRedemption = ({ isOpen, onClose, editData, id }) => {
                 <label className={labelClass}>App Type</label>
                 <select
                   {...register("appType", { required: "App Type is required" })}
-                  className={inputClass} disabled
+                  className={inputClass}
+                  disabled
                 >
                   <option value="">Select App</option>
                   {appTypes?.data?.map((item) => (
@@ -197,7 +178,7 @@ const AddRedemption = ({ isOpen, onClose, editData, id }) => {
             </div>
           </div>
 
-          <div className={cardClass}>
+          {/* <div className={cardClass}>
             <h3 className={sectionHeadingClass}>Tier Multipliers</h3>
             <div className="space-y-3">
               {Tiers?.data?.map((tier, index) => (
@@ -244,7 +225,7 @@ const AddRedemption = ({ isOpen, onClose, editData, id }) => {
                 Multipliers for maximum points per day based on member tier
               </div>
             </div>
-          </div>
+          </div> */}
 
           <div className="flex justify-end gap-3 pt-2 border-t mt-4">
             <button

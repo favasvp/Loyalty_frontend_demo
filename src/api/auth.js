@@ -16,7 +16,6 @@ const authApi = {
     const response = await apiClient.post(`${rootUrl}/register`, userData);
     return response.data;
   },
-
   // Get current user profile
   getCurrentUser: async () => {
     const response = await apiClient.get(`${rootUrl}/me`);

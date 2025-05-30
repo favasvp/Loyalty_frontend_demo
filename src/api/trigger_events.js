@@ -5,8 +5,10 @@ const rootUrl = "/trigger-events";
 const triggerEventsApi = {
 
     // Get all trigger events
-    getTriggerEvents: async () => {
-        const response = await apiClient.get(rootUrl);
+    getTriggerEvents: async (params) => {
+        const response = await apiClient.get(rootUrl,{
+            params
+        });
         return response.data;
     },  
 

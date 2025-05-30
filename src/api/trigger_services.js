@@ -5,8 +5,10 @@ const rootUrl = "/trigger-services";
 const triggerServicesApi = {
 
     // Get all trigger services
-    getTriggerServices: async () => {
-        const response = await apiClient.get(rootUrl);
+    getTriggerServices: async (params) => {
+        const response = await apiClient.get(rootUrl,{
+            params
+        });
         return response.data;
     },  
 

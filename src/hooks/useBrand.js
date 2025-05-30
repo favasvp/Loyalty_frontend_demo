@@ -8,10 +8,10 @@ export function useBrands() {
   const queryClient = useQueryClient();
 
   // Get all brands
-  const useGetBrands = () => {
+  const useGetBrands = (params) => {
     return useQuery({
-      queryKey: ["brands"],
-      queryFn: () => brandsApi.getBrands(),
+      queryKey: ["brands", params],
+      queryFn: () => brandsApi.getBrands(params),
       staleTime: 5 * 60 * 1000, // 5 minutes
     });
   };

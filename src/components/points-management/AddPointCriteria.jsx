@@ -6,6 +6,7 @@ import { useAppTypes } from "../../hooks/useAppTypes";
 import { usePointsCriteria } from "../../hooks/usePointsCriteria";
 import { useTriggerEvents } from "../../hooks/useTriggerEvents";
 import useUiStore from "../../store/ui";
+import { usePaymentMethod } from "../../hooks/usePaymentMethod";
 
 const AddPointCriteria = ({ isOpen, onClose, editData }) => {
   if (!isOpen) return null;
@@ -22,6 +23,9 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
   const { useGetTriggerServiceByTriggerEventId } = useTriggerServices();
   const { useGetAppTypes } = useAppTypes();
   const { data: appTypes } = useGetAppTypes();
+const{useGetPaymentMethods}=usePaymentMethod();
+const{data:paymentMethods}=useGetPaymentMethods();
+console.log("paymentMethods",paymentMethods);
 
   const {
     register,
@@ -425,9 +429,9 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
                         className={inputClass}
                       >
                         <option value="">Select Payment Method</option>
-                        {paymentMethodOptions.map((option) => (
+                        {paymentMethods?.data?.map((option) => (
                           <option key={option.value} value={option.value}>
-                            {option.label}
+                            {option.name}
                           </option>
                         ))}
                       </select>

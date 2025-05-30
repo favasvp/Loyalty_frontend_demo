@@ -8,10 +8,10 @@ export function useTriggerServices() {
   const queryClient = useQueryClient();
 
   // Get all trigger services
-  const useGetTriggerServices = () => {
+  const useGetTriggerServices = (params) => {
     return useQuery({
-      queryKey: ["triggerServices"],
-      queryFn: () => triggerServicesApi.getTriggerServices(),
+      queryKey: ["triggerServices", params],
+      queryFn: () => triggerServicesApi.getTriggerServices(params),
       staleTime: 5 * 60 * 1000, // 5 minutes
     });
   };

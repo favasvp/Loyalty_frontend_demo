@@ -5,7 +5,7 @@ import {
 } from "@heroicons/react/24/outline";
 import StyledButton from "../../ui/StyledButton";
 import StyledSearchInput from "../../ui/StyledSearchInput";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import StyledTable from "../../ui/StyledTable";
 import RefreshButton from "../../ui/RefreshButton.jsx";
 import Loader from "../../ui/Loader.jsx";
@@ -15,8 +15,8 @@ import DeleteModal from "../../ui/DeleteModal.jsx";
 import useUiStore from "../../store/ui.js";
 
 const TriggerServices = () => {
-  const [itemsPerPage, setItemsPerPage] = useState(20);
-  const [totalCount, setTotalCount] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -32,14 +32,26 @@ const TriggerServices = () => {
     isLoading,
     refetch,
     dataUpdatedAt,
-  } = useGetTriggerServices();
+  } = useGetTriggerServices({
+    limit: itemsPerPage,
+    page: currentPage,
+  });
   const { data: triggerService } = useGetTriggerServiceById(Id?.id);
   const deleteMutation = useDeleteTriggerService();
   const { addToast } = useUiStore();
-  const paginatedData = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return triggerServices?.data?.slice(startIndex, startIndex + itemsPerPage);
-  }, [triggerServices, currentPage, itemsPerPage]);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [itemsPerPage]);
+
+  useEffect(() => {
+    if (triggerServices?.total_count !== undefined) {
+      setTotalCount(triggerServices.total_count);
+    }
+  }, [triggerServices?.total_count]);
+  const paginatedData = useMemo(
+    () => triggerServices?.data || [],
+    [triggerServices?.data]
+  );
   const handleRowSelect = (id) => {
     setSelectedRows((prev) =>
       prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
@@ -111,7 +123,7 @@ const TriggerServices = () => {
         <div>
           {" "}
           <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-          Service Providers
+            Service Providers
           </h1>
           <p className="text-xs text-gray-500 mt-1">
             {" "}

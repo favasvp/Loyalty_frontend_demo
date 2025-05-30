@@ -124,6 +124,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           path: "/trigger-events",
           icon: CalendarDateRangeIcon,
         },
+          {
+          label: "Payment Methods",
+          path: "/payment-methods",
+          icon: CalendarDateRangeIcon,
+        },
       ],
     },
     {

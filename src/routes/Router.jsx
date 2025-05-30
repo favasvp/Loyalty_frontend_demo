@@ -24,6 +24,7 @@ import AuthLogs from "../pages/audit/AuthLogs";
 import Support from "../pages/customer-management/Support";
 import KhedmahOffer from "../pages/ofters-and-promotions/KhedmahOffer";
 import SdkAccess from "../pages/system-and-settings/SdkAccess";
+import PaymentMethods from "../pages/reference-data/PaymentMethods";
 const RootLayout = () => (
   <AuthProvider>
     <Outlet />
@@ -57,6 +58,7 @@ const router = createBrowserRouter([
           { path: "/api-logs", element: <ApiLogs /> },
           { path: "/apps", element: <Apps /> },
           { path: "/brands", element: <Brands /> },
+           { path: "/payment-methods", element: <PaymentMethods /> },
           { path: "/categories", element: <Categories /> },
           { path: "/rules", element: <Rules /> },
           { path: "/reports", element: <Reports /> },

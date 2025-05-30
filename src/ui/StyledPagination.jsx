@@ -1,7 +1,6 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { TrashIcon } from "@heroicons/react/24/solid";
 import StyledButton from "./StyledButton";
-import { useEffect } from "react";
 
 const StyledPagination = ({
   currentPage,
@@ -13,6 +12,7 @@ const StyledPagination = ({
   handleBulkDelete,
 }) => {
   const totalPages = Math.max(1, Math.ceil(totalCount / itemsPerPage));
+
   const handlePageChange = (page) => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);

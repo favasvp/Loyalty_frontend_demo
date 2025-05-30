@@ -6,10 +6,10 @@ export function useCategory() {
   const queryClient = useQueryClient();
 
  
-  const useGetCategory = () => {
+  const useGetCategory = (params) => {
     return useQuery({
-      queryKey: ["category"],
-      queryFn: () => categoryApi.getCategory(),
+      queryKey: ["category",params],
+      queryFn: () => categoryApi.getCategory(params),
       staleTime: 5 * 60 * 1000, // 5 minutes
     });
   };

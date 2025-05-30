@@ -8,10 +8,10 @@ export function useTriggerEvents() {
   const queryClient = useQueryClient();
 
   // Get all trigger events
-  const useGetTriggerEvents = () => {
+  const useGetTriggerEvents = (params) => {
     return useQuery({
-      queryKey: ["triggerEvents"],
-      queryFn: () => triggerEventsApi.getTriggerEvents(),
+      queryKey: ["triggerEvents", params],
+      queryFn: () => triggerEventsApi.getTriggerEvents(params),
       staleTime: 5 * 60 * 1000, // 5 minutes
     });
   };

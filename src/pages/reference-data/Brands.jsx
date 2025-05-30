@@ -5,7 +5,7 @@ import {
 } from "@heroicons/react/24/outline";
 import StyledButton from "../../ui/StyledButton";
 import StyledSearchInput from "../../ui/StyledSearchInput";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import StyledTable from "../../ui/StyledTable";
 import DeleteModal from "../../ui/DeleteModal";
 import RefreshButton from "../../ui/RefreshButton.jsx";
@@ -16,7 +16,7 @@ import useUiStore from "../../store/ui.js";
 
 const Brands = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [totalCount, setTotalCount] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -31,14 +31,23 @@ const Brands = () => {
     error,
     refetch,
     dataUpdatedAt,
-  } = useGetBrands();
+  } = useGetBrands({
+    limit: itemsPerPage,
+    page: currentPage,
+  });
   const deleteMutation = useDeleteBrand();
   const { addToast } = useUiStore();
 
-  const paginatedData = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return brands?.data?.slice(startIndex, startIndex + itemsPerPage);
-  }, [brands?.data, currentPage, itemsPerPage]);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [itemsPerPage]);
+
+  useEffect(() => {
+    if (brands?.total_count !== undefined) {
+      setTotalCount(brands.total_count);
+    }
+  }, [brands?.total_count]);
+  const paginatedData = useMemo(() => brands?.data || [], [brands?.data]);
   const handleRowSelect = (id) => {
     setSelectedRows((prev) =>
       prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
@@ -52,7 +61,6 @@ const Brands = () => {
     setData(id);
     setDeleteOpen(true);
   };
-
 
   const handleSelectAll = () => {
     const allRowIds = paginatedData?.map((item) => item?._id) || [];
@@ -191,57 +199,58 @@ const Brands = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {paginatedData?.length > 0 ? paginatedData?.map((item) => (
-              <tr key={item?._id} className="hover:bg-gray-50">
-                <td className="px-4 py-4">
-                  <input
-                    type="checkbox"
-                    onChange={() => handleRowSelect(item._id)}
-                    checked={selectedRows?.includes(item?._id)}
-                    className="cursor-pointer"
-                  />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item?.title?.en}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">
-                  {item?.description?.en}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <img
-                    src={item?.image}
-                    alt="icon"
-                    className="w-6 h-6 object-contain"
-                  />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <button
-                      className="text-slate-400 hover:text-green-700 p-1 rounded-lg hover:bg-green-50"
-                      onClick={() => handleEdit(item?._id)}
-                    >
-                      <PencilIcon className="w-4 h-4" />
-                    </button>
-                    <button
-                      className="text-slate-400 hover:text-red-700 p-1 rounded-lg hover:bg-red-50"
-                      onClick={() => handleDeleteOpen(item?._id)}
-                    >
-                      <TrashIcon className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))
-              : (
-                <tr>
-                  <td
-                    colSpan="5"
-                    className="px-6 py-4 text-center text-gray-500 text-sm"
-                  >
-                    No data available
+            {paginatedData?.length > 0 ? (
+              paginatedData?.map((item) => (
+                <tr key={item?._id} className="hover:bg-gray-50">
+                  <td className="px-4 py-4">
+                    <input
+                      type="checkbox"
+                      onChange={() => handleRowSelect(item._id)}
+                      checked={selectedRows?.includes(item?._id)}
+                      className="cursor-pointer"
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item?.title?.en}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">
+                    {item?.description?.en}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <img
+                      src={item?.image}
+                      alt="icon"
+                      className="w-6 h-6 object-contain"
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="text-slate-400 hover:text-green-700 p-1 rounded-lg hover:bg-green-50"
+                        onClick={() => handleEdit(item?._id)}
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </button>
+                      <button
+                        className="text-slate-400 hover:text-red-700 p-1 rounded-lg hover:bg-red-50"
+                        onClick={() => handleDeleteOpen(item?._id)}
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
-              )}
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan="5"
+                  className="px-6 py-4 text-center text-gray-500 text-sm"
+                >
+                  No data available
+                </td>
+              </tr>
+            )}
           </tbody>
         </StyledTable>
       )}

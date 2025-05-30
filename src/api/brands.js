@@ -5,8 +5,10 @@ const rootUrl = "/coupon-brand";
 const brandsApi = {
 
     // Get all brands
-    getBrands: async () => {
-        const response = await apiClient.get(rootUrl);
+    getBrands: async (params) => {
+        const response = await apiClient.get(rootUrl,{
+            params
+        });
         return response.data;
     },
 

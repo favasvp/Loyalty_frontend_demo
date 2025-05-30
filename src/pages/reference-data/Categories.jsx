@@ -5,7 +5,7 @@ import {
 } from "@heroicons/react/24/outline";
 import StyledButton from "../../ui/StyledButton";
 import StyledSearchInput from "../../ui/StyledSearchInput";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import StyledTable from "../../ui/StyledTable";
 import DeleteModal from "../../ui/DeleteModal";
 import RefreshButton from "../../ui/RefreshButton.jsx";
@@ -16,7 +16,7 @@ import AddCategory from "../../components/reference-data/AddCategory.jsx";
 
 const Categories = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [totalCount, setTotalCount] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -32,14 +32,26 @@ const Categories = () => {
     error,
     refetch,
     dataUpdatedAt,
-  } = useGetCategory();
+  } = useGetCategory({
+    limit: itemsPerPage,
+    page: currentPage,
+  });
   const deleteMutation = useDeleteCategory();
   const { addToast } = useUiStore();
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [itemsPerPage]);
 
-  const paginatedData = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return categories?.data?.slice(startIndex, startIndex + itemsPerPage);
-  }, [categories?.data, currentPage, itemsPerPage]);
+  useEffect(() => {
+    if (categories?.total_count !== undefined) {
+      setTotalCount(categories.total_count);
+    }
+  }, [categories?.total_count]);
+  const paginatedData = useMemo(
+    () => categories?.data || [],
+    [categories?.data]
+  );
+
   const handleRowSelect = (id) => {
     setSelectedRows((prev) =>
       prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]

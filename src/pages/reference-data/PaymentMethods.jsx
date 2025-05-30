@@ -7,62 +7,71 @@ import StyledButton from "../../ui/StyledButton";
 import StyledSearchInput from "../../ui/StyledSearchInput";
 import { useEffect, useMemo, useState } from "react";
 import StyledTable from "../../ui/StyledTable";
+import DeleteModal from "../../ui/DeleteModal";
 import RefreshButton from "../../ui/RefreshButton.jsx";
 import Loader from "../../ui/Loader.jsx";
-import { useTriggerEvents } from "../../hooks/useTriggerEvents.js";
-import AddEvent from "../../components/reference-data/AddEvent.jsx";
-import DeleteModal from "../../ui/DeleteModal.jsx";
 import useUiStore from "../../store/ui.js";
+import { usePaymentMethod } from "../../hooks/usePaymentMethod.js";
+import AddPaymentMethod from "../../components/reference-data/AddPaymentMethod.jsx";
+import moment from "moment";
 
-const TriggerEvents = () => {
+const PaymentMethods = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [data, setData] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [editData, setEditData] = useState(null);
-  const { useGetTriggerEvents, useGetTriggerEventById, useDeleteTriggerEvent } =
-    useTriggerEvents();
   const {
-    data: triggerEvents,
+    useGetPaymentMethodById,
+    useGetPaymentMethods,
+    useDeletePaymentMethod,
+  } = usePaymentMethod();
+  const { data: methodData } = useGetPaymentMethodById(data?.id);
+
+  const {
+    data: methods,
     isLoading,
+    error,
     refetch,
     dataUpdatedAt,
-  } = useGetTriggerEvents({
-    page: currentPage,
+  } = useGetPaymentMethods({
     limit: itemsPerPage,
+    page: currentPage,
   });
-  const { data: triggerEventData } = useGetTriggerEventById(editData?.id);
-  const deleteMutation = useDeleteTriggerEvent();
-  const { addToast } = useUiStore();
+
   useEffect(() => {
     setCurrentPage(1);
   }, [itemsPerPage]);
 
   useEffect(() => {
-    if (triggerEvents?.total_count !== undefined) {
-      setTotalCount(triggerEvents.total_count);
+    if (methods?.total_count !== undefined) {
+      setTotalCount(methods.total_count);
     }
-  }, [triggerEvents?.total_count]);
-  const paginatedData = useMemo(
-    () => triggerEvents?.data || [],
-    [triggerEvents?.data]
-  );
+  }, [methods]);
+
+  const deleteMutation = useDeletePaymentMethod();
+  const { addToast } = useUiStore();
+
+  const paginatedData = useMemo(() => methods?.data || [], [methods?.data]);
 
   const handleRowSelect = (id) => {
     setSelectedRows((prev) =>
       prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
     );
   };
+
   const handleEdit = (id) => {
-    setEditData({ id });
+    setData({ id });
     setAddOpen(true);
   };
+
   const handleDeleteOpen = async (id) => {
-    setEditData(id);
+    setData(id);
     setDeleteOpen(true);
   };
+
   const handleSelectAll = () => {
     const allRowIds = paginatedData?.map((item) => item?._id) || [];
     if (selectedRows.length === allRowIds?.length) {
@@ -71,8 +80,9 @@ const TriggerEvents = () => {
       setSelectedRows(allRowIds);
     }
   };
+
   const handleDelete = () => {
-    deleteMutation.mutate(editData, {
+    deleteMutation.mutate(data, {
       onSuccess: (response) => {
         addToast({
           type: "success",
@@ -87,8 +97,9 @@ const TriggerEvents = () => {
       },
     });
     setDeleteOpen(false);
-    setEditData(null);
+    setData(null);
   };
+
   const handleBulkDelete = async () => {
     if (!selectedRows.length) return;
     await Promise.all(
@@ -109,7 +120,6 @@ const TriggerEvents = () => {
         })
       )
     );
-
     setSelectedRows([]);
   };
 
@@ -117,12 +127,10 @@ const TriggerEvents = () => {
     <>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          {" "}
           <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-            Trigger Events
+            Payment Methods
           </h1>
           <p className="text-xs text-gray-500 mt-1">
-            {" "}
             Last Updated: {new Date(dataUpdatedAt).toLocaleString()}
           </p>
         </div>
@@ -137,11 +145,19 @@ const TriggerEvents = () => {
             placeholder="Search"
             className="w-full sm:w-auto"
           />
-
           <StyledButton
             name={
               <>
-                <span className="text-lg leading-none">+</span> Add Event
+                <ArrowDownTrayIcon className="w-4 h-4" /> Export
+              </>
+            }
+            variant="download"
+          />
+          <StyledButton
+            name={
+              <>
+                <span className="text-lg leading-none">+</span> Add Payment
+                Method
               </>
             }
             onClick={() => {
@@ -182,11 +198,9 @@ const TriggerEvents = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Name
               </th>
-
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Description
+                Created At
               </th>
-
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
@@ -195,23 +209,21 @@ const TriggerEvents = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {paginatedData?.length > 0 ? (
               paginatedData?.map((item) => (
-                <tr key={item?.id} className="hover:bg-gray-50">
+                <tr key={item?._id} className="hover:bg-gray-50">
                   <td className="px-4 py-4">
                     <input
                       type="checkbox"
-                      onChange={() => handleRowSelect(item?._id)}
-                      checked={selectedRows.includes(item?._id)}
+                      onChange={() => handleRowSelect(item._id)}
+                      checked={selectedRows?.includes(item?._id)}
                       className="cursor-pointer"
                     />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {item?.name?.en}
+                    {item?.name}
                   </td>
-
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">
-                    {item?.description?.en}
+                    {moment(item?.createdAt).format("DD-MM-YYYY")}
                   </td>
-
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <div className="flex items-center gap-2">
                       <button
@@ -243,20 +255,16 @@ const TriggerEvents = () => {
           </tbody>
         </StyledTable>
       )}
-      <AddEvent
+      <AddPaymentMethod
         isOpen={addOpen}
         onClose={() => {
           setAddOpen(false);
-          setEditData({});
+          setData(null);
         }}
-        onSuccess={() => {
-          setEditData({});
-        }}
-        editData={triggerEventData}
+        editData={methodData}
       />
-
       <DeleteModal
-        data={"Trigger Event"}
+        data={"Payment Method"}
         isOpen={deleteOpen}
         onClose={() => setDeleteOpen(false)}
         onConfirm={handleDelete}
@@ -265,4 +273,4 @@ const TriggerEvents = () => {
   );
 };
 
-export default TriggerEvents;
+export default PaymentMethods;

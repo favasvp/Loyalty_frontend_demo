@@ -5,8 +5,10 @@ const rootUrl = "/coupon-category";
 const categoryApi = {
 
     // Get all category
-    getCategory: async () => {
-        const response = await apiClient.get(rootUrl);
+    getCategory: async (params) => {
+        const response = await apiClient.get(rootUrl,{
+            params
+        });
         return response.data;
     },
 

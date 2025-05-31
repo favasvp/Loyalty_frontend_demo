@@ -6,9 +6,9 @@ const uploadApi = {
   // Upload Image
   uploadImage: async (imageFile) => {
     const formData = new FormData();
-    formData.append("image", imageFile);
+    formData.append("photo", imageFile);
 
-    const response = await apiClient.post(`${uploadUrl}/image`, formData, {
+    const response = await apiClient.post(`${uploadUrl}/single`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

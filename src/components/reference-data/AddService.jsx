@@ -71,8 +71,14 @@ const AddService = ({ isOpen, onClose, editData }) => {
       let imageUrl = formData.icon;
       const file = watch("icon");
       if (file instanceof File) {
-        const uploadResponse = await uploadApi.uploadImage(file);
-        imageUrl = uploadResponse.data?.url;
+          const uploadResponse = await uploadApi.uploadImage(file);
+      const fullPath = uploadResponse.data?.path;
+
+      // Extract "/uploads/..." from full path
+      const splitIndex = fullPath.lastIndexOf("uploads");
+      imageUrl = splitIndex !== -1
+        ? "/" + fullPath.slice(splitIndex).replace(/\\/g, "/")
+        : fullPath;
       }
       
       const formDataToSubmit = { ...formData, icon: imageUrl };

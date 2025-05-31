@@ -28,7 +28,7 @@ const serviceSchema = z.object({
 const AddService = ({ isOpen, onClose, editData }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [activeLanguage, setActiveLanguage] = useState("en");
-  
+
   const {
     register,
     handleSubmit,
@@ -47,7 +47,8 @@ const AddService = ({ isOpen, onClose, editData }) => {
     },
   });
 
-  const { useCreateTriggerService, useUpdateTriggerService } = useTriggerServices();
+  const { useCreateTriggerService, useUpdateTriggerService } =
+    useTriggerServices();
   const createMutation = useCreateTriggerService();
   const updateMutation = useUpdateTriggerService();
   const { addToast } = useUiStore();
@@ -56,12 +57,21 @@ const AddService = ({ isOpen, onClose, editData }) => {
 
   useEffect(() => {
     if (editData?.data) {
-      setValue("title.en", editData.data.title?.en || editData.data.title || "");
+      setValue(
+        "title.en",
+        editData.data.title?.en || editData.data.title || ""
+      );
       setValue("title.ar", editData.data.title?.ar || "");
-      setValue("description.en", editData.data.description?.en || editData.data.description || "");
+      setValue(
+        "description.en",
+        editData.data.description?.en || editData.data.description || ""
+      );
       setValue("description.ar", editData.data.description?.ar || "");
       setValue("icon", editData.data.icon || "");
-      setValue("triggerEvent", editData.data.triggerEvent?.map((event) => event._id) || []);
+      setValue(
+        "triggerEvent",
+        editData.data.triggerEvent?.map((event) => event._id) || []
+      );
       setImagePreview(editData?.data?.icon);
     }
   }, [editData, setValue]);
@@ -71,16 +81,12 @@ const AddService = ({ isOpen, onClose, editData }) => {
       let imageUrl = formData.icon;
       const file = watch("icon");
       if (file instanceof File) {
-          const uploadResponse = await uploadApi.uploadImage(file);
-      const fullPath = uploadResponse.data?.path;
+        const uploadResponse = await uploadApi.uploadImage(file);
+        const fullPath = uploadResponse.data?.url;
 
-      // Extract "/uploads/..." from full path
-      const splitIndex = fullPath.lastIndexOf("uploads");
-      imageUrl = splitIndex !== -1
-        ? "/" + fullPath.slice(splitIndex).replace(/\\/g, "/")
-        : fullPath;
+        imageUrl = fullPath;
       }
-      
+
       const formDataToSubmit = { ...formData, icon: imageUrl };
       const action = editData?.data ? updateMutation : createMutation;
       const payload = editData?.data
@@ -120,7 +126,7 @@ const AddService = ({ isOpen, onClose, editData }) => {
   };
 
   if (!isOpen) return null;
-  
+
   const inputClass =
     "w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-green-500";
 
@@ -176,7 +182,9 @@ const AddService = ({ isOpen, onClose, editData }) => {
               </label>
               <input
                 {...register(`title.${activeLanguage}`)}
-                placeholder={`Enter ${activeLanguage === "en" ? "English" : "Arabic"} title`}
+                placeholder={`Enter ${
+                  activeLanguage === "en" ? "English" : "Arabic"
+                } title`}
                 className={inputClass}
                 dir={activeLanguage === "ar" ? "rtl" : "ltr"}
                 value={watch(`title.${activeLanguage}`)}
@@ -194,7 +202,9 @@ const AddService = ({ isOpen, onClose, editData }) => {
               </label>
               <textarea
                 {...register(`description.${activeLanguage}`)}
-                placeholder={`Enter ${activeLanguage === "en" ? "English" : "Arabic"} description`}
+                placeholder={`Enter ${
+                  activeLanguage === "en" ? "English" : "Arabic"
+                } description`}
                 className={`${inputClass} resize-none h-24`}
                 dir={activeLanguage === "ar" ? "rtl" : "ltr"}
                 value={watch(`description.${activeLanguage}`)}
@@ -237,7 +247,9 @@ const AddService = ({ isOpen, onClose, editData }) => {
             )}
 
             <div>
-              <label className="text-xs font-medium text-gray-500">Trigger Events</label>
+              <label className="text-xs font-medium text-gray-500">
+                Trigger Events
+              </label>
               <Select
                 isMulti
                 options={triggerEvents?.data?.map((event) => ({
@@ -246,7 +258,10 @@ const AddService = ({ isOpen, onClose, editData }) => {
                 }))}
                 value={triggerEvents?.data
                   ?.filter((event) => watch("triggerEvent").includes(event._id))
-                  .map((event) => ({ value: event._id, label: event.name?.en }))}
+                  .map((event) => ({
+                    value: event._id,
+                    label: event.name?.en,
+                  }))}
                 onChange={(selectedOptions) =>
                   setValue(
                     "triggerEvent",

@@ -214,13 +214,12 @@ const TriggerServices = () => {
                     {item?.title?.en}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              
                     <img
-                      src={`${BASE_URL}${item?.icon}`}
+                      src={item?.icon}
                       alt="icon"
                       className="w-6 h-6 object-contain"
 
-                    />{`${BASE_URL}${item?.icon}`}
+                    />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">
                     {item?.description?.en}

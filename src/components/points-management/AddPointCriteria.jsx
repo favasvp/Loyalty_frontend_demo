@@ -23,9 +23,9 @@ const AddPointCriteria = ({ isOpen, onClose, editData }) => {
   const { useGetTriggerServiceByTriggerEventId } = useTriggerServices();
   const { useGetAppTypes } = useAppTypes();
   const { data: appTypes } = useGetAppTypes();
-const{useGetPaymentMethods}=usePaymentMethod();
-const{data:paymentMethods}=useGetPaymentMethods();
-console.log("paymentMethods",paymentMethods);
+  const { useGetPaymentMethods } = usePaymentMethod();
+  const { data: paymentMethods } = useGetPaymentMethods();
+  console.log("paymentMethods", paymentMethods);
 
   const {
     register,
@@ -72,7 +72,7 @@ console.log("paymentMethods",paymentMethods);
         editData.serviceType?._id || editData.serviceType || ""
       );
       const formatDate = (dateString) => {
-        if (!dateString) return null; 
+        if (!dateString) return null;
         const date = new Date(dateString);
         return isNaN(date.getTime()) ? null : date.toISOString().split("T")[0];
       };
@@ -97,26 +97,41 @@ console.log("paymentMethods",paymentMethods);
         if (maxTransactions) {
           setValue(
             "conditions.maxTransactions.weekly",
-            maxTransactions.weekly || ""
+            maxTransactions.weekly || "0"
           );
           setValue(
             "conditions.maxTransactions.monthly",
-            maxTransactions.monthly || ""
+            maxTransactions.monthly || "0"
           );
+        } else {
+          // Set default values when maxTransactions doesn't exist
+          setValue("conditions.maxTransactions.weekly", "0");
+          setValue("conditions.maxTransactions.monthly", "0");
         }
 
         if (transactionValueLimits) {
           setValue(
             "conditions.transactionValueLimits.minValue",
-            transactionValueLimits.minValue || ""
+            transactionValueLimits.minValue || "0"
           );
           setValue(
             "conditions.transactionValueLimits.maxValue",
-            transactionValueLimits.maxValue || ""
+            transactionValueLimits.maxValue || "0"
           );
+        } else {
+          // Set default values when transactionValueLimits doesn't exist
+          setValue("conditions.transactionValueLimits.minValue", "0");
+          setValue("conditions.transactionValueLimits.maxValue", "0");
         }
+      } else {
+        // Set default values when conditions object doesn't exist
+        setValue("conditions.maxTransactions.weekly", "0");
+        setValue("conditions.maxTransactions.monthly", "0");
+        setValue("conditions.transactionValueLimits.minValue", "0");
+        setValue("conditions.transactionValueLimits.maxValue", "0");
       }
-     if (triggerServices?.data && editData.serviceType) {
+      
+      if (triggerServices?.data && editData.serviceType) {
         const serviceTypeId = editData.serviceType?._id || editData.serviceType;
         const isValidServiceType = triggerServices.data.some(
           (item) => item._id === serviceTypeId
@@ -126,7 +141,7 @@ console.log("paymentMethods",paymentMethods);
         }
       }
     }
-  }, [editData, setValue, triggerServices, ]);
+  }, [editData, setValue, triggerServices]);
 
   const paymentMethodOptions = [
     { value: "Khedmah-Pay", label: "Card" },
@@ -464,7 +479,6 @@ console.log("paymentMethods",paymentMethods);
               ))}
             </div>
           </div>
-
           <div className={cardClass}>
             <h3 className={sectionHeadingClass}>Limitations & Thresholds</h3>
 
@@ -482,6 +496,9 @@ console.log("paymentMethods",paymentMethods);
                       placeholder="Weekly max"
                       className={inputClass}
                     />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Enter 0 for Unlimited
+                    </p>
                   </div>
                   <div>
                     <label className={labelClass}>Monthly Limit</label>
@@ -491,6 +508,9 @@ console.log("paymentMethods",paymentMethods);
                       placeholder="Monthly max"
                       className={inputClass}
                     />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Enter 0 for Unlimited
+                    </p>
                   </div>
                 </div>
               </div>
@@ -510,6 +530,9 @@ console.log("paymentMethods",paymentMethods);
                       placeholder="Minimum value"
                       className={inputClass}
                     />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Enter 0 for Unlimited
+                    </p>
                   </div>
                   <div>
                     <label className={labelClass}>Maximum Value</label>
@@ -521,6 +544,9 @@ console.log("paymentMethods",paymentMethods);
                       placeholder="Maximum value"
                       className={inputClass}
                     />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Enter 0 for Unlimited
+                    </p>
                   </div>
                 </div>
               </div>

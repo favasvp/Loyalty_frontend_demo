@@ -22,33 +22,36 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
     <div className="fixed inset-0 flex items-center justify-center bg-black/10 z-50">
       <div className="relative bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[80vh] overflow-hidden flex flex-col mt-17">
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 flex items-center justify-between">
-             <div className="flex items-center gap-4">
-      {selectedCriteria?.data?.serviceType?.icon && (
-        <img
-          src={selectedCriteria?.data?.serviceType?.icon}
-          alt={selectedCriteria?.data?.serviceType?.title?.en}
-          className="w-14 h-14 rounded-lg shadow-sm"
-        />
-      )}
-      <div>
-        <h2 className="text-xl font-bold text-gray-800">
-          {selectedCriteria?.data?.serviceType?.title?.en || "Service Details"}
-        </h2>
-        <p className="text-gray-600 text-sm">
-          {selectedCriteria?.data?.unique_code || ""}
-        </p>
-        <p className="text-gray-600 text-sm">
-          <span className="font-medium">Valid:</span>{' '}
-          {selectedCriteria?.data?.startDate
-            ? moment(selectedCriteria.data.startDate).format('MMM D, YYYY')
-            : 'N/A'}{' '}
-          -{' '}
-          {selectedCriteria?.data?.endDate
-            ? moment(selectedCriteria.data.endDate).format('MMM D, YYYY')
-            : 'N/A'}
-        </p>
-      </div>
-    </div>
+          <div className="flex items-center gap-4">
+            {selectedCriteria?.data?.serviceType?.icon && (
+              <img
+                src={selectedCriteria?.data?.serviceType?.icon}
+                alt={selectedCriteria?.data?.serviceType?.title?.en}
+                className="w-14 h-14 rounded-lg shadow-sm"
+              />
+            )}
+            <div>
+              <h2 className="text-xl font-bold text-gray-800">
+                {selectedCriteria?.data?.serviceType?.title?.en ||
+                  "Service Details"}
+              </h2>
+              <p className="text-gray-600 text-sm">
+                {selectedCriteria?.data?.unique_code || ""}
+              </p>
+              <p className="text-gray-600 text-sm">
+                <span className="font-medium">Valid:</span>{" "}
+                {selectedCriteria?.data?.startDate
+                  ? moment(selectedCriteria.data.startDate).format(
+                      "MMM D, YYYY"
+                    )
+                  : "N/A"}{" "}
+                -{" "}
+                {selectedCriteria?.data?.endDate
+                  ? moment(selectedCriteria.data.endDate).format("MMM D, YYYY")
+                  : "N/A"}
+              </p>
+            </div>
+          </div>
           <div className="flex items-center gap-3">
             <span
               className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
@@ -85,7 +88,8 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
                 <div className="flex flex-col">
                   <span className="text-gray-500">Description</span>
                   <span>
-                    {selectedCriteria?.data?.eventType?.description?.en || "N/A"}
+                    {selectedCriteria?.data?.eventType?.description?.en ||
+                      "N/A"}
                   </span>
                 </div>
               </div>
@@ -105,7 +109,8 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
                 <div className="flex flex-col">
                   <span className="text-gray-500">Description</span>
                   <span>
-                    {selectedCriteria?.data?.serviceType?.description?.en || "N/A"}
+                    {selectedCriteria?.data?.serviceType?.description?.en ||
+                      "N/A"}
                   </span>
                 </div>
               </div>
@@ -163,14 +168,22 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
                     <div className="text-xs text-gray-500">Weekly</div>
                     <div className="text-lg font-medium">
                       {selectedCriteria?.data?.conditions?.maxTransactions
-                        ?.weekly || "—"}
+                        ?.weekly
+                        ? selectedCriteria.data.conditions.maxTransactions
+                            .weekly
+                        : "Unlimited"}
                     </div>
                   </div>
                   <div className="bg-gray-50 p-3 rounded-lg">
                     <div className="text-xs text-gray-500">Monthly</div>
                     <div className="text-lg font-medium">
                       {selectedCriteria?.data?.conditions?.maxTransactions
-                        ?.monthly || "—"}
+                        ?.monthly == null ||
+                      selectedCriteria?.data?.conditions?.maxTransactions
+                        ?.monthly === 0
+                        ? "Unlimited"
+                        : selectedCriteria?.data?.conditions?.maxTransactions
+                            ?.monthly}
                     </div>
                   </div>
                 </div>
@@ -183,17 +196,23 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
                   <div className="bg-gray-50 p-3 rounded-lg">
                     <div className="text-xs text-gray-500">Minimum</div>
                     <div className="text-lg font-medium">
-                      OMR{" "}
                       {selectedCriteria?.data?.conditions
-                        ?.transactionValueLimits?.minValue || "—"}
+                        ?.transactionValueLimits?.minValue == null ||
+                      selectedCriteria?.data?.conditions?.transactionValueLimits
+                        ?.minValue === 0
+                        ? "Unlimited"
+                        : `OMR ${selectedCriteria?.data?.conditions?.transactionValueLimits?.minValue}`}
                     </div>
                   </div>
                   <div className="bg-gray-50 p-3 rounded-lg">
                     <div className="text-xs text-gray-500">Maximum</div>
                     <div className="text-lg font-medium">
-                      OMR {" "}
                       {selectedCriteria?.data?.conditions
-                        ?.transactionValueLimits?.maxValue || "—"}
+                        ?.transactionValueLimits?.maxValue == null ||
+                      selectedCriteria?.data?.conditions?.transactionValueLimits
+                        ?.maxValue === 0
+                        ? "Unlimited"
+                        : `OMR ${selectedCriteria?.data?.conditions?.transactionValueLimits?.maxValue}`}
                     </div>
                   </div>
                 </div>

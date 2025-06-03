@@ -1,6 +1,6 @@
 import React from "react";
 import { usePointsCriteria } from "../../hooks/usePointsCriteria";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon, ClipboardIcon } from "@heroicons/react/24/outline";
 import moment from "moment/moment";
 
 const PointsCriteriaView = ({ open, onClose, id }) => {
@@ -16,6 +16,11 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
       month: "long",
       day: "numeric",
     });
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    // You can add a toast notification here if needed
   };
 
   return (
@@ -35,10 +40,18 @@ const PointsCriteriaView = ({ open, onClose, id }) => {
                 {selectedCriteria?.data?.serviceType?.title?.en ||
                   "Service Details"}
               </h2>
-              <p className="text-gray-600 text-sm">
-                {selectedCriteria?.data?.unique_code || ""}
-              </p>
-              <p className="text-gray-600 text-sm">
+              {selectedCriteria?.data?.unique_code && (
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="inline-flex items-center bg-blue-100 border border-blue-200 rounded-lg px-3 py-1.5">
+                    <span className="text-xs font-medium text-blue-600 mr-2">CODE:</span>
+                    <span className="text-sm font-mono font-semibold text-blue-800 tracking-wider">
+                      {selectedCriteria.data.unique_code}
+                    </span>
+                  
+                  </div>
+                </div>
+              )}
+              <p className="text-gray-600 text-sm mt-1">
                 <span className="font-medium">Valid:</span>{" "}
                 {selectedCriteria?.data?.startDate
                   ? moment(selectedCriteria.data.startDate).format(

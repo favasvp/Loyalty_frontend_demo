@@ -25,6 +25,15 @@ import Support from "../pages/customer-management/Support";
 import KhedmahOffer from "../pages/ofters-and-promotions/KhedmahOffer";
 import SdkAccess from "../pages/system-and-settings/SdkAccess";
 import PaymentMethods from "../pages/reference-data/PaymentMethods";
+import {
+  UserDashboard,
+  PointsHistory,
+  OffersPage,
+  CouponDetails,
+  UserProfile,
+  UserLayout,
+} from "../pages/user-facing-pages";
+import DemoPage from "../pages/user-facing-pages/DemoPage";
 const RootLayout = () => (
   <AuthProvider>
     <Outlet />
@@ -37,11 +46,18 @@ const ProtectedLayout = () => (
   </Layout>
 );
 
+const UserFacingLayout = () => (
+  <UserLayout>
+    <Outlet />
+  </UserLayout>
+);
+
 const router = createBrowserRouter([
   {
     element: <RootLayout />,
     children: [
       { path: "/", element: <LoginPage /> },
+      { path: "/demo", element: <DemoPage /> },
       {
         element: <ProtectedLayout />,
         children: [
@@ -58,7 +74,7 @@ const router = createBrowserRouter([
           { path: "/api-logs", element: <ApiLogs /> },
           { path: "/apps", element: <Apps /> },
           { path: "/brands", element: <Brands /> },
-           { path: "/payment-methods", element: <PaymentMethods /> },
+          { path: "/payment-methods", element: <PaymentMethods /> },
           { path: "/categories", element: <Categories /> },
           { path: "/rules", element: <Rules /> },
           { path: "/reports", element: <Reports /> },
@@ -68,6 +84,17 @@ const router = createBrowserRouter([
           { path: "/auth-logs", element: <AuthLogs /> },
           { path: "/sdk-access", element: <SdkAccess /> },
           { path: "/support", element: <Support /> },
+        ],
+      },
+      {
+        path: "/user",
+        element: <UserFacingLayout />,
+        children: [
+          { path: "/user/dashboard", element: <UserDashboard /> },
+          { path: "/user/history", element: <PointsHistory /> },
+          { path: "/user/offers", element: <OffersPage /> },
+          { path: "/user/coupon/:id", element: <CouponDetails /> },
+          { path: "/user/profile", element: <UserProfile /> },
         ],
       },
     ],

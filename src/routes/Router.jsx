@@ -28,7 +28,6 @@ import PaymentMethods from "../pages/reference-data/PaymentMethods";
 import {
   UserDashboard,
   PointsHistory,
-  OffersPage,
   CouponDetails,
   UserProfile,
   UserLayout,
@@ -92,7 +91,6 @@ const router = createBrowserRouter([
         children: [
           { path: "/user/dashboard", element: <UserDashboard /> },
           { path: "/user/history", element: <PointsHistory /> },
-          { path: "/user/offers", element: <OffersPage /> },
           { path: "/user/coupon/:id", element: <CouponDetails /> },
           { path: "/user/profile", element: <UserProfile /> },
         ],

@@ -35,6 +35,7 @@ import {
 import DemoPage from "../pages/user-facing-pages/DemoPage";
 import DashboardUser from "../pages/user-facing-pages/DashboardUser";
 import UserOffers from "../pages/user-facing-pages/UserOffers";
+import UserSupport from "../pages/user-facing-pages/UserSupport";
 const RootLayout = () => (
   <AuthProvider>
     <Outlet />
@@ -95,7 +96,7 @@ const router = createBrowserRouter([
           { path: "/user/offers", element: <UserOffers /> },
           { path: "/user/history", element: <PointsHistory /> },
           { path: "/user/coupon/:id", element: <CouponDetails /> },
-          { path: "/user/profile", element: <UserProfile /> },
+          { path: "/user/support", element: <UserSupport /> },
         ],
       },
     ],

@@ -3,15 +3,14 @@ import {
   HomeIcon,
   ClockIcon,
   TagIcon,
-  UserIcon,
 } from "@heroicons/react/24/outline";
 import {
   HomeIcon as HomeSolidIcon,
   ClockIcon as ClockSolidIcon,
   TagIcon as TagSolidIcon,
-  UserIcon as UserSolidIcon,
 } from "@heroicons/react/24/solid";
 import { useNavigate } from "react-router-dom";
+import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 
 const UserLayout = ({ children, currentPage = "home" }) => {
   const [activePage, setActivePage] = useState(currentPage);
@@ -40,11 +39,11 @@ const UserLayout = ({ children, currentPage = "home" }) => {
       href: "/user/offers",
     },
     {
-      id: "profile",
-      label: "Profile",
-      icon: UserIcon,
-      activeIcon: UserSolidIcon,
-      href: "/user/profile",
+      id: "support",
+      label: "Support",
+      icon: ChatBubbleLeftRightIcon,
+      activeIcon:ChatBubbleLeftRightIcon,
+      href: "/user/support",
     },
   ];
 

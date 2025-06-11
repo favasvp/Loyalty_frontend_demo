@@ -11,9 +11,11 @@ import {
   TagIcon as TagSolidIcon,
   UserIcon as UserSolidIcon,
 } from "@heroicons/react/24/solid";
+import { useNavigate } from "react-router-dom";
 
 const UserLayout = ({ children, currentPage = "home" }) => {
   const [activePage, setActivePage] = useState(currentPage);
+  const navigate = useNavigate();
 
   const navigationItems = [
     {
@@ -48,16 +50,12 @@ const UserLayout = ({ children, currentPage = "home" }) => {
 
   const handleNavigation = (item) => {
     setActivePage(item.id);
-    // In a real app, you would use React Router for navigation
-    // navigate(item.href);
+    navigate(item.href);
   };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Main Content */}
       <main className="min-h-screen">{children}</main>
-
-      {/* Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-50">
         <div className="flex items-center justify-around max-w-md mx-auto">
           {navigationItems.map((item) => {
@@ -70,7 +68,7 @@ const UserLayout = ({ children, currentPage = "home" }) => {
                 onClick={() => handleNavigation(item)}
                 className={`flex flex-col items-center space-y-1 py-2 px-3 rounded-lg transition-colors ${
                   isActive
-                    ? "text-orange-500"
+                    ? "text-[#DF9872]"
                     : "text-gray-500 hover:text-gray-700"
                 }`}
               >

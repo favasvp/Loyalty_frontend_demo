@@ -1,10 +1,8 @@
 import { useState } from "react";
 import UserDashboard from "./UserDashboard";
 import PointsHistory from "./PointsHistory";
-import OffersPage from "./OffersPage";
 import CouponDetails from "./CouponDetails";
 import UserProfile from "./UserProfile";
-import UserLayout from "./UserLayout";
 
 const DemoPage = () => {
   const [currentPage, setCurrentPage] = useState("dashboard");
@@ -86,8 +84,6 @@ const DemoPage = () => {
           </button>
         </div>
       </div>
-
-      {/* Mobile App Container */}
       <div className="relative">{renderCurrentPage()}</div>
     </div>
   );

@@ -1,177 +1,66 @@
-import { useState } from "react";
-import {
-  ArrowLeftIcon,
-  PlusIcon,
-  MinusIcon,
-} from "@heroicons/react/24/outline";
+import background from "../../assets/background.png";
+
+import plus from "../../assets/plus.png";
+import minus from "../../assets/minus.png";
+import { pointsHistoryData } from "../../assets/json/userData";
+
 
 const PointsHistory = () => {
-  const [user] = useState({
-    name: "ABDUL WAHAAB",
-    totalPoints: 50000,
-  });
-
-  const [transactions] = useState([
-    {
-      id: 1,
-      type: "earned",
-      points: 250,
-      description: "App download",
-      date: "01-01-2023",
-      balance: "2,100.00",
-    },
-    {
-      id: 2,
-      type: "burned",
-      points: 50,
-      description: "Voucher purchase",
-      date: "01-01-2023",
-      balance: "2,050.00",
-    },
-    {
-      id: 3,
-      type: "earned",
-      points: 100,
-      description: "App download",
-      date: "01-01-2023",
-      balance: "2,150.00",
-    },
-    {
-      id: 4,
-      type: "earned",
-      points: 75,
-      description: "App download",
-      date: "01-01-2023",
-      balance: "2,225.00",
-    },
-    {
-      id: 5,
-      type: "burned",
-      points: 25,
-      description: "Voucher purchase",
-      date: "01-01-2023",
-      balance: "2,200.00",
-    },
-    {
-      id: 6,
-      type: "earned",
-      points: 200,
-      description: "App download",
-      date: "01-01-2023",
-      balance: "2,400.00",
-    },
-    {
-      id: 7,
-      type: "earned",
-      points: 150,
-      description: "App download",
-      date: "01-01-2023",
-      balance: "2,550.00",
-    },
-    {
-      id: 8,
-      type: "burned",
-      points: 100,
-      description: "Voucher purchase",
-      date: "01-01-2023",
-      balance: "2,450.00",
-    },
-  ]);
-
-  const getTransactionIcon = (type) => {
-    if (type === "earned") {
-      return <PlusIcon className="w-4 h-4" />;
-    }
-    return <MinusIcon className="w-4 h-4" />;
-  };
-
-  const getTransactionColor = (type) => {
-    if (type === "earned") {
-      return "text-green-600 bg-green-100";
-    }
-    return "text-red-600 bg-red-100";
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-orange-400 to-orange-500 px-4 py-6 text-white">
-        <div className="flex items-center space-x-4 mb-4">
-          <button className="p-2 hover:bg-orange-600 rounded-full">
-            <ArrowLeftIcon className="w-5 h-5" />
-          </button>
-          <h1 className="text-lg font-semibold">Points History</h1>
-        </div>
-
-        {/* Total Points Card */}
-        <div className="bg-white rounded-lg p-4 text-center">
-          <h2 className="text-sm text-gray-600 mb-1">{user.name}</h2>
-          <div className="text-3xl font-bold text-green-600 mb-1">
-            {user.totalPoints.toLocaleString()}
+      <div className="relative">
+        <div
+          className=" h-52 flex items-center justify-center"
+          style={{
+            backgroundImage: `url(${background})`,
+            // backgroundSize: "object-cover",
+          }}
+        >
+          <div className="p-4 poppins-text items-center bg-white rounded-2xl space-y-2">
+            <h2 className="text-xl font-semibold text-[#3E3D40]">
+              ABDUL WAHAAB
+            </h2>
+            <h1 className="text-[#0FB55D] text-3xl font-semibold">50,000</h1>
+            <h3 className="text-[#6B7276] text-sm font-medium">
+              Total Point Balance
+            </h3>
           </div>
-          <p className="text-sm text-gray-600">Total Point Balance</p>
         </div>
-      </div>
-
-      {/* Transactions List */}
-      <div className="p-4">
-        <div className="space-y-3">
-          {transactions.map((transaction) => (
+        <div className="w-full bg-white top-38 absolute rounded-t-3xl p-4 mt-10">
+          {pointsHistoryData.map((item, idx) => (
             <div
-              key={transaction.id}
-              className="bg-white rounded-lg p-4 shadow-sm border"
+              key={idx}
+              className="flex items-center mb-2 border-b border-b-[#F8F8F8] p-3 "
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center ${getTransactionColor(
-                      transaction.type
-                    )}`}
-                  >
-                    {getTransactionIcon(transaction.type)}
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-gray-800 capitalize">
-                      Points {transaction.type}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {transaction.description}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <div
-                    className={`font-semibold ${
-                      transaction.type === "earned"
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {transaction.type === "earned" ? "+" : "-"}
-                    {transaction.points} pts
-                  </div>
-                  <p className="text-xs text-gray-500">{transaction.date}</p>
-                </div>
+              <div
+                className={`flex items-center justify-center w-10 h-10 rounded-full mr-3 
+                  ${item.type === "earned" ? "bg-[#E5FFF1]" : "bg-[#FFE7E7]"}`}
+              >
+                {item.type === "earned" ? (
+                  <img src={plus} alt="plus" className="w-5 h-7 " />
+                ) : (
+                  <img src={minus} alt="minus" className="w-6 h-6 " />
+                )}
               </div>
-
-              <div className="mt-3 pt-3 border-t border-gray-100">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Balance:</span>
-                  <span className="text-sm font-medium text-gray-800">
-                    {transaction.balance} pts
-                  </span>
+              <div className="flex-1 poppins-text">
+                <div className="font-medium text-[#1E2022] text-sm mb-2">
+                  {item.title}
+                </div>
+                <div className=" text-xs opacity-40">{item.description}</div>
+              </div>
+              <div
+                className={`font-medium text-xs poppins-text ${
+                  item.type === "earned" ? "text-[#00BC06]" : "text-[#ED4747]"
+                }`}
+              >
+                {item.type === "earned" ? "+" : "+"}
+                {item.points} <span className="text-xs">pts</span>
+                <div className="text-[#000] opacity-40 text-xs mt-1">
+                  {item.date}
                 </div>
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Load More Button */}
-        <div className="mt-6 text-center">
-          <button className="bg-orange-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-orange-600 transition-colors">
-            Load More Transactions
-          </button>
         </div>
       </div>
     </div>

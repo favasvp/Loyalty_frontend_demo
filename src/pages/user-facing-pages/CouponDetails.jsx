@@ -1,13 +1,19 @@
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import image from "../../assets/image (5).png";
 import { useNavigate } from "react-router-dom";
+import RedeemCard from "../../components/User-Facing/RedeemCard";
+import { useState } from "react";
 
 const CouponDetails = () => {
   const navigate = useNavigate();
+  const [showRedeemCard, setShowRedeemCard] = useState(false);
   return (
     <div className="max-w-md mx-auto bg-white min-h-screen pb-6">
       <div className="relative bg-[#23243A]  pb-4">
-        <button className="absolute top-14 left-4 bg-gray-400 w-8 h-8 bg-opacity-50 rounded-full p-1 flex items-center justify-center cursor-pointer"onClick={() => navigate(-1)}>
+        <button
+          className="absolute top-14 left-4 bg-gray-400 w-8 h-8 bg-opacity-50 rounded-full p-1 flex items-center justify-center cursor-pointer"
+          onClick={() => navigate(-1)}
+        >
           <ArrowLeftIcon className="w-3 h-3 text-white" />
         </button>
         <img
@@ -50,10 +56,20 @@ const CouponDetails = () => {
             <li>Support: For queries, contact us at or call.</li>
           </ul>
         </div>
-        <button className=" w-full text-sm font-medium text-[#0F0F10] bg-gradient-to-r from-[#FFFBEF] to-[#FFDFBE] px-[10px] py-[20px] rounded-[10px] mt-4 mb-4">
+        <button
+          onClick={() => setShowRedeemCard(true)}
+          className=" w-full text-sm font-medium text-[#0F0F10] bg-gradient-to-r from-[#FFFBEF] to-[#FFDFBE] px-[10px] py-[20px] rounded-[10px] mt-4 mb-4"
+        >
           Redeem Coupon
         </button>
       </div>
+      {showRedeemCard && (
+        <div className="fixed inset-0 bg-[rgba(0,0,0,0.6)] z-40 transition-opacity flex items-center justify-center">
+          <div className="w-[86%] max-w-md rounded-2xl ">
+            <RedeemCard onClose={() => setShowRedeemCard(false)} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

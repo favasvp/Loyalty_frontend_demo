@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import khedmah from "../../assets/Frame 92.png";
-import bronze from "../../assets/bronze.png";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import sdkApi from "../../api/sdk";
+import { getTierTheme, getNextTierInfo } from "./themes/tierThemes";
 
 const UserCard = () => {
   const [user, setUser] = useState({
@@ -37,15 +37,18 @@ const UserCard = () => {
 
           // Get tier name (default to Bronze if not available)
           const tierName = customerData.customer_tier?.en || "Bronze";
+          const currentPoints = customerData.point_balance || 0;
+
+          // Get next tier info using the theme system
+          const nextTierInfo = getNextTierInfo(tierName, currentPoints);
 
           setUser({
             name: customerData.name || "Customer",
             membership: tierName,
-            points: customerData.point_balance || 0,
-            nextTierPoints: getTierNextPoints(
-              tierName,
-              customerData.point_balance || 0
-            ),
+            points: currentPoints,
+            nextTierPoints: nextTierInfo.nextTier
+              ? nextTierInfo.pointsToNext
+              : 0,
             avatar: null,
           });
         } else {
@@ -62,31 +65,9 @@ const UserCard = () => {
     fetchCustomerData();
   }, [customerID, apiKey]);
 
-  // Helper function to determine next tier points
-  const getTierNextPoints = (currentTier, currentPoints) => {
-    const tierThresholds = {
-      Bronze: 5000,
-      Silver: 15000,
-      Gold: 50000,
-      Platinum: 100000,
-    };
-
-    const tiers = Object.keys(tierThresholds);
-    const currentTierIndex = tiers.findIndex((tier) => tier === currentTier);
-
-    if (currentTierIndex === -1 || currentTierIndex === tiers.length - 1) {
-      return Math.max(currentPoints + 10000, 10000); // Default for unknown or highest tier
-    }
-
-    const nextTier = tiers[currentTierIndex + 1];
-    return tierThresholds[nextTier];
-  };
-
-  const pointsToNext = user.nextTierPoints - user.points;
-  const progressPercent = Math.min(
-    (user.points / user.nextTierPoints) * 100,
-    100
-  );
+  // Get the current tier theme
+  const theme = getTierTheme(user.membership);
+  const nextTierInfo = getNextTierInfo(user.membership, user.points);
   const formatPoints = (num) => num.toLocaleString("de-DE");
 
   if (loading) {
@@ -117,54 +98,105 @@ const UserCard = () => {
   }
 
   return (
-    <div className="bg-white rounded-2xl max-w-md mx-auto overflow-hidden ">
-      <div className="flex justify-between items-start px-4 py-4">
-        <div>
-          <h2 className="text-[#737373] text-sm font-semibold poppins-text mb-1">
-            Welcome
-          </h2>
-          <h1 className="text-[#4A4A4A] text-base font-semibold poppins-text">
-            {user.name} !
-          </h1>
-        </div>
-        <img
-          src={khedmah}
-          alt="Khedmah Logo"
-          className="w-11 h-11 rounded-lg"
-        />
-      </div>
+    <div
+      className={`relative ${theme.colors.background.card} rounded-2xl max-w-md mx-auto overflow-hidden ${theme.styles.cardBorder} ${theme.colors.shadow}`}
+    >
+      {/* Background overlay with tier-specific gradient */}
+      <div
+        className={`absolute inset-0 ${theme.colors.background.overlay} opacity-30 rounded-2xl pointer-events-none`}
+      ></div>
 
-      <div className="relative flex items-center px-4 mb-2">
-        <img
-          src={bronze}
-          alt="Bronze Badge"
-          className="absolute left-[-12px] top-1/3 -translate-y-1/2 w-29 h-29 z-0 "
-          style={{ pointerEvents: "none" }}
-        />
-        <div className="relative z-10 pl-20 flex flex-col">
-          <span className="text-[#2F2F2F] font-semibold text-xl leading-none poppins-text">
-            {user.membership}
-          </span>
-          <div className="flex items-center mt-1 text-[#828282] text-xs">
-            <span className="poppins-text">{formatPoints(user.points)}</span>
-            <span className=" ml-1 poppins-text">Points</span>
-            <ChevronRightIcon className="w-4 h-4  ml-1" />
+      <div className="relative z-10">
+        {/* Header section */}
+        <div className="flex justify-between items-start px-4 py-4">
+          <div>
+            <h2
+              className={`${theme.styles.welcomeText} text-sm font-semibold poppins-text mb-1`}
+            >
+              Welcome
+            </h2>
+            <h1
+              className="text-base font-semibold poppins-text"
+              style={{ color: theme.colors.text.primary }}
+            >
+              {user.name} !
+            </h1>
+          </div>
+          <img
+            src={khedmah}
+            alt="Khedmah Logo"
+            className="w-11 h-11 rounded-lg"
+          />
+        </div>
+
+        {/* Tier badge and points section */}
+        <div className="relative flex items-center px-4 mb-2">
+          <img
+            src={theme.badge}
+            alt={`${user.membership} Badge`}
+            className={`absolute left-[-12px] top-1/3 -translate-y-1/2 w-29 h-29 z-0 ${theme.styles.badgeGlow}`}
+            style={{
+              pointerEvents: "none",
+              filter:
+                user.membership === "Silver"
+                  ? "hue-rotate(180deg) saturate(0.5) brightness(1.2)"
+                  : user.membership === "Gold"
+                  ? "hue-rotate(40deg) saturate(1.5) brightness(1.3)"
+                  : user.membership === "Platinum"
+                  ? "hue-rotate(200deg) saturate(0.3) brightness(1.4)"
+                  : "none",
+            }}
+          />
+          <div className="relative z-10 pl-20 flex flex-col">
+            <span
+              className="font-semibold text-xl leading-none poppins-text"
+              style={{ color: theme.colors.text.primary }}
+            >
+              {user.membership}
+            </span>
+            <div className="flex items-center mt-1 text-xs">
+              <span
+                className="poppins-text"
+                style={{ color: theme.colors.text.muted }}
+              >
+                {formatPoints(user.points)}
+              </span>
+              <span
+                className="ml-1 poppins-text"
+                style={{ color: theme.colors.text.muted }}
+              >
+                Points
+              </span>
+              <ChevronRightIcon
+                className="w-4 h-4 ml-1"
+                style={{ color: theme.colors.text.muted }}
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="px-4 pb-4">
-        <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+        {/* Progress bar section */}
+        <div className="px-4 pb-4">
           <div
-            className="bg-[#E39C75] h-2 rounded-full transition-all duration-300"
-            style={{ width: `${progressPercent}%` }}
-          ></div>
+            className="w-full rounded-full h-2 mb-2"
+            style={{ backgroundColor: theme.colors.progress.background }}
+          >
+            <div
+              className={`h-2 rounded-full transition-all duration-300 ${theme.styles.progressBar}`}
+              style={{ width: `${nextTierInfo.progressPercent}%` }}
+            ></div>
+          </div>
+          <span
+            className="text-[12px] poppins-text"
+            style={{ color: theme.colors.text.points }}
+          >
+            {nextTierInfo.isMaxTier
+              ? "Maximum tier reached! 🎉"
+              : `${formatPoints(nextTierInfo.pointsToNext)} Points to ${
+                  nextTierInfo.nextTier
+                }`}
+          </span>
         </div>
-        <span className="text-[#8E8E8E] text-[12px] poppins-text">
-          {pointsToNext > 0
-            ? `${formatPoints(pointsToNext)} Points to next tier`
-            : "Maximum tier reached"}
-        </span>
       </div>
     </div>
   );

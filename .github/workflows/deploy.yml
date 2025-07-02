@@ -22,7 +22,6 @@ jobs:
         env:
           VITE_API_KEY: ${{ secrets.VITE_API_KEY }}
           VITE_API: ${{ secrets.VITE_API }}
-          VITE_SDK_API:${{ secrets.VITE_SDK_API }}
         run: |
           npm ci
           npm run build

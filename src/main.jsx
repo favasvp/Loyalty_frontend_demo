@@ -17,11 +17,12 @@ const queryClient = new QueryClient({
 });
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <UIProvider>
-        <RouterProvider router={router} />
-      </UIProvider>
-    </QueryClientProvider>
-  </StrictMode>
+  // Temporarily disabled StrictMode to prevent DOM reconciliation errors in development
+  // <StrictMode>
+  <QueryClientProvider client={queryClient}>
+    <UIProvider>
+      <RouterProvider router={router} />
+    </UIProvider>
+  </QueryClientProvider>
+  // </StrictMode>
 );

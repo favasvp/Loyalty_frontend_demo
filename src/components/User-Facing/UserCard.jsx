@@ -3,6 +3,7 @@ import khedmah from "../../assets/Frame 92.png";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import sdkApi from "../../api/sdk";
 import { getTierTheme, getNextTierInfo } from "./themes/tierThemes";
+import { useCustomerAuth } from "../../hooks/useCustomerAuth";
 
 const UserCard = () => {
   const [user, setUser] = useState({
@@ -15,14 +16,13 @@ const UserCard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Get URL parameters
-  const queryParams = new URLSearchParams(window.location.search);
-  const customerID = queryParams.get("customerID");
-  const apiKey = queryParams.get("apiKey");
+  // Use the customer auth hook
+  const { customerID, apiKey, isAuthenticated, updateCustomerData } =
+    useCustomerAuth();
 
   useEffect(() => {
     const fetchCustomerData = async () => {
-      if (!customerID || !apiKey) {
+      if (!isAuthenticated || !customerID || !apiKey) {
         setError("Customer ID and API Key are required");
         setLoading(false);
         return;
@@ -30,6 +30,7 @@ const UserCard = () => {
 
       try {
         setLoading(true);
+        setError(null);
         const response = await sdkApi.getCustomerDetails(customerID, apiKey);
 
         if (response.status === 200 && response.data) {
@@ -42,7 +43,7 @@ const UserCard = () => {
           // Get next tier info using the theme system
           const nextTierInfo = getNextTierInfo(tierName, currentPoints);
 
-          setUser({
+          const userData = {
             name: customerData.name || "Customer",
             membership: tierName,
             points: currentPoints,
@@ -50,7 +51,12 @@ const UserCard = () => {
               ? nextTierInfo.pointsToNext
               : 0,
             avatar: null,
-          });
+          };
+
+          setUser(userData);
+
+          // Update the stored customer data
+          updateCustomerData(customerData);
         } else {
           setError("Failed to fetch customer data");
         }
@@ -63,12 +69,30 @@ const UserCard = () => {
     };
 
     fetchCustomerData();
-  }, [customerID, apiKey]);
+  }, [customerID, apiKey, isAuthenticated, updateCustomerData]);
 
   // Get the current tier theme
   const theme = getTierTheme(user.membership);
   const nextTierInfo = getNextTierInfo(user.membership, user.points);
   const formatPoints = (num) => num.toLocaleString("de-DE");
+
+  if (!isAuthenticated) {
+    return (
+      <div className="bg-white rounded-2xl max-w-md mx-auto overflow-hidden p-6">
+        <div className="text-center">
+          <p className="text-red-500 text-sm font-medium">
+            Customer ID and API Key are required
+          </p>
+          <p className="text-gray-500 text-xs mt-2">
+            Please access this page with valid customerID and apiKey parameters
+          </p>
+          <p className="text-gray-400 text-xs mt-2">
+            Example: ?customerID=YOUR_ID&apiKey=YOUR_KEY
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -90,7 +114,7 @@ const UserCard = () => {
         <div className="text-center">
           <p className="text-red-500 text-sm">{error}</p>
           <p className="text-gray-500 text-xs mt-2">
-            Please check your URL parameters
+            Please check your authentication or try again
           </p>
         </div>
       </div>

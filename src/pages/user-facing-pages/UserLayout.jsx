@@ -1,20 +1,29 @@
-import { useState } from "react";
-import {
-  HomeIcon,
-  ClockIcon,
-  TagIcon,
-} from "@heroicons/react/24/outline";
+import { useState, useEffect } from "react";
+import { HomeIcon, ClockIcon, TagIcon } from "@heroicons/react/24/outline";
 import {
   HomeIcon as HomeSolidIcon,
   ClockIcon as ClockSolidIcon,
   TagIcon as TagSolidIcon,
 } from "@heroicons/react/24/solid";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
+import { useCustomerAuth } from "../../hooks/useCustomerAuth";
+import PropTypes from "prop-types";
 
 const UserLayout = ({ children, currentPage = "home" }) => {
   const [activePage, setActivePage] = useState(currentPage);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated, customerID, apiKey } = useCustomerAuth();
+
+  // Update active page based on current route
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.includes("dashboard")) setActivePage("home");
+    else if (path.includes("history")) setActivePage("history");
+    else if (path.includes("offers")) setActivePage("offers");
+    else if (path.includes("support")) setActivePage("support");
+  }, [location.pathname]);
 
   const navigationItems = [
     {
@@ -42,15 +51,55 @@ const UserLayout = ({ children, currentPage = "home" }) => {
       id: "support",
       label: "Support",
       icon: ChatBubbleLeftRightIcon,
-      activeIcon:ChatBubbleLeftRightIcon,
+      activeIcon: ChatBubbleLeftRightIcon,
       href: "/user/support",
     },
   ];
 
   const handleNavigation = (item) => {
+    if (!isAuthenticated) {
+      // If not authenticated, show error
+      console.warn("Navigation attempted without authentication");
+      return;
+    }
+
     setActivePage(item.id);
-    navigate(item.href);
+
+    // Navigate with optional URL parameters for better bookmarking/sharing
+    const searchParams = new URLSearchParams();
+    if (customerID && apiKey) {
+      searchParams.set("customerID", customerID);
+      searchParams.set("apiKey", apiKey);
+    }
+
+    const url = searchParams.toString()
+      ? `${item.href}?${searchParams.toString()}`
+      : item.href;
+
+    navigate(url);
   };
+
+  // Show authentication error if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <div className="bg-white rounded-2xl max-w-md mx-auto overflow-hidden p-6 text-center">
+          <div className="text-red-500 text-lg font-semibold mb-2">
+            Authentication Required
+          </div>
+          <p className="text-gray-600 text-sm mb-4">
+            Please access this page with valid customer credentials.
+          </p>
+          <div className="bg-gray-50 rounded-lg p-3 text-xs text-gray-500">
+            <p className="font-medium mb-1">Required URL format:</p>
+            <p className="font-mono text-xs break-all">
+              ?customerID=YOUR_ID&apiKey=YOUR_KEY
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -80,6 +129,11 @@ const UserLayout = ({ children, currentPage = "home" }) => {
       </div>
     </div>
   );
+};
+
+UserLayout.propTypes = {
+  children: PropTypes.node.isRequired,
+  currentPage: PropTypes.string,
 };
 
 export default UserLayout;

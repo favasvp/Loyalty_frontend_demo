@@ -36,6 +36,7 @@ import DemoPage from "../pages/user-facing-pages/DemoPage";
 import DashboardUser from "../pages/user-facing-pages/DashboardUser";
 import UserOffers from "../pages/user-facing-pages/UserOffers";
 import UserSupport from "../pages/user-facing-pages/UserSupport";
+import AuthDemo from "../pages/user-facing-pages/AuthDemo";
 const RootLayout = () => (
   <AuthProvider>
     <Outlet />
@@ -60,6 +61,7 @@ const router = createBrowserRouter([
     children: [
       { path: "/", element: <LoginPage /> },
       { path: "/demo", element: <DemoPage /> },
+      { path: "/auth-demo", element: <AuthDemo /> },
       {
         element: <ProtectedLayout />,
         children: [

@@ -4,7 +4,11 @@ import CouponCard from "../../components/User-Facing/CouponCard";
 import OfferCard from "../../components/User-Facing/OfferCard";
 import background from "../../assets/background.png";
 import { brands, categories, data, offers } from "../../assets/json/userData";
+import { useNavigate } from "react-router-dom";
+
 const DashboardUser = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="relative">
@@ -21,7 +25,7 @@ const DashboardUser = () => {
       </div>
 
       <div className=" bg-white  rounded-t-3xl p-4 mt-10">
-        <img src={bg} />
+        <img src={bg} alt="Background decoration" />
         <div className="flex items-center justify-between mt-4 poppins-text mb-4">
           <h2 className="text-sm font-semibold ">Coupons</h2>
           <button className="text-xs font-medium text-[#0F0F10] bg-gradient-to-r from-[#FFFBEF] to-[#FFDFBE] px-[10px] py-[8px] rounded-[10px]">
@@ -36,7 +40,7 @@ const DashboardUser = () => {
           }}
         >
           {data.map((item) => (
-            <div className="min-w-[132px]">
+            <div key={item.id} className="min-w-[132px]">
               <CouponCard data={item} />
             </div>
           ))}
@@ -55,9 +59,13 @@ const DashboardUser = () => {
           }}
         >
           {brands.map((item) => (
-            <div className="min-w-[70px]">
+            <div key={item.id} className="min-w-[70px]">
               <div className="w-full p-2 border border-[#FFE5C9] rounded-lg h-16 flex items-center">
-                <img src={item.image} alt="" className="w-full h-6 object-contain" />
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-full h-6 object-contain"
+                />
               </div>
             </div>
           ))}
@@ -76,7 +84,7 @@ const DashboardUser = () => {
           }}
         >
           {offers.map((offer) => (
-            <div className="min-w-[180px]">
+            <div key={offer.id} className="min-w-[180px]">
               <OfferCard data={offer} />
             </div>
           ))}
@@ -94,7 +102,6 @@ const DashboardUser = () => {
             msOverflowStyle: "auto",
           }}
         >
-          {" "}
           {categories.map((category) => (
             <div
               key={category.id}

@@ -95,7 +95,7 @@ const router = createBrowserRouter([
           { path: "/user/offers", element: <UserOffers /> },
           { path: "/user/history", element: <PointsHistory /> },
           { path: "/user/coupon/:id", element: <CouponDetails /> },
-          { path: "/user/profile", element: <UserProfile /> },
+          // { path: "/user/profile", element: <UserProfile /> },
         ],
       },
     ],

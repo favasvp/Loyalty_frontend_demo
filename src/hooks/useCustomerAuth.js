@@ -18,7 +18,6 @@ export const useCustomerAuth = () => {
       const urlCustomerID = queryParams.get("customerID");
       const urlApiKey = queryParams.get("apiKey");
 
-git add .
       if (urlCustomerID && urlApiKey) {
         // Found parameters in URL, save them
         const authData = {

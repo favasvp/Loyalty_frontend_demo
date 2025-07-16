@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import khedmah from "../../assets/Frame 92.png";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import sdkApi from "../../api/sdk";
@@ -208,7 +208,7 @@ const UserCard = () => {
         {/* Progress bar section */}
         <div className="px-4 pb-4">
           <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-            <div
+            {/* <div
               className="bg-[#E39C75] h-2 rounded-full transition-all duration-300"
               style={{
                 width: `${
@@ -217,14 +217,10 @@ const UserCard = () => {
                     : 100
                 }%`,
               }}
-            ></div>
+            ></div> */}
           </div>
           <span className="text-[#8E8E8E] text-[12px] poppins-text">
-            {user.requiredPoint > 0 && user.nextTierName
-              ? `${formatPoints(user.requiredPoint - user.points)} Points to ${
-                  user.nextTierName
-                }`
-              : `You have reached the highest tier`}
+            {user.requiredPoint} points to {user.nextTierName}
           </span>
         </div>
       </div>

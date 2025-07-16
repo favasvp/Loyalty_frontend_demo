@@ -1,7 +1,7 @@
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
 
 const OfferCard = ({ data }) => {
-  const { title, description, image, percentage } = data;
+  const { title, description, image, discountDetails } = data;
   return (
     <div
       className=" rounded-2xl border border-[#FFF3E1] bg-white p-4"
@@ -23,10 +23,10 @@ const OfferCard = ({ data }) => {
       </div>
       <div className="mb-1">
         <span className=" text-sm font-semibold leading-tight poppins-text line-clamp-1">
-          {title}
+          {title?.en}
         </span>
         <span className="  text-[8px]  mt-1 leading-tight line-clamp-2">
-          {description}
+          {description?.en}
         </span>
       </div>
       <hr className="my-3 border-[#FFF5E7]" />
@@ -36,7 +36,12 @@ const OfferCard = ({ data }) => {
           <div className="text-gray-500 text-[8px] mb-1 poppins-text">
             For all members
           </div>
-          <div className=" text-base font-semibold">{percentage}&nbsp;%</div>
+          <div className=" text-base font-semibold">
+            {" "}
+            {discountDetails?.type === "PERCENTAGE"
+              ? `${discountDetails?.value}%`
+              : `${discountDetails?.value}`}
+          </div>
         </div>
         <button className="bg-[#4A4A4A] rounded-lg w-6 h-6 flex items-center justify-center">
           <ArrowRightIcon className="w-2 h-2 text-white" />

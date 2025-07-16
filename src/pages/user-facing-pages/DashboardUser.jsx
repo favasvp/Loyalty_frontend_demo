@@ -1,21 +1,67 @@
 import UserCard from "../../components/User-Facing/UserCard";
 import bg from "../../assets/bg.png";
-import CouponCard from "../../components/User-Facing/CouponCard";
 import OfferCard from "../../components/User-Facing/OfferCard";
-import background from "../../assets/background.png";
+import bronze from "../../assets/background.png";
 import { brands, categories, data, offers } from "../../assets/json/userData";
 import { useNavigate } from "react-router-dom";
-
+import { useEffect, useState } from "react";
+import sdkApi from "../../api/sdk";
+import { useCustomerAuth } from "../../hooks/useCustomerAuth";
+import CouponCard from "../../components/User-Facing/CouponCard";
+import silver from "../../assets/silver.png";
+import gold from "../../assets/gold.png";
+import AppButton from "../../ui/AppButton";
+import offersApi from "../../api/offers";
 const DashboardUser = () => {
   const navigate = useNavigate();
+  const [customerData, setCustomerData] = useState(null);
+  const { customerID, apiKey } = useCustomerAuth();
+  const [variant, setVariant] = useState("primary");
+  const[offerData, setOfferData] = useState([]);
+  const [backgroundImage, setBackgroundImage] = useState(bronze);
+  useEffect(() => {
+    const fetchCustomerData = async () => {
+      try {
+        const response = await sdkApi.getCustomerDetails(customerID, apiKey);
+        if (response.status === 200 && response.data) {
+          const customerData = response.data;
+          setCustomerData(customerData);
+          const tier = customerData?.customer_tier?.en;
+          switch (tier) {
+            case "Bronze":
+              setBackgroundImage(bronze);
+              setVariant("bronze");
+              break;
+            case "Silver":
+              setBackgroundImage(silver);
+              setVariant("silver");
+              break;
+            case "Gold":
+              setBackgroundImage(gold);
+              setVariant("gold");
+              break;
+            default:
+              setBackgroundImage(bronze);
+          }
+        }
+        const offers = await offersApi.getMerchantOffers();
+        setOfferData(offers.data);
+      } catch (error) {
+        console.error("Failed to fetch customer data:", error);
+      }
+    };
 
+    fetchCustomerData();
+  }, [customerID, apiKey]);
+
+ 
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="relative">
         <div
           className="rounded-b-2xl h-50"
           style={{
-            backgroundImage: `url(${background})`,
+            backgroundImage: `url(${backgroundImage})`,
             backgroundSize: "cover",
           }}
         ></div>
@@ -28,9 +74,8 @@ const DashboardUser = () => {
         <img src={bg} alt="Background decoration" />
         <div className="flex items-center justify-between mt-4 poppins-text mb-4">
           <h2 className="text-sm font-semibold ">Coupons</h2>
-          <button className="text-xs font-medium text-[#0F0F10] bg-gradient-to-r from-[#FFFBEF] to-[#FFDFBE] px-[10px] py-[8px] rounded-[10px]">
-            View All Coupons
-          </button>
+
+          <AppButton name={"View All Coupons"} variant={variant} />
         </div>
         <div
           className="flex space-x-3 overflow-x-auto scrollbar-hide"
@@ -47,9 +92,7 @@ const DashboardUser = () => {
         </div>
         <div className="flex items-center justify-between mt-6 poppins-text mb-4">
           <h2 className="text-sm font-semibold ">Brands</h2>
-          <button className="text-xs font-medium text-[#0F0F10] bg-gradient-to-r from-[#FFFBEF] to-[#FFDFBE] px-[10px] py-[8px] rounded-[10px]">
-            View All Brands
-          </button>
+          <AppButton name={"View All Brands"} variant={variant} />
         </div>
         <div
           className="flex space-x-3 overflow-x-auto scrollbar-hide"
@@ -72,9 +115,7 @@ const DashboardUser = () => {
         </div>
         <div className="flex items-center justify-between mt-6 poppins-text mb-4">
           <h2 className="text-sm font-semibold ">Brand Offers</h2>
-          <button className="text-xs font-medium text-[#0F0F10] bg-gradient-to-r from-[#FFFBEF] to-[#FFDFBE] px-[10px] py-[8px] rounded-[10px]">
-            View All Brand Offers
-          </button>
+          <AppButton name={"View All Brand Offers"} variant={variant} />
         </div>
         <div
           className="flex space-x-3 overflow-x-auto scrollbar-hide"
@@ -83,7 +124,7 @@ const DashboardUser = () => {
             msOverflowStyle: "auto",
           }}
         >
-          {offers.map((offer) => (
+          {offerData.map((offer) => (
             <div key={offer.id} className="min-w-[180px]">
               <OfferCard data={offer} />
             </div>
@@ -91,9 +132,8 @@ const DashboardUser = () => {
         </div>
         <div className="flex items-center justify-between mt-6 poppins-text mb-4">
           <h2 className="text-sm font-semibold ">Categories </h2>
-          <button className="text-xs font-medium text-[#0F0F10] bg-gradient-to-r from-[#FFFBEF] to-[#FFDFBE] px-[10px] py-[8px] rounded-[10px]">
-            View All Categories
-          </button>
+
+          <AppButton name={"View All Categories"} variant={variant} />
         </div>
         <div
           className="flex space-x-3 overflow-x-auto scrollbar-hide"

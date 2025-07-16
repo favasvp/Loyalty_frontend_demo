@@ -12,6 +12,8 @@ const UserCard = () => {
     points: 0,
     nextTierPoints: 5000,
     avatar: null,
+    requiredPoint: 0,
+    nextTierName: null,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -42,7 +44,9 @@ const UserCard = () => {
 
           // Get next tier info using the theme system
           const nextTierInfo = getNextTierInfo(tierName, currentPoints);
-
+          const requiredPoint = Number(
+            customerData.next_tier?.required_point || 0
+          );
           const userData = {
             name: customerData.name || "Customer",
             membership: tierName,
@@ -51,6 +55,8 @@ const UserCard = () => {
               ? nextTierInfo.pointsToNext
               : 0,
             avatar: null,
+            requiredPoint,
+            nextTierName: customerData.next_tier?.en || null,
           };
 
           setUser(userData);
@@ -201,24 +207,24 @@ const UserCard = () => {
 
         {/* Progress bar section */}
         <div className="px-4 pb-4">
-          <div
-            className="w-full rounded-full h-2 mb-2"
-            style={{ backgroundColor: theme.colors.progress.background }}
-          >
+          <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
             <div
-              className={`h-2 rounded-full transition-all duration-300 ${theme.styles.progressBar}`}
-              style={{ width: `${nextTierInfo.progressPercent}%` }}
+              className="bg-[#E39C75] h-2 rounded-full transition-all duration-300"
+              style={{
+                width: `${
+                  user.requiredPoint > 0
+                    ? Math.min((user.points / user.requiredPoint) * 100, 100)
+                    : 100
+                }%`,
+              }}
             ></div>
           </div>
-          <span
-            className="text-[12px] poppins-text"
-            style={{ color: theme.colors.text.points }}
-          >
-            {nextTierInfo.isMaxTier
-              ? "Maximum tier reached! 🎉"
-              : `${formatPoints(nextTierInfo.pointsToNext)} Points to ${
-                  nextTierInfo.nextTier
-                }`}
+          <span className="text-[#8E8E8E] text-[12px] poppins-text">
+            {user.requiredPoint > 0 && user.nextTierName
+              ? `${formatPoints(user.requiredPoint - user.points)} Points to ${
+                  user.nextTierName
+                }`
+              : `You have reached the highest tier`}
           </span>
         </div>
       </div>

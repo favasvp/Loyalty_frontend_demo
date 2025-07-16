@@ -1,7 +1,7 @@
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
 
 const OfferCard = ({ data }) => {
-  const { title, description, image, discountDetails } = data;
+  const { title, description, posterImage, discountDetails } = data;
   return (
     <div
       className=" rounded-2xl border border-[#FFF3E1] bg-white p-4"
@@ -15,7 +15,7 @@ const OfferCard = ({ data }) => {
       <div className="flex justify-between items-center mb-2 ">
         <div className="border border-[#FFECD3] rounded-md p-1">
           {" "}
-          <img src={image} alt="Puma Logo" className="w-7 h-7 contain" />
+          <img src={posterImage} alt="Puma Logo" className="w-7 h-7 contain" />
         </div>
         <span className="text-gray-500 text-[8px]  tracking-wide mt-1 poppins-text">
           OFFER

@@ -13,9 +13,9 @@ const OfferCard = ({ data }) => {
       }}
     >
       <div className="flex justify-between items-center mb-2 ">
-        <div className="border border-[#FFECD3] rounded-md p-1">
+        <div className="border border-[#FFECD3] rounded-md">
           {" "}
-          <img src={posterImage} alt="Puma Logo" className="w-7 h-7 contain" />
+          <img src={posterImage} alt={title} className="w-8 h-8 contain" />
         </div>
         <span className="text-gray-500 text-[8px]  tracking-wide mt-1 poppins-text">
           OFFER

@@ -155,6 +155,7 @@ const Categories = () => {
               </>
             }
             onClick={() => {
+              setData(null);
               setAddOpen(true);
             }}
           />

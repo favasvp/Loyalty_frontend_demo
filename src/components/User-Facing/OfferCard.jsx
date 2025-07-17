@@ -1,7 +1,7 @@
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
 
 const OfferCard = ({ data }) => {
-  const { title, description, posterImage, discountDetails } = data;
+  const { title,merchantId, description, posterImage, discountDetails } = data;
   return (
     <div
       className=" rounded-2xl border border-[#FFF3E1] bg-white p-4"
@@ -23,7 +23,7 @@ const OfferCard = ({ data }) => {
       </div>
       <div className="mb-1">
         <span className=" text-sm font-semibold leading-tight poppins-text line-clamp-1">
-          {title?.en}
+          {merchantId?.title?.en}
         </span>
         <span className="  text-[8px]  mt-1 leading-tight line-clamp-2">
           {description?.en}

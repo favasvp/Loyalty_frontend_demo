@@ -103,8 +103,14 @@ const sdkApi = {
     }
   },
   
-  getMerchantOffers: async (params) => {
-    const response = await sdkApiClient.get("/merchant-offers", { params });
+  getMerchantOffers: async ( apiKey,params) => {
+    const response = await sdkApiClient.get("/merchant-offers", { params },
+      {
+        headers: {
+          "x-api-key": apiKey,
+        },
+      }
+    );
     return response.data;
   },
 };

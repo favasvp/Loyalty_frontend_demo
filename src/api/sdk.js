@@ -106,7 +106,7 @@ const sdkApi = {
 getMerchantOffers: async (customerID, apiKey, params = {}) => {
   try {
     const response = await sdkApiClient.get(
-      "/merchant-offers",
+      "/khedmah-sdk/get-merchant-offers",
       {
         params: {
           customer_id: customerID,

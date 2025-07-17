@@ -103,16 +103,21 @@ const sdkApi = {
     }
   },
   
-  getMerchantOffers: async ( apiKey,params) => {
-    const response = await sdkApiClient.get("/merchant-offers", { params },
-      {
-        headers: {
-          "x-api-key": apiKey,
-        },
-      }
-    );
+getMerchantOffers: async (apiKey, params) => {
+  try {
+    const response = await sdkApiClient.get("/merchant-offers", {
+      params,
+      headers: {
+        "x-api-key": apiKey,
+      },
+    });
     return response.data;
-  },
+  } catch (error) {
+    console.error("Error fetching merchant offers:", error.response?.data || error.message);
+    throw error;
+  }
+},
+
 };
 
 export default sdkApi;

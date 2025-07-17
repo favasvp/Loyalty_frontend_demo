@@ -43,7 +43,7 @@ const DashboardUser = () => {
               setBackgroundImage(bronze);
           }
         }
-        const offers = await sdkApi.getMerchantOffers();
+        const offers = await sdkApi.getMerchantOffers(customerID, apiKey);
         setOfferData(offers.data);
       } catch (error) {
         console.error("Failed to fetch customer data:", error);

@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create SDK API client
 const sdkApiClient = axios.create({
-   baseURL:  "http://141.105.172.45:7733/api/api/v1",
+  baseURL: "http://141.105.172.45:7733/api/api/v1",
   headers: {
     "Content-Type": "application/json",
   },
@@ -102,15 +102,21 @@ const sdkApi = {
       throw error;
     }
   },
-  
-getMerchantOffers: async (apiKey, params) => {
+
+getMerchantOffers: async (customerID, apiKey, params = {}) => {
   try {
-    const response = await sdkApiClient.get("/merchant-offers", {
-      params,
-      headers: {
-        "x-api-key": apiKey,
-      },
-    });
+    const response = await sdkApiClient.get(
+      "/merchant-offers",
+      {
+        params: {
+          customer_id: customerID,
+          ...params,
+        },
+        headers: {
+          "x-api-key": apiKey,
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("Error fetching merchant offers:", error.response?.data || error.message);

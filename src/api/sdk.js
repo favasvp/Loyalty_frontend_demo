@@ -102,6 +102,11 @@ const sdkApi = {
       throw error;
     }
   },
+  
+  getMerchantOffers: async (params) => {
+    const response = await sdkApiClient.get("/merchant-offers", { params });
+    return response.data;
+  },
 };
 
 export default sdkApi;

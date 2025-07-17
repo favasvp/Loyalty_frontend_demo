@@ -11,7 +11,6 @@ import CouponCard from "../../components/User-Facing/CouponCard";
 import silver from "../../assets/silver.png";
 import gold from "../../assets/gold.png";
 import AppButton from "../../ui/AppButton";
-import offersApi from "../../api/offers";
 const DashboardUser = () => {
   const navigate = useNavigate();
   const [customerData, setCustomerData] = useState(null);
@@ -44,7 +43,7 @@ const DashboardUser = () => {
               setBackgroundImage(bronze);
           }
         }
-        const offers = await offersApi.getMerchantOffers();
+        const offers = await sdkApi.getMerchantOffers();
         setOfferData(offers.data);
       } catch (error) {
         console.error("Failed to fetch customer data:", error);

@@ -167,7 +167,7 @@ const AddExpiration = ({ isOpen, onClose, editData, id }) => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>
-                  Default Expiry Period (months)
+                  Default Expiry Period (days)
                 </label>
                 <input
                   type="number"
@@ -187,7 +187,7 @@ const AddExpiration = ({ isOpen, onClose, editData, id }) => {
                   Standard expiration time
                 </div>
               </div>
-              <div>
+              {/* <div>
                 <label className={labelClass}>Grace Period (days)</label>
                 <input
                   type="number"
@@ -206,7 +206,7 @@ const AddExpiration = ({ isOpen, onClose, editData, id }) => {
                 <div className="text-xs text-gray-500 mt-1">
                   Additional time after expiration
                 </div>
-              </div>
+              </div> */}
               <div>
                 <label className={labelClass}>App Type</label>
                 <select
@@ -273,7 +273,7 @@ const AddExpiration = ({ isOpen, onClose, editData, id }) => {
             </div>
           </div>
 
-          <div className={cardClass}>
+          {/* <div className={cardClass}>
             <h3 className={sectionHeadingClass}>Expiry Notifications</h3>
             <div className="grid grid-cols-3 gap-4">
               {["first_reminder", "second_reminder", "final_reminder"].map(
@@ -306,7 +306,7 @@ const AddExpiration = ({ isOpen, onClose, editData, id }) => {
             <div className="text-xs text-gray-500 mt-3">
               Days before expiration when notifications should be sent
             </div>
-          </div>
+          </div> */}
 
           <div className="flex justify-end gap-3 pt-2 border-t mt-4">
             <button

@@ -180,11 +180,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       type: "dropdown",
       icon: AdjustmentsHorizontalIcon,
       subItems: [
-        {
-          label: "Reports",
-          path: "/reports",
-          icon: DocumentChartBarIcon,
-        },
+        // {
+        //   label: "Reports",
+        //   path: "/reports",
+        //   icon: DocumentChartBarIcon,
+        // },
         {
           label: "Admin-System Logs",
           path: "/system-logs",

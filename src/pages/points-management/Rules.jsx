@@ -14,11 +14,11 @@ const Rules = () => {
   const { data: appTypeData } = useGetAppTypes();
   const appTypes = appTypeData?.data;
   const tabs = [
-    { id: "redemption", label: "Redemption Rules", icon: ArrowPathIcon },
+    // { id: "redemption", label: "Redemption Rules", icon: ArrowPathIcon },
     { id: "expiration", label: "Expiration Rules", icon: ClockIcon },
     { id: "conversion", label: "Points Conversion", icon: CurrencyDollarIcon },
   ];
-  const [activeTab, setActiveTab] = useState("redemption");
+  const [activeTab, setActiveTab] = useState("expiration");
   const [selectedAppType, setSelectedAppType] = useState(appTypes?.[0]?._id);
   useEffect(() => {
     setSelectedAppType(appTypes?.[0]?._id);
@@ -92,7 +92,7 @@ const Rules = () => {
           ))}
         </div>
         <div className="bg-white p-6 shadow-md rounded-lg">
-          {activeTab === "redemption" && <Redemption id={selectedAppType}/>}
+          {/* {activeTab === "redemption" && <Redemption id={selectedAppType}/>} */}
           {activeTab === "expiration" && <Expiration id={selectedAppType} />}
           {activeTab === "conversion" && <Conversion />}
         </div>

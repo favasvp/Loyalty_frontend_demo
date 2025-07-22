@@ -40,6 +40,10 @@ const RedeemCard = ({ onClose, image }) => {
         pin: code.join(""),
         couponId: couponId,
       });
+      addToast({
+        type: "success",
+        message: "Points redeemed successfully",
+      });
     } catch (e) {
       addToast({
         type: "error",
@@ -58,7 +62,7 @@ const RedeemCard = ({ onClose, image }) => {
         className="absolute top-3 right-3 z-10  text-gray-600 rounded-full p-1 shadow hover:bg-gray-100"
         aria-label="Close"
       >
-        <XMarkIcon style={{ width: "20px", height: "20px" }}/>
+        <XMarkIcon style={{ width: "20px", height: "20px" }} />
       </button>
       <div className="relative pb-4">
         <img

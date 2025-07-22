@@ -220,7 +220,13 @@ const UserCard = () => {
             ></div> */}
           </div>
           <span className="text-[#8E8E8E] text-[12px] poppins-text">
-            {user.requiredPoint} points to {user.nextTierName}
+            {user?.requiredPoint === 0 ? (
+              "Maximum Level Reached!"
+            ) : (
+              <>
+                {user.requiredPoint} points to {user.nextTierName}
+              </>
+            )}
           </span>
         </div>
       </div>

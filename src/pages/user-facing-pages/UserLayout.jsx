@@ -137,9 +137,10 @@ const UserLayout = ({ children, currentPage = "home" }) => {
                 onClick={() => handleNavigation(item)}
                 className={`flex flex-col items-center space-y-1 py-2 px-3 rounded-lg transition-colors ${
                   isActive
-                    ? `text-[${tierColor}]` 
+                    ? "font-semibold"
                     : "text-gray-500 hover:text-gray-700"
                 }`}
+                style={isActive ? { color: tierColor } : {}}
               >
                 <IconComponent className="w-6 h-6" />
                 <span className="text-xs font-medium">{item.label}</span>

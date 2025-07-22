@@ -95,7 +95,7 @@ const DashboardUser = () => {
         </div>
         <div className="flex items-center justify-between mt-6 poppins-text mb-4">
           <h2 className="text-sm font-semibold ">Brands</h2>
-          <AppButton name={"View All Brands"} variant={variant} />
+          <AppButton name={"View All Brands"} variant={variant} onClick={() => navigate("/user/brands")} />
         </div>
         <div
           className="flex space-x-3 overflow-x-auto scrollbar-hide"
@@ -104,15 +104,16 @@ const DashboardUser = () => {
             msOverflowStyle: "auto",
           }}
         >
-          {brands?.map((item) => (
+          {brands?.slice(0, 5).map((item) => (
             <div key={item?._id} className="min-w-[70px]">
               <div
-                className={`w-full p-2 border border-[${tierColor}] rounded-lg h-16 flex items-center`}
+                style={{ border: `1px solid ${tierColor}` }}
+                className={`w-full p-1  rounded-lg h-16 flex items-center justify-center`}
               >
                 <img
                   src={item?.image}
                   alt={item?.name}
-                  className="w-full h-6 object-contain"
+                  className="w-[70px] h-full object-contain"
                 />
               </div>
             </div>
@@ -120,7 +121,11 @@ const DashboardUser = () => {
         </div>
         <div className="flex items-center justify-between mt-6 poppins-text mb-4">
           <h2 className="text-sm font-semibold ">Brand Offers</h2>
-          <AppButton name={"View All Brand Offers"} variant={variant}onClick={() => navigate("/user/offers")} />
+          <AppButton
+            name={"View All Brand Offers"}
+            variant={variant}
+            onClick={() => navigate("/user/offers")}
+          />
         </div>
         <div
           className="flex space-x-3 overflow-x-auto scrollbar-hide"
@@ -129,7 +134,7 @@ const DashboardUser = () => {
             msOverflowStyle: "auto",
           }}
         >
-          {offerData?.map((offer) => (
+          {offerData?.slice(0, 5)?.map((offer) => (
             <div key={offer._id} className="min-w-[180px]">
               <OfferCard data={offer} tier={tierColor} />
             </div>
@@ -138,7 +143,7 @@ const DashboardUser = () => {
         <div className="flex items-center justify-between mt-6 poppins-text mb-4">
           <h2 className="text-sm font-semibold ">Categories </h2>
 
-          <AppButton name={"View All Categories"} variant={variant} />
+          <AppButton name={"View All Categories"} variant={variant}onClick={() => navigate("/user/categories")} />
         </div>
         <div
           className="flex space-x-3 overflow-x-auto scrollbar-hide"
@@ -147,7 +152,7 @@ const DashboardUser = () => {
             msOverflowStyle: "auto",
           }}
         >
-          {categories?.map((category) => (
+          {categories?.slice(0, 5)?.map((category) => (
             <div
               key={category?._id}
               className="flex flex-col items-center min-w-[89px]"

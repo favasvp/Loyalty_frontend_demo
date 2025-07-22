@@ -38,6 +38,8 @@ import UserOffers from "../pages/user-facing-pages/UserOffers";
 import UserSupport from "../pages/user-facing-pages/UserSupport";
 import AuthDemo from "../pages/user-facing-pages/AuthDemo";
 import ScrollToTop from "../ui/ScrollToTop";
+import UserBrands from "../pages/user-facing-pages/UserBrands";
+import UserCategories from "../pages/user-facing-pages/UserCategories";
 const RootLayout = () => (
   <AuthProvider>
     <Outlet />
@@ -100,6 +102,8 @@ const router = createBrowserRouter([
           { path: "/user/offers", element: <UserOffers /> },
           { path: "/user/history", element: <PointsHistory /> },
           { path: "/user/coupon", element: <CouponDetails /> },
+          { path: "/user/brands", element: <UserBrands /> },
+          { path: "/user/categories", element: <UserCategories /> },
           { path: "/user/support", element: <UserSupport /> },
         ],
       },

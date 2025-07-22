@@ -163,16 +163,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           path: "/role",
           icon: LockClosedIcon,
         },
-        {
-          label: "SDK & API Access",
-          path: "/sdk-access",
-          icon: CodeBracketIcon,
-        },
-        {
-          label: "Theme Settings",
-          path: "/theme",
-          icon: Cog6ToothIcon,
-        },
+        // {
+        //   label: "SDK & API Access",
+        //   path: "/sdk-access",
+        //   icon: CodeBracketIcon,
+        // },
+        // {
+        //   label: "Theme Settings",
+        //   path: "/theme",
+        //   icon: Cog6ToothIcon,
+        // },
       ],
     },
     {
@@ -180,11 +180,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       type: "dropdown",
       icon: AdjustmentsHorizontalIcon,
       subItems: [
-        {
-          label: "Reports",
-          path: "/reports",
-          icon: DocumentChartBarIcon,
-        },
+        // {
+        //   label: "Reports",
+        //   path: "/reports",
+        //   icon: DocumentChartBarIcon,
+        // },
         {
           label: "Admin-System Logs",
           path: "/system-logs",

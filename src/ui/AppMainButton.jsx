@@ -3,7 +3,7 @@ import { useCustomerAuth } from "../hooks/useCustomerAuth";
 
 export const AppMainButton = ({ loading, onClick, name }) => {
   const { customerID, apiKey, customerData } = useCustomerAuth();
-  const [variant, setVariant] = useState("bronze");
+  const [variant, setVariant] = useState(null);
 
   const variantStyles = {
     bronze: "bg-gradient-to-r from-[#FFFBEF] to-[#FFDFBE]",

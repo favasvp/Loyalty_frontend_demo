@@ -32,7 +32,7 @@ const Expiration = ({ id }) => {
           Expiration Rules
         </h3>
         <p className="text-sm text-gray-500 mt-1">
-          Manage point expiration policies and grace periods.
+          Manage point expiration policies 
         </p>
       </div>
 
@@ -61,12 +61,12 @@ const Expiration = ({ id }) => {
                 <div>
                   <p className="text-xs text-gray-500">Default Expiry Period</p>
                   <p className="font-medium text-gray-800">
-                    {ruleData?.data?.default_expiry_period} months
+                    {ruleData?.data?.default_expiry_period}   days
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-md">
+              {/* <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-md">
                 <GiftIcon className="w-5 h-5 text-indigo-500" />
                 <div>
                   <p className="text-xs text-gray-500">Grace Period</p>
@@ -74,7 +74,7 @@ const Expiration = ({ id }) => {
                     {ruleData?.data?.grace_period} days
                   </p>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             <div className="mb-6">
@@ -101,7 +101,7 @@ const Expiration = ({ id }) => {
                           {tier_id?.name?.en}
                         </p>
                         <p className="font-medium text-gray-800">
-                          {additional_months}months
+                          {additional_months} days
                         </p>
                       </div>
                     </div>
@@ -110,7 +110,7 @@ const Expiration = ({ id }) => {
               </div>
             </div>
 
-            <div className="mb-6">
+            {/* <div className="mb-6">
               <p className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
                 <BellIcon className="w-4 h-4 text-indigo-500" />
                 Expiry Notifications
@@ -138,7 +138,7 @@ const Expiration = ({ id }) => {
                     )
                   )}
               </div>
-            </div>
+            </div> */}
 
             <div className="flex justify-end mt-6">
               <StyledButton
@@ -150,9 +150,9 @@ const Expiration = ({ id }) => {
             </div>
           </div>
 
-          <div className="mt-6">
+          {/* <div className="mt-6">
             <UpcomingExpiration />
-          </div>
+          </div> */}
         </>
       )}
 

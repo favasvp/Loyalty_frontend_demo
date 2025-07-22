@@ -1,25 +1,33 @@
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
 
 const OfferCard = ({ data, tier }) => {
-  const { title, merchantId, description, posterImage, discountDetails } = data;
+  const {
+    title,
+    merchantId,
+    description,
+    posterImage,
+    discountDetails,
+    eligibilityCriteria,
+  } = data;
   return (
     <div
-      className={`rounded-2xl border border-[${tier}] bg-white p-4`}
+      className={`rounded-2xl  bg-white p-4`}
       style={{
         boxShadow: `
           0px 0.5px 1.5px 0px #0000001F,
           0px 0px 1px 0px #0000000A
         `,
+        border: `1px solid ${tier}`,
       }}
     >
       <div className="flex justify-between items-center mb-2 ">
         <div className="border border-[#FFECD3] rounded-md">
           {" "}
-          <img src={posterImage} alt={title} className="w-8 h-8 contain" />
+          <img src={posterImage} alt={title} className="w-10 h-10 contain" />
         </div>
-        <span className="text-gray-500 text-[8px]  tracking-wide mt-1 poppins-text">
+        {/* <span className="text-gray-500 text-[8px]  tracking-wide mt-1 poppins-text">
           OFFER
-        </span>
+        </span> */}
       </div>
       <div className="mb-1">
         <span className=" text-sm font-semibold leading-tight poppins-text line-clamp-1">
@@ -34,8 +42,13 @@ const OfferCard = ({ data, tier }) => {
       <div className="flex items-center justify-between">
         <div>
           <div className="text-gray-500 text-[8px] mb-1 poppins-text">
-            For all members
+            {eligibilityCriteria?.userTypes?.length > 0
+              ? `For all ${eligibilityCriteria.userTypes
+                  .map((type) => type.toLowerCase())
+                  .join(", ")} users`
+              : "For specific users only"}
           </div>
+
           <div className=" text-base font-semibold">
             {" "}
             {discountDetails?.type === "PERCENTAGE"

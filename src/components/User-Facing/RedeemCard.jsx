@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { useCustomerAuth } from "../../hooks/useCustomerAuth";
 import sdkApi from "../../api/sdk";
 import { AppMainButton } from "../../ui/AppMainButton";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 const RedeemCard = ({ onClose, image }) => {
   const [code, setCode] = useState(["", "", "", ""]);
@@ -51,7 +52,14 @@ const RedeemCard = ({ onClose, image }) => {
     }
   };
   return (
-    <div className="bg-white rounded-2xl pb-6">
+    <div className="bg-white rounded-2xl pb-6 relative">
+      <button
+        onClick={onClose}
+        className="absolute top-3 right-3 z-10  text-gray-600 rounded-full p-1 shadow hover:bg-gray-100"
+        aria-label="Close"
+      >
+        <XMarkIcon style={{ width: "20px", height: "20px" }}/>
+      </button>
       <div className="relative pb-4">
         <img
           src={image}
@@ -80,7 +88,7 @@ const RedeemCard = ({ onClose, image }) => {
             />
           ))}
         </div>
-       <AppMainButton loading={loading} onClick={handleSubmit} name="Redeem" />
+        <AppMainButton loading={loading} onClick={handleSubmit} name="Redeem" />
       </div>
     </div>
   );

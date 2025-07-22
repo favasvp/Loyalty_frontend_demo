@@ -43,7 +43,7 @@ const OfferCard = ({ data, tier }) => {
         <div>
           <div className="text-gray-500 text-[8px] mb-1 poppins-text">
             {eligibilityCriteria?.userTypes?.length > 0
-              ? `For all ${eligibilityCriteria.userTypes
+              ? `For ${eligibilityCriteria.userTypes
                   .map((type) => type.toLowerCase())
                   .join(", ")} users`
               : "For specific users only"}

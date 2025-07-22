@@ -37,6 +37,7 @@ import DashboardUser from "../pages/user-facing-pages/DashboardUser";
 import UserOffers from "../pages/user-facing-pages/UserOffers";
 import UserSupport from "../pages/user-facing-pages/UserSupport";
 import AuthDemo from "../pages/user-facing-pages/AuthDemo";
+import ScrollToTop from "../ui/ScrollToTop";
 const RootLayout = () => (
   <AuthProvider>
     <Outlet />
@@ -51,6 +52,7 @@ const ProtectedLayout = () => (
 
 const UserFacingLayout = () => (
   <UserLayout>
+    <ScrollToTop />
     <Outlet />
   </UserLayout>
 );
@@ -97,7 +99,7 @@ const router = createBrowserRouter([
           { path: "/user/dashboard", element: <DashboardUser /> },
           { path: "/user/offers", element: <UserOffers /> },
           { path: "/user/history", element: <PointsHistory /> },
-          { path: "/user/coupon/:id", element: <CouponDetails /> },
+          { path: "/user/coupon", element: <CouponDetails /> },
           { path: "/user/support", element: <UserSupport /> },
         ],
       },

@@ -14,7 +14,28 @@ const UserLayout = ({ children, currentPage = "home" }) => {
   const [activePage, setActivePage] = useState(currentPage);
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, customerID, apiKey } = useCustomerAuth();
+  const [tierColor, setTierColor] = useState("#DF9872"); // default to Bronze
+
+  const { isAuthenticated, customerID, apiKey, customerData } =
+    useCustomerAuth();
+  useEffect(() => {
+    if (customerData) {
+      const tier = customerData?.customer_tier?.en;
+      switch (tier) {
+        case "Bronze":
+          setTierColor("#DF9872"); // bronze color
+          break;
+        case "Silver":
+          setTierColor("#C0C0C0"); // silver color
+          break;
+        case "Gold":
+          setTierColor("#FFD700"); // gold color
+          break;
+        default:
+          setTierColor("#DF9872");
+      }
+    }
+  }, [customerData]);
 
   // Update active page based on current route
   useEffect(() => {
@@ -116,7 +137,7 @@ const UserLayout = ({ children, currentPage = "home" }) => {
                 onClick={() => handleNavigation(item)}
                 className={`flex flex-col items-center space-y-1 py-2 px-3 rounded-lg transition-colors ${
                   isActive
-                    ? "text-[#DF9872]"
+                    ? `text-[${tierColor}]` 
                     : "text-gray-500 hover:text-gray-700"
                 }`}
               >

@@ -2,13 +2,35 @@ import {
   ArrowLeftIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ProductCard from "../../components/User-Facing/ProductCard";
-import { categories } from "../../assets/json/userData";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useCustomerAuth } from "../../hooks/useCustomerAuth";
+import sdkApi from "../../api/sdk";
 const UserOffers = () => {
-  const [activeCategory, setActiveCategory] = useState("Fashion");
-const navigate = useNavigate();
+  const [activeCategory, setActiveCategory] = useState("");
+  const [offerData, setOfferData] = useState([]);
+  const [searchParams] = useSearchParams();
+  const [categories, setCategories] = useState([]);
+  const { customerID, apiKey, customerData } = useCustomerAuth();
+  const navigate = useNavigate();
+  useEffect(() => {
+    const fetchOfferData = async () => {
+      try {
+        const offers = await sdkApi.getMerchantOffers(customerID, apiKey, {
+          categoryId: activeCategory,
+        });
+        setOfferData(offers.data);
+        const categoriesData = await sdkApi.getCategories(customerID, apiKey);
+        const allCategory = { _id: "", title: { en: "All" } };
+        setCategories([allCategory, ...categoriesData.data]);
+      } catch (error) {
+        console.error("Failed to fetch customer data:", error);
+      }
+    };
+
+    fetchOfferData();
+  }, [customerID, apiKey, customerData, activeCategory]);
   return (
     <div className="max-w-md mx-auto bg-white min-h-screen">
       <div className="flex justify-between items-center p-4 ">
@@ -28,17 +50,17 @@ const navigate = useNavigate();
           className="flex gap-3 overflow-x-auto scrollbar-hide pb-2"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          {categories.map((category) => (
+          {categories?.map((category) => (
             <button
-              key={category?.id}
-              onClick={() => setActiveCategory(category?.name)}
+              key={category?._id}
+              onClick={() => setActiveCategory(category?._id)}
               className={`px-4 py-2 rounded-[10px] whitespace-nowrap text-sm font-medium transition-all duration-200 poppins-text ${
-                activeCategory === category?.name
+                activeCategory === category?._id
                   ? "bg-[#404040] text-white"
                   : "border border-[#404040] hover:bg-gray-200 text-[#404040]"
               }`}
             >
-              {category?.name}
+              {category?.title?.en}
             </button>
           ))}
         </div>
@@ -54,18 +76,24 @@ const navigate = useNavigate();
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3 px-4 py-4">
-        {[...Array(10)].map((_, index) => (
-          <ProductCard 
-          onClick={() => navigate(`/user/coupon/${index}`)}
-            key={index}
-            product={{
-              image:
-                "https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa,w_2000,h_2000/global/306422/03/sv01/fnd/IND/fmt/png/Scuderia-Ferrari-Drift-Cat-5-Ultra-II-Sneakers", // Example Puma logo
-              name: "Footwears",
-              description: "Get 50% off on your first purchase ",
-            }}
-          />
-        ))}
+        {offerData?.length === 0 && (
+          <div className="col-span-2 text-center text-gray-500">
+            No offers found
+          </div>
+        )}
+        {offerData?.map((offer, index) => {
+          const params = new URLSearchParams(searchParams);
+          params.set("couponId", offer?._id);
+          const couponUrl = `/user/coupon?${params.toString()}`;
+
+          return (
+            <ProductCard
+              onClick={() => navigate(couponUrl)}
+              key={index}
+              product={offer}
+            />
+          );
+        })}
       </div>
     </div>
   );

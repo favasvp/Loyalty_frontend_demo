@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import sdkApi from "../api/sdk";
 
 const STORAGE_KEY = "khedmah_customer_auth";
 
@@ -10,57 +11,6 @@ export const useCustomerAuth = () => {
     customerData: null,
   });
 
-  // Initialize auth from URL params or localStorage
-  useEffect(() => {
-    const initializeAuth = () => {
-      // First, check URL parameters
-      const queryParams = new URLSearchParams(window.location.search);
-      const urlCustomerID = queryParams.get("customerID");
-      const urlApiKey = queryParams.get("apiKey");
-
-      if (urlCustomerID && urlApiKey) {
-        // Found parameters in URL, save them
-        const authData = {
-          customerID: urlCustomerID,
-          apiKey: urlApiKey,
-          isAuthenticated: true,
-          customerData: null,
-        };
-
-        setCustomerAuth(authData);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(authData));
-        return;
-      }
-
-      // No URL params, check localStorage
-      try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-
-        if (stored) {
-          const parsedAuth = JSON.parse(stored);
-
-          if (parsedAuth.customerID && parsedAuth.apiKey) {
-            setCustomerAuth(parsedAuth);
-            return;
-          }
-        }
-      } catch (error) {
-        console.error("Error reading customer auth from localStorage:", error);
-      }
-
-      // No valid auth found
-      setCustomerAuth({
-        customerID: null,
-        apiKey: null,
-        isAuthenticated: false,
-        customerData: null,
-      });
-    };
-
-    initializeAuth();
-  }, []);
-
-  // Update customer data using useCallback to prevent infinite re-renders
   const updateCustomerData = useCallback((data) => {
     setCustomerAuth((prevAuth) => {
       const updatedAuth = {
@@ -72,7 +22,6 @@ export const useCustomerAuth = () => {
     });
   }, []);
 
-  // Clear authentication
   const clearAuth = useCallback(() => {
     const clearedAuth = {
       customerID: null,
@@ -84,7 +33,6 @@ export const useCustomerAuth = () => {
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 
-  // Set authentication manually
   const setAuth = useCallback((customerID, apiKey, customerData = null) => {
     const authData = {
       customerID,
@@ -96,10 +44,85 @@ export const useCustomerAuth = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(authData));
   }, []);
 
+  const refreshCustomerData = useCallback(async () => {
+    const { customerID, apiKey } = customerAuth;
+    if (!customerID || !apiKey) return;
+
+    try {
+      const response = await sdkApi.getCustomerDetails(customerID, apiKey);
+      if (response.status === 200 && response.data) {
+        updateCustomerData(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to refresh customer data:", error);
+    }
+  }, [customerAuth, updateCustomerData]);
+  useEffect(() => {
+    const fetchCustomerData = async () => {
+      const { customerID, apiKey, customerData, isAuthenticated } = customerAuth;
+
+      if (isAuthenticated && customerID && apiKey && !customerData) {
+        try {
+          const response = await sdkApi.getCustomerDetails(customerID, apiKey);
+          if (response.status === 200 && response.data) {
+            updateCustomerData(response.data);
+          }
+        } catch (error) {
+          console.error("Error fetching customer data:", error);
+        }
+      }
+    };
+
+    fetchCustomerData();
+  }, [customerAuth, updateCustomerData]);
+
+  useEffect(() => {
+    const initializeAuth = () => {
+      const queryParams = new URLSearchParams(window.location.search);
+      const urlCustomerID = queryParams.get("customerID");
+      const urlApiKey = queryParams.get("apiKey");
+
+      if (urlCustomerID && urlApiKey) {
+        const authData = {
+          customerID: urlCustomerID,
+          apiKey: urlApiKey,
+          isAuthenticated: true,
+          customerData: null,
+        };
+        setCustomerAuth(authData);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(authData));
+        return;
+      }
+
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsedAuth = JSON.parse(stored);
+          if (parsedAuth.customerID && parsedAuth.apiKey) {
+            setCustomerAuth(parsedAuth);
+            return;
+          }
+        }
+      } catch (error) {
+        console.error("Error reading customer auth from localStorage:", error);
+      }
+
+      setCustomerAuth({
+        customerID: null,
+        apiKey: null,
+        isAuthenticated: false,
+        customerData: null,
+      });
+    };
+
+    initializeAuth();
+  }, []);
+
   return {
     ...customerAuth,
     updateCustomerData,
     clearAuth,
     setAuth,
+    refreshCustomerData,
   };
 };

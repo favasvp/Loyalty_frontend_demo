@@ -1,5 +1,5 @@
 const ProductCard = ({ product, onClick }) => {
-  const { image, name, description } = product;
+  // const { image, name, description } = product;
 
   return (
     <div
@@ -10,7 +10,7 @@ const ProductCard = ({ product, onClick }) => {
         <div className="w-full h-26 ">
           {" "}
           <img
-            src={image}
+            src={product?.posterImage}
             alt="Brand Logo"
             className="w-full h-full object-cover rounded-t-[8px] "
           />
@@ -18,11 +18,13 @@ const ProductCard = ({ product, onClick }) => {
       </div>
       <div className="mb-1 p-2 poppins-text">
         <span className="text-sm font-semibold leading-tight  line-clamp-1">
-          {name}
+          {product?.title?.en}
         </span>
 
         <div className="flex items-center justify-between mt-2">
-          <div className="text-xs text-[#4E4E4E]">{description}</div>
+          <div className="text-xs text-[#4E4E4E]">
+            {product?.description?.en}
+          </div>
         </div>
       </div>
     </div>

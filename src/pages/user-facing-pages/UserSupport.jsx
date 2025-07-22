@@ -1,5 +1,6 @@
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
+import { AppMainButton } from "../../ui/AppMainButton";
 
 const UserSupport = () => {
   const navigate = useNavigate();
@@ -34,9 +35,7 @@ const UserSupport = () => {
         />
       </div>
       <div className="px-4 mb-4 mt-3">
-        <button className=" w-full text-sm font-medium text-[#0F0F10] bg-gradient-to-r from-[#FFFBEF] to-[#FFDFBE] px-[10px] py-[20px] rounded-[10px] mt-4 mb-4">
-          Send
-        </button>
+        <AppMainButton name={"Send"} />
       </div>
     </div>
   );

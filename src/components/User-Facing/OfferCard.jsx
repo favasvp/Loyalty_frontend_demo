@@ -1,10 +1,10 @@
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
 
-const OfferCard = ({ data }) => {
-  const { title,merchantId, description, posterImage, discountDetails } = data;
+const OfferCard = ({ data, tier }) => {
+  const { title, merchantId, description, posterImage, discountDetails } = data;
   return (
     <div
-      className=" rounded-2xl border border-[#FFF3E1] bg-white p-4"
+      className={`rounded-2xl border border-[${tier}] bg-white p-4`}
       style={{
         boxShadow: `
           0px 0.5px 1.5px 0px #0000001F,

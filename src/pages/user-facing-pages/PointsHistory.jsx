@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
-import background from "../../assets/background.png";
+import silver from "../../assets/silver.png";
+import gold from "../../assets/gold.png";
+import bronze from "../../assets/background.png";
 import plus from "../../assets/plus.png";
 import minus from "../../assets/minus.png";
 import { useCustomerAuth } from "../../hooks/useCustomerAuth";
@@ -8,6 +10,7 @@ import { getTierTheme } from "../../components/User-Facing/themes/tierThemes";
 
 const PointsHistory = () => {
   const [customer, setCustomer] = useState(null);
+  const[backgroundImage, setBackgroundImage] = useState(bronze);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -36,7 +39,6 @@ const PointsHistory = () => {
           1,
           50
         );
-
         if (response.status === 200 && response.data) {
           setCustomer(response.data.customer);
           setTransactions(response.data.transactions || []);
@@ -58,7 +60,30 @@ const PointsHistory = () => {
 
     fetchTransactionHistory();
   }, [customerID, apiKey, isAuthenticated]);
+  useEffect(() => {
+    const fetchCustomerData = async () => {
+      try {
+        const tier = customerData?.customer_tier?.en;
+        switch (tier) {
+          case "Bronze":
+            setBackgroundImage(bronze);
+            break;
+          case "Silver":
+            setBackgroundImage(silver);
+            break;
+          case "Gold":
+            setBackgroundImage(gold);
+            break;
+          default:
+            setBackgroundImage(bronze);
+        }
+      } catch (error) {
+        console.error("Failed to fetch customer data:", error);
+      }
+    };
 
+    fetchCustomerData();
+  }, [customerData]);
   // Get the current tier theme
   const customerTier =
     customer?.customer_tier?.en || customerData?.customer_tier?.en || "Bronze";
@@ -93,7 +118,7 @@ const PointsHistory = () => {
           <div
             className="h-52 flex items-center justify-center"
             style={{
-              backgroundImage: `url(${background})`,
+              backgroundImage: `url(${backgroundImage})`,
             }}
           >
             <div className="p-4 poppins-text items-center bg-white rounded-2xl space-y-2 animate-pulse">
@@ -157,7 +182,7 @@ const PointsHistory = () => {
         <div
           className="h-52 flex items-center justify-center"
           style={{
-            backgroundImage: `url(${background})`,
+            backgroundImage: `url(${backgroundImage})`,
             backgroundSize: "cover",
           }}
         >

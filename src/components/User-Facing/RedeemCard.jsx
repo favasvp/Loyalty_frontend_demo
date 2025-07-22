@@ -1,9 +1,17 @@
 import { useState } from "react";
-import image from "../../assets/image (5).png";
+import useUiStore from "../../store/ui";
+import { useSearchParams } from "react-router-dom";
+import { useCustomerAuth } from "../../hooks/useCustomerAuth";
+import sdkApi from "../../api/sdk";
+import { AppMainButton } from "../../ui/AppMainButton";
 
-const RedeemCard = ({ onClose }) => {
+const RedeemCard = ({ onClose, image }) => {
   const [code, setCode] = useState(["", "", "", ""]);
-
+  const { addToast } = useUiStore();
+  const [searchParams] = useSearchParams();
+  const [loading, setLoading] = useState(false);
+  const { customerID, apiKey, customerData } = useCustomerAuth();
+  const couponId = searchParams.get("couponId");
   const handleChange = (index) => (e) => {
     const value = e.target.value;
     if (/^\d{0,1}$/.test(value)) {
@@ -24,7 +32,24 @@ const RedeemCard = ({ onClose }) => {
       document.getElementById("code-3")?.focus();
     }
   };
-
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      await sdkApi.addRedeem(customerID, apiKey, {
+        pin: code.join(""),
+        couponId: couponId,
+      });
+    } catch (e) {
+      addToast({
+        type: "error",
+        message: e.message || "Failed to redeem points",
+      });
+    } finally {
+      setLoading(false);
+      onClose?.();
+      setCode(["", "", "", ""]);
+    }
+  };
   return (
     <div className="bg-white rounded-2xl pb-6">
       <div className="relative pb-4">
@@ -55,12 +80,7 @@ const RedeemCard = ({ onClose }) => {
             />
           ))}
         </div>
-        <button
-          className="w-full text-sm font-medium text-[#0F0F10] bg-gradient-to-r from-[#FFFBEF] to-[#FFDFBE] px-[10px] py-[20px] rounded-[10px] mt-4 mb-4"
-          onClick={onClose}
-        >
-          Redeem Now
-        </button>
+       <AppMainButton loading={loading} onClick={handleSubmit} name="Redeem" />
       </div>
     </div>
   );

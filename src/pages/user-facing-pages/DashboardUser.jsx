@@ -2,7 +2,7 @@ import UserCard from "../../components/User-Facing/UserCard";
 import bg from "../../assets/bg.png";
 import OfferCard from "../../components/User-Facing/OfferCard";
 import bronze from "../../assets/background.png";
-import { brands, categories, data, offers } from "../../assets/json/userData";
+import { data } from "../../assets/json/userData";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import sdkApi from "../../api/sdk";
@@ -13,47 +13,51 @@ import gold from "../../assets/gold.png";
 import AppButton from "../../ui/AppButton";
 const DashboardUser = () => {
   const navigate = useNavigate();
-  const [customerData, setCustomerData] = useState(null);
-  const { customerID, apiKey } = useCustomerAuth();
   const [variant, setVariant] = useState("primary");
-  const[offerData, setOfferData] = useState([]);
+  const [offerData, setOfferData] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [tierColor, setTierColor] = useState("#FFE5C9");
+  const { customerID, apiKey, customerData } = useCustomerAuth();
   const [backgroundImage, setBackgroundImage] = useState(bronze);
   useEffect(() => {
     const fetchCustomerData = async () => {
       try {
-        const response = await sdkApi.getCustomerDetails(customerID, apiKey);
-        if (response.status === 200 && response.data) {
-          const customerData = response.data;
-          setCustomerData(customerData);
-          const tier = customerData?.customer_tier?.en;
-          switch (tier) {
-            case "Bronze":
-              setBackgroundImage(bronze);
-              setVariant("bronze");
-              break;
-            case "Silver":
-              setBackgroundImage(silver);
-              setVariant("silver");
-              break;
-            case "Gold":
-              setBackgroundImage(gold);
-              setVariant("gold");
-              break;
-            default:
-              setBackgroundImage(bronze);
-          }
+        const tier = customerData?.customer_tier?.en;
+        switch (tier) {
+          case "Bronze":
+            setTierColor("#FFE5C9");
+            setBackgroundImage(bronze);
+            setVariant("bronze");
+            break;
+          case "Silver":
+            setTierColor("#A4AAB4");
+            setBackgroundImage(silver);
+            setVariant("silver");
+            break;
+          case "Gold":
+            setTierColor("#FFD700");
+            setBackgroundImage(gold);
+            setVariant("gold");
+            break;
+          default:
+            setTierColor("#DF9872");
+            setBackgroundImage(bronze);
         }
         const offers = await sdkApi.getMerchantOffers(customerID, apiKey);
         setOfferData(offers.data);
+        const brandData = await sdkApi.getBrands(customerID, apiKey);
+        setBrands(brandData.data);
+        const categoriesData = await sdkApi.getCategories(customerID, apiKey);
+        setCategories(categoriesData.data);
       } catch (error) {
         console.error("Failed to fetch customer data:", error);
       }
     };
 
     fetchCustomerData();
-  }, [customerID, apiKey]);
+  }, [customerID, apiKey, customerData]);
 
- 
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="relative">
@@ -100,12 +104,14 @@ const DashboardUser = () => {
             msOverflowStyle: "auto",
           }}
         >
-          {brands.map((item) => (
-            <div key={item.id} className="min-w-[70px]">
-              <div className="w-full p-2 border border-[#FFE5C9] rounded-lg h-16 flex items-center">
+          {brands?.map((item) => (
+            <div key={item?._id} className="min-w-[70px]">
+              <div
+                className={`w-full p-2 border border-[${tierColor}] rounded-lg h-16 flex items-center`}
+              >
                 <img
-                  src={item.image}
-                  alt={item.name}
+                  src={item?.image}
+                  alt={item?.name}
                   className="w-full h-6 object-contain"
                 />
               </div>
@@ -114,7 +120,7 @@ const DashboardUser = () => {
         </div>
         <div className="flex items-center justify-between mt-6 poppins-text mb-4">
           <h2 className="text-sm font-semibold ">Brand Offers</h2>
-          <AppButton name={"View All Brand Offers"} variant={variant} />
+          <AppButton name={"View All Brand Offers"} variant={variant}onClick={() => navigate("/user/offers")} />
         </div>
         <div
           className="flex space-x-3 overflow-x-auto scrollbar-hide"
@@ -123,9 +129,9 @@ const DashboardUser = () => {
             msOverflowStyle: "auto",
           }}
         >
-          {offerData.map((offer) => (
-            <div key={offer.id} className="min-w-[180px]">
-              <OfferCard data={offer} />
+          {offerData?.map((offer) => (
+            <div key={offer._id} className="min-w-[180px]">
+              <OfferCard data={offer} tier={tierColor} />
             </div>
           ))}
         </div>
@@ -141,21 +147,21 @@ const DashboardUser = () => {
             msOverflowStyle: "auto",
           }}
         >
-          {categories.map((category) => (
+          {categories?.map((category) => (
             <div
-              key={category.id}
+              key={category?._id}
               className="flex flex-col items-center min-w-[89px]"
             >
               <div className="w-16 h-16 rounded-full overflow-hidden border border-gray-200 flex items-center justify-center mb-2">
                 <img
-                  src={category.icon}
-                  alt={category.name}
+                  src={category?.image}
+                  alt={category?.name}
                   className="w-full h-full  object-cover"
                   onClick={() => navigate(`/category`)}
                 />
               </div>
               <p className="text-sm text-center  poppins-text">
-                {category.name}
+                {category?.name}
               </p>
             </div>
           ))}

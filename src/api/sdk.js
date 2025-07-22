@@ -103,11 +103,32 @@ const sdkApi = {
     }
   },
 
-getMerchantOffers: async (customerID, apiKey, params = {}) => {
-  try {
-    const response = await sdkApiClient.get(
-      "/khedmah-sdk/get-merchant-offers",
-      {
+  getMerchantOffers: async (customerID, apiKey, params = {}) => {
+    try {
+      const response = await sdkApiClient.get(
+        "/khedmah-sdk/get-merchant-offers",
+        {
+          params: {
+            customer_id: customerID,
+            ...params,
+          },
+          headers: {
+            "x-api-key": apiKey,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error fetching merchant offers:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  },
+  getBrands: async (customerID, apiKey, params = {}) => {
+    try {
+      const response = await sdkApiClient.get("/khedmah-sdk/get-brands", {
         params: {
           customer_id: customerID,
           ...params,
@@ -115,15 +136,79 @@ getMerchantOffers: async (customerID, apiKey, params = {}) => {
         headers: {
           "x-api-key": apiKey,
         },
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching merchant offers:", error.response?.data || error.message);
-    throw error;
-  }
-},
-
+      });
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error fetching brands:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  },
+  getCategories: async (customerID, apiKey, params = {}) => {
+    try {
+      const response = await sdkApiClient.get("/khedmah-sdk/get-categories", {
+        params: {
+          customer_id: customerID,
+          ...params,
+        },
+        headers: {
+          "x-api-key": apiKey,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error fetching categories:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  },
+  getCouponId: async (id, customerID, apiKey, params = {}) => {
+    try {
+      const response = await sdkApiClient.get(
+        `/khedmah-sdk/get-coupon-details/${id}`,
+        {
+          params: {
+            customer_id: customerID,
+            ...params,
+          },
+          headers: {
+            "x-api-key": apiKey,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error fetching categories:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  },
+  addRedeem: async (customerID, apiKey, redemptionData) => {
+    try {
+      const response = await sdkApiClient.post(
+        "/khedmah-sdk/redeem-coupon",
+        {
+          customer_id: customerID,
+          ...redemptionData,
+        },
+        {
+          headers: {
+            "x-api-key": apiKey,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error redeeming points:", error);
+      throw error;
+    }
+  },
 };
 
 export default sdkApi;

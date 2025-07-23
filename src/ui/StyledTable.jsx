@@ -1,6 +1,8 @@
 import StyledPagination from "./StyledPagination";
 
 const StyledTable = ({ children, paginationProps }) => {
+  console.log("paginationProps", paginationProps);
+  console.log("children", children);
     return (
       <div className="bg-white rounded-lg shadow overflow-hidden w-full">
         <div className="overflow-x-auto w-full">

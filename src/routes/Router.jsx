@@ -15,6 +15,7 @@ import Apps from "../pages/reference-data/Apps";
 import Brands from "../pages/reference-data/Brands";
 import Categories from "../pages/reference-data/Categories";
 import Rules from "../pages/points-management/Rules";
+import TierEligibility from "../pages/points-management/TierEligibility";
 import Reports from "../pages/audit/Reports";
 import Theme from "../pages/system-and-settings/Theme";
 import { AuthProvider } from "../ui/AuthProvider";
@@ -72,6 +73,7 @@ const router = createBrowserRouter([
           { path: "/dashboard", element: <Dashboard /> },
           { path: "/points-criteria", element: <PointsCriteria /> },
           { path: "/tiers", element: <Tiers /> },
+          { path: "/tier-eligibility", element: <TierEligibility /> },
           { path: "/transactions", element: <Transactions /> },
           { path: "/customers", element: <Customer /> },
           { path: "/users", element: <Users /> },

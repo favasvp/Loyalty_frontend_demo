@@ -73,8 +73,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           icon: ArrowPathIcon,
         },
         { label: "Rules & Expiry", path: "/rules", icon: Cog6ToothIcon },
-
         { label: "Tiers", path: "/tiers", icon: TrophyIcon },
+        {
+          label: "Tier Eligibility",
+          path: "/tier-eligibility",
+          icon: AdjustmentsHorizontalIcon,
+        },
       ],
     },
     {
@@ -124,7 +128,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           path: "/trigger-events",
           icon: CalendarDateRangeIcon,
         },
-          {
+        {
           label: "Payment Methods",
           path: "/payment-methods",
           icon: CalendarDateRangeIcon,

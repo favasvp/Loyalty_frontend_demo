@@ -32,15 +32,23 @@ const UserOffers = () => {
       } else {
         setPage((prev) => prev + 1);
       }
-      setOfferData(offers.data);
-      const categoriesData = await sdkApi.getCategories(customerID, apiKey);
-      const allCategory = { _id: "", title: { en: "All" } };
-      setCategories([allCategory, ...categoriesData.data]);
     } catch (error) {
       console.error("Failed to fetch customer data:", error);
       setHasMore(false);
     }
   };
+  const fetchCategories = async () => {
+    try {
+      const categoriesData = await sdkApi.getCategories(customerID, apiKey);
+      const allCategory = { _id: "", title: { en: "All" } };
+      setCategories([allCategory, ...categoriesData.data]);
+    } catch (error) {
+      console.error("Failed to fetch customer data:", error);
+    }
+  };
+  useEffect(() => {
+    fetchCategories();
+  }, [customerID, apiKey, customerData]);
   useEffect(() => {
     fetchOfferData();
   }, [customerID, apiKey, customerData, activeCategory, page, rows]);

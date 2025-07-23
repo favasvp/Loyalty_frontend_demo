@@ -8,16 +8,19 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCustomerAuth } from "../../hooks/useCustomerAuth";
 import sdkApi from "../../api/sdk";
 import InfiniteScroll from "react-infinite-scroll-component";
+
 const UserOffers = () => {
   const [activeCategory, setActiveCategory] = useState("");
   const [offerData, setOfferData] = useState([]);
   const [page, setPage] = useState(1);
-  const [rows, setRows] = useState(10);
+  const [rows] = useState(10);
   const [hasMore, setHasMore] = useState(true);
   const [searchParams] = useSearchParams();
   const [categories, setCategories] = useState([]);
-  const { customerID, apiKey, customerData } = useCustomerAuth();
+
+  const { customerID, apiKey } = useCustomerAuth();
   const navigate = useNavigate();
+
   const fetchOfferData = async () => {
     try {
       const offers = await sdkApi.getMerchantOffers(customerID, apiKey, {
@@ -25,7 +28,9 @@ const UserOffers = () => {
         page,
         limit: rows,
       });
+
       const newOffers = offers.data || [];
+
       setOfferData((prev) => [...prev, ...newOffers]);
       if (newOffers.length < rows) {
         setHasMore(false);
@@ -33,25 +38,37 @@ const UserOffers = () => {
         setPage((prev) => prev + 1);
       }
     } catch (error) {
-      console.error("Failed to fetch customer data:", error);
+      console.error("Failed to fetch offers:", error);
       setHasMore(false);
     }
   };
+
   const fetchCategories = async () => {
     try {
       const categoriesData = await sdkApi.getCategories(customerID, apiKey);
       const allCategory = { _id: "", title: { en: "All" } };
       setCategories([allCategory, ...categoriesData.data]);
     } catch (error) {
-      console.error("Failed to fetch customer data:", error);
+      console.error("Failed to fetch categories:", error);
     }
   };
   useEffect(() => {
-    fetchCategories();
-  }, [customerID, apiKey, customerData]);
+    if (customerID && apiKey) {
+      fetchCategories();
+    }
+  }, [customerID, apiKey]);
+
   useEffect(() => {
-    fetchOfferData();
-  }, [customerID, apiKey, customerData, activeCategory, page, rows]);
+    setOfferData([]);
+    setPage(1);
+    setHasMore(true);
+  }, [activeCategory]);
+
+  useEffect(() => {
+    if (customerID && apiKey && page === 1 && offerData.length === 0) {
+      fetchOfferData();
+    }
+  }, [customerID, apiKey, activeCategory, page]);
   return (
     <div className="max-w-md mx-auto bg-white min-h-screen">
       <div className="flex justify-between items-center p-4 ">

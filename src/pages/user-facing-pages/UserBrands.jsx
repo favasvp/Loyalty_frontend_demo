@@ -4,23 +4,36 @@ import {
 } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import ProductCard from "../../components/User-Facing/ProductCard";
-import { useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useCustomerAuth } from "../../hooks/useCustomerAuth";
 import sdkApi from "../../api/sdk";
+import InfiniteScroll from "react-infinite-scroll-component";
 const UserBrands = () => {
   const [brands, setBrands] = useState([]);
+  const [page, setPage] = useState(1);
+  const [rows, setRows] = useState(10);
+  const [hasMore, setHasMore] = useState(true);
   const { customerID, apiKey, customerData } = useCustomerAuth();
   const navigate = useNavigate();
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const brandData = await sdkApi.getBrands(customerID, apiKey);
-        setBrands(brandData.data);
-      } catch (error) {
-        console.error("Failed to fetch customer data:", error);
+  const fetchData = async () => {
+    try {
+      const brandData = await sdkApi.getBrands(customerID, apiKey, {
+        page,
+        limit: rows,
+      });
+      const newBrands = brandData.data || [];
+      setBrands((prev) => [...prev, ...newBrands]);
+      if (newBrands.length < rows) {
+        setHasMore(false);
+      } else {
+        setPage((prev) => prev + 1);
       }
-    };
-
+    } catch (error) {
+      console.error("Failed to fetch customer data:", error);
+      setHasMore(false);
+    }
+  };
+  useEffect(() => {
     fetchData();
   }, [customerID, apiKey, customerData]);
   return (
@@ -47,16 +60,24 @@ const UserBrands = () => {
           />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3 px-4 py-4">
-        {brands?.length === 0 && (
-          <div className="col-span-2 text-center text-gray-500">
-            No brands found
-          </div>
-        )}
-        {brands?.map((brand, index) => {
-          return <ProductCard key={index} product={brand} />;
-        })}
-      </div>
+      <InfiniteScroll
+        dataLength={brands.length}
+        next={fetchData}
+        hasMore={hasMore}
+        loader={<h4>Loading...</h4>}
+        endMessage={<p>No more items</p>}
+      >
+        <div className="grid grid-cols-2 gap-3 px-4 py-4">
+          {brands?.length === 0 && (
+            <div className="col-span-2 text-center text-gray-500">
+              No brands found
+            </div>
+          )}
+          {brands?.map((brand, index) => {
+            return <ProductCard key={index} product={brand} />;
+          })}
+        </div>
+      </InfiniteScroll>
     </div>
   );
 };

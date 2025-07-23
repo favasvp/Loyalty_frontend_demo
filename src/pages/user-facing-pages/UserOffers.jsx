@@ -7,28 +7,41 @@ import ProductCard from "../../components/User-Facing/ProductCard";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCustomerAuth } from "../../hooks/useCustomerAuth";
 import sdkApi from "../../api/sdk";
+import InfiniteScroll from "react-infinite-scroll-component";
 const UserOffers = () => {
   const [activeCategory, setActiveCategory] = useState("");
   const [offerData, setOfferData] = useState([]);
+  const [page, setPage] = useState(1);
+  const [rows, setRows] = useState(10);
+  const [hasMore, setHasMore] = useState(true);
   const [searchParams] = useSearchParams();
   const [categories, setCategories] = useState([]);
   const { customerID, apiKey, customerData } = useCustomerAuth();
   const navigate = useNavigate();
-  useEffect(() => {
-    const fetchOfferData = async () => {
-      try {
-        const offers = await sdkApi.getMerchantOffers(customerID, apiKey, {
-          categoryId: activeCategory,
-        });
-        setOfferData(offers.data);
-        const categoriesData = await sdkApi.getCategories(customerID, apiKey);
-        const allCategory = { _id: "", title: { en: "All" } };
-        setCategories([allCategory, ...categoriesData.data]);
-      } catch (error) {
-        console.error("Failed to fetch customer data:", error);
+  const fetchOfferData = async () => {
+    try {
+      const offers = await sdkApi.getMerchantOffers(customerID, apiKey, {
+        categoryId: activeCategory,
+        page,
+        limit: rows,
+      });
+      const newOffers = offers.data || [];
+      setOfferData((prev) => [...prev, ...newOffers]);
+      if (newOffers.length < rows) {
+        setHasMore(false);
+      } else {
+        setPage((prev) => prev + 1);
       }
-    };
-
+      setOfferData(offers.data);
+      const categoriesData = await sdkApi.getCategories(customerID, apiKey);
+      const allCategory = { _id: "", title: { en: "All" } };
+      setCategories([allCategory, ...categoriesData.data]);
+    } catch (error) {
+      console.error("Failed to fetch customer data:", error);
+      setHasMore(false);
+    }
+  };
+  useEffect(() => {
     fetchOfferData();
   }, [customerID, apiKey, customerData, activeCategory]);
   return (
@@ -75,26 +88,34 @@ const UserOffers = () => {
           />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3 px-4 py-4">
-        {offerData?.length === 0 && (
-          <div className="col-span-2 text-center text-gray-500">
-            No offers found
-          </div>
-        )}
-        {offerData?.map((offer, index) => {
-          const params = new URLSearchParams(searchParams);
-          params.set("couponId", offer?._id);
-          const couponUrl = `/user/coupon?${params.toString()}`;
+      <InfiniteScroll
+        dataLength={offerData.length}
+        next={fetchOfferData}
+        hasMore={hasMore}
+        loader={<h4>Loading...</h4>}
+        endMessage={<p>No more items</p>}
+      >
+        <div className="grid grid-cols-2 gap-3 px-4 py-4">
+          {offerData?.length === 0 && (
+            <div className="col-span-2 text-center text-gray-500">
+              No offers found
+            </div>
+          )}
+          {offerData?.map((offer, index) => {
+            const params = new URLSearchParams(searchParams);
+            params.set("couponId", offer?._id);
+            const couponUrl = `/user/coupon?${params.toString()}`;
 
-          return (
-            <ProductCard
-              onClick={() => navigate(couponUrl)}
-              key={index}
-              product={offer}
-            />
-          );
-        })}
-      </div>
+            return (
+              <ProductCard
+                onClick={() => navigate(couponUrl)}
+                key={index}
+                product={offer}
+              />
+            );
+          })}
+        </div>
+      </InfiniteScroll>
     </div>
   );
 };

@@ -35,7 +35,7 @@ const UserBrands = () => {
   };
   useEffect(() => {
     fetchData();
-  }, [customerID, apiKey, customerData]);
+  }, [customerID, apiKey, customerData, page, rows]);
   return (
     <div className="max-w-md mx-auto bg-white min-h-screen">
       <div className="flex justify-between items-center p-4 ">

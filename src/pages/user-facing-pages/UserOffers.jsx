@@ -43,7 +43,7 @@ const UserOffers = () => {
   };
   useEffect(() => {
     fetchOfferData();
-  }, [customerID, apiKey, customerData, activeCategory]);
+  }, [customerID, apiKey, customerData, activeCategory, page, rows]);
   return (
     <div className="max-w-md mx-auto bg-white min-h-screen">
       <div className="flex justify-between items-center p-4 ">

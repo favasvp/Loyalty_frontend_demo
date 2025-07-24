@@ -71,7 +71,7 @@ const UserCategories = () => {
           next={fetchData}
           hasMore={hasMore}
           loader={<h4>Loading...</h4>}
-          endMessage={<p>No more items</p>}
+          endMessage={""}
         >
           <div className="grid grid-cols-2 gap-3 px-4 py-4 ">
             {categories?.length === 0 && (

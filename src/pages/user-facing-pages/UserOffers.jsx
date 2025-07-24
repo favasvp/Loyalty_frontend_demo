@@ -118,7 +118,7 @@ const UserOffers = () => {
         next={fetchOfferData}
         hasMore={hasMore}
         loader={<h4>Loading...</h4>}
-        endMessage={<p>No more items</p>}
+        endMessage={""}
       >
         <div className="grid grid-cols-2 gap-3 px-4 py-4">
           {offerData?.length === 0 && (

@@ -6,7 +6,8 @@ const OfferCard = ({ data, tier }) => {
     description,
     posterImage,
     discountDetails,
-    eligibilityCriteria,validityPeriod
+    eligibilityCriteria,
+    validityPeriod,
   } = data;
 
   return (
@@ -68,7 +69,7 @@ const OfferCard = ({ data, tier }) => {
                 : "For specific users"}
             </div>
             <div className="text-[10px] font-medium text-gray-800">
-              Valid till  {moment(validityPeriod?.endDate).format("DD-MM-YYYY")}
+              Valid till {moment(validityPeriod?.endDate).format("DD-MM-YYYY")}
             </div>
           </div>
         </div>

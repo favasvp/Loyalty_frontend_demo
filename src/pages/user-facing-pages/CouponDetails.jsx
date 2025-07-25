@@ -100,6 +100,14 @@ const CouponDetails = () => {
             )}
           </ul>
         </div>
+        <div className="flex justify-end mt-4">
+          <p
+            className="text-xs text-gray-500 cursor:pointer hover:underline"
+            onClick={() => navigate("/user/terms-and-conditions")}
+          >
+            Terms and Conditions
+          </p>
+        </div>
 
         <AppMainButton
           name="Redeem Coupon"

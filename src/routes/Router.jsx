@@ -41,6 +41,7 @@ import AuthDemo from "../pages/user-facing-pages/AuthDemo";
 import ScrollToTop from "../ui/ScrollToTop";
 import UserBrands from "../pages/user-facing-pages/UserBrands";
 import UserCategories from "../pages/user-facing-pages/UserCategories";
+import Terms from "../pages/user-facing-pages/Terms";
 const RootLayout = () => (
   <AuthProvider>
     <Outlet />
@@ -107,6 +108,7 @@ const router = createBrowserRouter([
           { path: "/user/brands", element: <UserBrands /> },
           { path: "/user/categories", element: <UserCategories /> },
           { path: "/user/support", element: <UserSupport /> },
+          { path: "/user/terms-and-conditions", element: <Terms /> },
         ],
       },
     ],

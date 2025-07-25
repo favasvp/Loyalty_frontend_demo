@@ -1,5 +1,4 @@
 import { useState } from "react";
-import UserCard from "../../components/User-Facing/UserCard";
 
 const TierDemo = () => {
   const [selectedTier, setSelectedTier] = useState("Bronze");

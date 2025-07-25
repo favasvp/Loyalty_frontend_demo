@@ -95,7 +95,11 @@ const DashboardUser = () => {
         </div>
         <div className="flex items-center justify-between mt-6 poppins-text mb-4">
           <h2 className="text-sm font-semibold ">Brands</h2>
-          <AppButton name={"View All Brands"} variant={variant} onClick={() => navigate("/user/brands")} />
+          <AppButton
+            name={"View All Brands"}
+            variant={variant}
+            onClick={() => navigate("/user/brands")}
+          />
         </div>
         <div
           className="flex space-x-3 overflow-x-auto scrollbar-hide"
@@ -143,7 +147,11 @@ const DashboardUser = () => {
         <div className="flex items-center justify-between mt-6 poppins-text mb-4">
           <h2 className="text-sm font-semibold ">Categories </h2>
 
-          <AppButton name={"View All Categories"} variant={variant}onClick={() => navigate("/user/categories")} />
+          <AppButton
+            name={"View All Categories"}
+            variant={variant}
+            onClick={() => navigate("/user/categories")}
+          />
         </div>
         <div
           className="flex space-x-3 overflow-x-auto scrollbar-hide"
@@ -162,7 +170,6 @@ const DashboardUser = () => {
                   src={category?.image}
                   alt={category?.name}
                   className="w-full h-full  object-cover"
-                  onClick={() => navigate(`/category`)}
                 />
               </div>
               <p className="text-sm text-center  poppins-text">

@@ -139,7 +139,7 @@ const DashboardUser = () => {
           }}
         >
           {offerData?.slice(0, 5)?.map((offer) => (
-            <div key={offer._id} className="min-w-[180px]">
+            <div key={offer._id} className="min-w-[180px] ">
               <OfferCard data={offer} tier={tierColor} />
             </div>
           ))}

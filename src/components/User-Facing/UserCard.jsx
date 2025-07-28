@@ -208,7 +208,7 @@ const UserCard = () => {
         {/* Progress bar section */}
         <div className="px-4 pb-4">
           <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-            {/* <div
+            <div
               className="bg-[#E39C75] h-2 rounded-full transition-all duration-300"
               style={{
                 width: `${
@@ -217,7 +217,7 @@ const UserCard = () => {
                     : 100
                 }%`,
               }}
-            ></div> */}
+            ></div>
           </div>
           <span className="text-[#8E8E8E] text-[12px] poppins-text">
             {user?.requiredPoint === 0 ? (

@@ -1,4 +1,4 @@
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useMemo } from "react";
 import khedmah from "../../assets/Frame 92.png";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import sdkApi from "../../api/sdk";
@@ -17,16 +17,14 @@ const UserCard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-const progress =
-  user.requiredPoint > 0
-    ? Math.min((user.points / user.requiredPoint) * 100, 100)
-    : 100;
+  const progress = useMemo(() => {
+    const value =
+      user.requiredPoint > 0
+        ? Math.min((user.points / user.requiredPoint) * 100, 100)
+        : 100;
 
-console.log("Progress Bar Debug:", {
-  points: user.points,
-  requiredPoint: user.requiredPoint,
-  calculatedProgress: progress,
-});
+    return value;
+  }, [user.points, user.requiredPoint]);
 
   // Use the customer auth hook
   const { customerID, apiKey, isAuthenticated, updateCustomerData } =
@@ -221,11 +219,7 @@ console.log("Progress Bar Debug:", {
             <div
               className="bg-[#E39C75] h-2 rounded-full transition-all duration-300"
               style={{
-                width: `${
-                  user.requiredPoint > 0
-                    ? Math.min((user.points / user.requiredPoint) * 100, 100)
-                    : 100
-                }%`,
+                width: `${progress}%`,
               }}
             ></div>
           </div>

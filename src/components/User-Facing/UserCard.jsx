@@ -17,14 +17,13 @@ const UserCard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const progress = useMemo(() => {
-    const value =
-      user.requiredPoint > 0
-        ? Math.min((user.points / user.requiredPoint) * 100, 100)
-        : 100;
+const progress = useMemo(() => {
+  const total = user.points + user.requiredPoint;
+  const value = total > 0 ? (user.points / total) * 100 : 100;
+  return value;
+}, [user.points, user.requiredPoint]);
 
-    return value;
-  }, [user.points, user.requiredPoint]);
+
 
   // Use the customer auth hook
   const { customerID, apiKey, isAuthenticated, updateCustomerData } =

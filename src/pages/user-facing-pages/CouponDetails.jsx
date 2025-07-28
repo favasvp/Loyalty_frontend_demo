@@ -41,7 +41,7 @@ const CouponDetails = () => {
           <img
             src={offerData?.merchantId?.image}
             alt="Amazon"
-            className="w-6 h-6 mr-2"
+            className="w-12 h-12 mr-2"
           />
           <span className="font-semibold text-lg ">
             {offerData?.merchantId?.title?.en}

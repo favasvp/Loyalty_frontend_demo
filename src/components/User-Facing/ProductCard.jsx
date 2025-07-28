@@ -18,7 +18,7 @@ const ProductCard = ({ product, onClick }) => {
         <div className="w-full h-28 ">
           {" "}
           <img
-            src={product?.posterImage || product?.image}
+            src={product?.merchantId?.image || product?.image}
             alt="Brand Logo"
             className="w-full h-full object-cover rounded-t-[8px] "
           />

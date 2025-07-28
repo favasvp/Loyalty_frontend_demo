@@ -17,6 +17,16 @@ const UserCard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+const progress =
+  user.requiredPoint > 0
+    ? Math.min((user.points / user.requiredPoint) * 100, 100)
+    : 100;
+
+console.log("Progress Bar Debug:", {
+  points: user.points,
+  requiredPoint: user.requiredPoint,
+  calculatedProgress: progress,
+});
 
   // Use the customer auth hook
   const { customerID, apiKey, isAuthenticated, updateCustomerData } =

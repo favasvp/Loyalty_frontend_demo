@@ -12,16 +12,16 @@ const OfferCard = ({ data, tier }) => {
 
   return (
     <div
-      className="rounded-2xl bg-white transition-all  duration-200 hover:shadow-lg cursor-pointer overflow-hidden"
+      className="rounded-[22px] bg-white transition-all  duration-200 hover:shadow-lg cursor-pointer overflow-hidden"
       style={{
         border: `1px solid ${tier}`,
       }}
     >
-      <div className="relative -m-4 mb-0 rounded-t-2xl overflow-hidden">
+      <div className="relative  mb-0 overflow-hidden">
         <img
           src={posterImage}
           alt={title}
-          className="w-full h-40 object-contain"
+          className="w-full h-50 object-cover "
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 

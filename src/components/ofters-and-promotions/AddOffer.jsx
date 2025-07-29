@@ -24,9 +24,13 @@ const AddOffer = ({ isOpen, onClose, editData, offerType }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [originalFile, setOriginalFile] = useState(null);
   const [isCropping, setIsCropping] = useState(false);
-  const { data: merchants } = useGetBrands();
+  const { data: merchants } = useGetBrands({
+    limit: 100,
+  });
   const { useGetCategory } = useCategory();
-  const { data: couponCategories } = useGetCategory();
+  const { data: couponCategories } = useGetCategory({
+    limit: 100,
+  });
   const { useGetAppTypes } = useAppTypes();
   const { data: appTypes } = useGetAppTypes();
   const {

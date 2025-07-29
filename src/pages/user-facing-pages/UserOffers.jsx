@@ -3,11 +3,11 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
-import ProductCard from "../../components/User-Facing/ProductCard";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCustomerAuth } from "../../hooks/useCustomerAuth";
 import sdkApi from "../../api/sdk";
 import InfiniteScroll from "react-infinite-scroll-component";
+import OfferView from "../../components/User-Facing/OfferView";
 
 const UserOffers = () => {
   const [activeCategory, setActiveCategory] = useState("");
@@ -120,7 +120,7 @@ const UserOffers = () => {
         loader={<h4>Loading...</h4>}
         endMessage={""}
       >
-        <div className="grid grid-cols-2 gap-3 px-4 py-4">
+        <div className="grid grid-cols-1 gap-3 px-0 py-4">
           {offerData?.length === 0 && (
             <div className="col-span-2 text-center text-gray-500">
               No offers found
@@ -132,11 +132,20 @@ const UserOffers = () => {
             const couponUrl = `/user/coupon?${params.toString()}`;
 
             return (
-              <ProductCard
-                onClick={() => navigate(couponUrl)}
-                key={index}
-                product={offer}
-              />
+              <div key={index}>
+                <OfferView
+                  onClick={() => navigate(couponUrl)}
+                  product={offer}
+                />
+                {index !== offerData.length - 1 && (
+                  <div
+                    className="my-2"
+                    style={{
+                      borderBottom: "0.6px solid rgba(0, 0, 0, 0.15)",
+                    }}
+                  />
+                )}
+              </div>
             );
           })}
         </div>

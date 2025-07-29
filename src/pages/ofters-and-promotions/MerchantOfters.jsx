@@ -46,7 +46,7 @@ const MerchantOffers = () => {
     { id: "PRE_GENERATED", label: "Pre Generated" },
   ];
   useEffect(() => {
-    if (offerData?.data?.total) {
+    if (offerData?.total_count) {
       setTotalCount(offerData.total_count);
     }
   }, [offerData]);

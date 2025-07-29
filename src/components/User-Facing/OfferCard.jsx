@@ -21,7 +21,7 @@ const OfferCard = ({ data, tier }) => {
         <img
           src={posterImage}
           alt={title}
-          className="w-full h-50 object-cover "
+          className="w-full h-45 object-cover "
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 

@@ -21,7 +21,7 @@ const OfferCard = ({ data, tier }) => {
         <img
           src={posterImage}
           alt={title}
-          className="w-full h-34 object-cover"
+          className="w-full h-40 object-contain"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
@@ -36,13 +36,13 @@ const OfferCard = ({ data, tier }) => {
           </div>
         </div>
         <div className="absolute bottom-3 left-3">
-          <div className="w-12 h-13 rounded-lg overflow-hidden border-2 border-white shadow-lg bg-white">
+          {/* <div className="w-12 h-13 rounded-lg overflow-hidden border-2 border-white shadow-lg bg-white">
             <img
               src={merchantId?.image}
               alt={merchantId?.title?.en}
               className="w-full h-full object-cover"
             />
-          </div>
+          </div> */}
         </div>
       </div>
       <div className="p-4 pt-3 flex flex-col h-[160px] justify-between">

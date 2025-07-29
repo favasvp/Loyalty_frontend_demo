@@ -111,13 +111,13 @@ const DashboardUser = () => {
           {brands?.slice(0, 5).map((item) => (
             <div key={item?._id} className="min-w-[70px]">
               <div
-                style={{ border: `1px solid ${tierColor}` }}
-                className={`w-full p-1  rounded-lg h-16 flex items-center justify-center`}
+                // style={{ border: `1px solid ${tierColor}` }}
+                className={`w-full p-0  h-full flex items-center justify-center`}
               >
                 <img
                   src={item?.image}
                   alt={item?.name}
-                  className="w-[70px] h-full object-contain"
+                  className="w-[70px] h-[70px] rounded-lg object-contain"
                 />
               </div>
             </div>
@@ -154,7 +154,7 @@ const DashboardUser = () => {
           />
         </div>
         <div
-          className="flex space-x-3 overflow-x-auto scrollbar-hide"
+          className="flex space-x-3 overflow-x-auto scrollbar-hide mb-4"
           style={{
             scrollbarWidth: "auto",
             msOverflowStyle: "auto",
@@ -163,17 +163,18 @@ const DashboardUser = () => {
           {categories?.slice(0, 5)?.map((category) => (
             <div
               key={category?._id}
-              className="flex flex-col items-center min-w-[89px]"
+              className="flex flex-col items-center min-w-[89px] w-[89px]"
             >
-              <div className="w-16 h-16 rounded-full overflow-hidden border border-gray-200 flex items-center justify-center mb-2">
+              <div className="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center mb-2">
                 <img
                   src={category?.image}
-                  alt={category?.name}
-                  className="w-full h-full  object-cover"
+                  alt={category?.title?.en}
+                  className="w-16 h-16 rounded-full object-cover"
                 />
               </div>
-              <p className="text-sm text-center  poppins-text">
-                {category?.name}
+
+              <p className="text-[10px] text-center poppins-text line-clamp-2 leading-tight h-[28px]">
+                {category?.title?.en}
               </p>
             </div>
           ))}

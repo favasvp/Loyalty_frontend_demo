@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { XMarkIcon, ArrowUpTrayIcon, GlobeAltIcon } from "@heroicons/react/24/outline";
+import {
+  XMarkIcon,
+  ArrowUpTrayIcon,
+  GlobeAltIcon,
+} from "@heroicons/react/24/outline";
 import StyledButton from "../../ui/StyledButton";
 import { useCategory } from "../../hooks/useCategory";
 import useUiStore from "../../store/ui";
@@ -11,13 +15,17 @@ import uploadApi from "../../api/upload";
 const schema = z.object({
   title: z.object({
     en: z.string().min(1, "English title is required"),
-    ar:z.string().optional(),
+    ar: z.string().optional(),
   }),
   image: z.any(),
   description: z.object({
     en: z.string().min(5, "English description must be at least 5 characters"),
-    ar:z.string().optional(),
+    ar: z.string().optional(),
   }),
+  priority: z.preprocess(
+    (val) => Number(val),
+    z.number().min(0, "Priority must be a number")
+  ),
 });
 
 const AddCategory = ({ isOpen, onClose, editData }) => {
@@ -37,6 +45,7 @@ const AddCategory = ({ isOpen, onClose, editData }) => {
       title: { en: "", ar: "" },
       image: "",
       description: { en: "", ar: "" },
+      priority: 0,
     },
   });
 
@@ -47,11 +56,18 @@ const AddCategory = ({ isOpen, onClose, editData }) => {
 
   useEffect(() => {
     if (editData) {
-      setValue("title.en", editData?.data?.title?.en || editData?.data?.title || "");
+      setValue(
+        "title.en",
+        editData?.data?.title?.en || editData?.data?.title || ""
+      );
       setValue("title.ar", editData?.data?.title?.ar || "");
       setValue("image", editData?.data?.image || "");
-      setValue("description.en", editData?.data?.description?.en || editData?.data?.description || "");
+      setValue(
+        "description.en",
+        editData?.data?.description?.en || editData?.data?.description || ""
+      );
       setValue("description.ar", editData?.data?.description?.ar || "");
+      setValue("priority", editData?.data?.priority || 0);
       setImagePreview(editData?.data?.image);
     }
   }, [editData, setValue]);
@@ -66,7 +82,7 @@ const AddCategory = ({ isOpen, onClose, editData }) => {
       }
 
       const formDataToSubmit = { ...data, image: imageUrl };
-      
+
       const action = editData ? updateMutation : createMutation;
       const payload = editData
         ? { id: editData.data._id, formData: formDataToSubmit }
@@ -79,6 +95,7 @@ const AddCategory = ({ isOpen, onClose, editData }) => {
             title: { en: "", ar: "" },
             image: "",
             description: { en: "", ar: "" },
+            priority: 0,
           });
           setImagePreview(null);
           onClose();
@@ -187,7 +204,9 @@ const AddCategory = ({ isOpen, onClose, editData }) => {
                 <ArrowUpTrayIcon className="w-5 h-5 text-gray-500" />
               </label>
               {errors.image && (
-                <p className="text-red-500 text-xs mt-1">{errors.image.message}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.image.message}
+                </p>
               )}
             </div>
 
@@ -215,6 +234,22 @@ const AddCategory = ({ isOpen, onClose, editData }) => {
               {errors.description?.[activeLanguage] && (
                 <p className="text-red-500 text-xs mt-1">
                   {errors.description[activeLanguage].message}
+                </p>
+              )}
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-500">
+                Priority
+              </label>
+              <input
+                {...register("priority")}
+                className={inputClass}
+                type="number"
+                value={watch("priority")}
+              />
+              {errors.priority && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.priority.message}
                 </p>
               )}
             </div>

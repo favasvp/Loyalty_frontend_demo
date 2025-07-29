@@ -17,6 +17,9 @@ const schema = z.object({
     en: z.string().min(5, "English description must be at least 5 characters"),
     ar: z.string().optional(),
   }),
+   priority: z
+    .preprocess((val) => Number(val), z.number().min(0, "Priority must be a number")),
+
 });
 
 const AddBrand = ({ isOpen, onClose, editData }) => {
@@ -36,6 +39,7 @@ const AddBrand = ({ isOpen, onClose, editData }) => {
       title: { en: "", ar: "" },
       image: "",
       description: { en: "", ar: "" },
+      priority: 0
     },
   });
 
@@ -57,6 +61,7 @@ const AddBrand = ({ isOpen, onClose, editData }) => {
         editData?.data?.description?.en || editData?.data?.description || ""
       );
       setValue("description.ar", editData?.data?.description?.ar || "");
+      setValue("priority", editData?.data?.priority || 0);
       setImagePreview(editData?.data?.image);
     }
   }, [editData, setValue]);
@@ -104,6 +109,7 @@ const AddBrand = ({ isOpen, onClose, editData }) => {
       title: { en: "", ar: "" },
       image: "",
       description: { en: "", ar: "" },
+      priority: 0
     });
     setImagePreview(null);
     setActiveLanguage("en");
@@ -221,6 +227,22 @@ const AddBrand = ({ isOpen, onClose, editData }) => {
               {errors.description?.[activeLanguage] && (
                 <p className="text-red-500 text-xs mt-1">
                   {errors.description[activeLanguage].message}
+                </p>
+              )}
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-500">
+                Priority
+              </label>
+              <input
+                {...register("priority")}
+                className={inputClass}
+                type="number"
+                value={watch("priority")}
+              />
+              {errors.priority && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.priority.message}
                 </p>
               )}
             </div>

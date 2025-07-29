@@ -1,5 +1,5 @@
 import coupon1 from "../../assets/coupon1.png";
-import coupon2 from "../../assets/coupon2.jpg";
+import coupon2 from "../../assets/coupon2.png";
 import coupon3 from "../../assets/coupon3.png";
 import brand1 from "../../assets/brand1.png";
 import brand2 from "../../assets/brand2.png";

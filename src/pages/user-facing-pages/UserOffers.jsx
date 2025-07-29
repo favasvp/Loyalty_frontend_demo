@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import sdkApi from "../../../utils/sdkApi";
 import { useParams } from "react-router-dom";
-import { Skeleton } from "@mui/material";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 const Offers = () => {
@@ -40,7 +39,6 @@ const Offers = () => {
     }
   };
 
-  // Reset and fetch new offers on category change
   useEffect(() => {
     if (customerID && apiKey) {
       const resetAndFetch = async () => {
@@ -62,7 +60,7 @@ const Offers = () => {
           if (newOffers.length < rows) {
             setHasMore(false);
           } else {
-            setPage(2); // next page for infinite scroll
+            setPage(2);
           }
         } catch (error) {
           console.error("Initial fetch failed:", error);
@@ -79,18 +77,26 @@ const Offers = () => {
   return (
     <div className="px-4">
       {loading && offerData.length === 0 ? (
-        <Skeleton
-          variant="rectangular"
-          width="100%"
-          height={100}
-          animation="wave"
-        />
+        <div className="space-y-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="animate-pulse space-y-2">
+              <div className="h-5 bg-gray-300 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded w-full"></div>
+              <div className="border-b border-gray-300" />
+            </div>
+          ))}
+        </div>
       ) : (
         <InfiniteScroll
           dataLength={offerData.length}
           next={fetchOfferData}
           hasMore={hasMore}
-          loader={<Skeleton width="100%" height={80} />}
+          loader={
+            <div className="mt-4 space-y-2 animate-pulse">
+              <div className="h-5 bg-gray-300 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded w-full"></div>
+            </div>
+          }
         >
           {offerData.map((item, index) => (
             <div key={index} className="py-2">
@@ -98,7 +104,10 @@ const Offers = () => {
               <div className="text-sm text-gray-600">{item.description}</div>
 
               {index !== offerData.length - 1 && (
-                <div className="border-b border-[rgba(0,0,0,0.15)] my-2" style={{ borderBottomWidth: "0.6px" }} />
+                <div
+                  className="border-b border-[rgba(0,0,0,0.15)] my-2"
+                  style={{ borderBottomWidth: "0.6px" }}
+                />
               )}
             </div>
           ))}

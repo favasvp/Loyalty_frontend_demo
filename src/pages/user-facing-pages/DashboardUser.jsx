@@ -109,15 +109,15 @@ const DashboardUser = () => {
           }}
         >
           {brands?.slice(0, 5).map((item) => (
-            <div key={item?._id} className="min-w-[70px]">
+            <div key={item?._id} className="min-w-[70px] mb-3">
               <div
-                style={{ border: "0.6px solid rgba(0, 0, 0, 0.15)" }}
-                className="w-[74px] h-[74px] flex items-center justify-center rounded-[12px] bg-white"
+                style={{ border: "2px solid rgba(0, 0, 0, 0.15)" }}
+                className="w-[74px] h-[74px] flex items-center justify-center rounded-[12px] bg-white shadow-lg"
               >
                 <img
                   src={item?.image}
                   alt={item?.name}
-                  className="w-[64px] h-[64px] object-contain rounded-lg"
+                  className="w-[64px] h-[64px] object-contain rounded-lg "
                 />
               </div>
             </div>

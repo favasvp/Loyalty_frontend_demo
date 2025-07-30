@@ -12,7 +12,7 @@ const ProductCard = ({ product, onClick }) => {
       : description.slice(0, maxChars) + "...";
   return (
     <div
-      className="rounded-[8px] border border-[#E3E3E3] bg-white cursor-pointer"
+      className="rounded-[8px] border-2 border-[#E3E3E3] bg-white shadow-lg cursor-pointer"
       onClick={onClick}
     >
       <div className="flex justify-between items-center mb-2">
@@ -26,7 +26,7 @@ const ProductCard = ({ product, onClick }) => {
         </div>
       </div>
       <div className="mb-1 p-2 poppins-text">
-        <span className="text-sm font-semibold leading-tight  line-clamp-1">
+        <span className="text-sm font-semibold leading-tight  line-clamp-2">
           {product?.title?.en}
         </span>
 

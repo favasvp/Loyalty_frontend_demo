@@ -20,7 +20,7 @@ const OfferView = ({ product, onClick }) => {
 
       <div className="flex-1">
         <p className="text-base font-semibold text-black poppins-text">
-          {getDiscountLabel()}
+         {product?.title?.en}
         </p>
         <p className="text-sm text-gray-800 poppins-text">
           {product?.merchantId?.title?.en || "Biriyani Bowl Restaurent"}

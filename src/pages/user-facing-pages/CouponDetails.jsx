@@ -24,15 +24,15 @@ const CouponDetails = () => {
     <div className="max-w-md mx-auto bg-white min-h-screen pb-6">
       <div className="relative bg-[#23243A]  pb-0">
         <button
-          className="absolute top-14 left-4 bg-gray-400 w-8 h-8 bg-opacity-50 rounded-full p-0 flex items-center justify-center cursor-pointer"
+          className="absolute top-4 left-4 bg-white w-8 h-8 bg-opacity-50 rounded-full p-0 flex items-center justify-center cursor-pointer"
           onClick={() => navigate("/user/offers")}
         >
-          <ArrowLeftIcon className="w-3 h-3 text-white" />
+          <ArrowLeftIcon className="w-3 h-3 text-black" />
         </button>
         <img
           src={offerData?.posterImage}
           alt="Sneaker"
-          className="w-full h-76 object-cover"
+          className="w-full h-md object-cover"
         />
       </div>
 

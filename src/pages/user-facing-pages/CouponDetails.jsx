@@ -48,9 +48,9 @@ const CouponDetails = () => {
           </span>
         </div>
         <div className="font-medium text-xl mb-1 ">{offerData?.title?.en}</div>
-        <div className="text-sm font-medium mb-4">
+        {/* <div className="text-sm font-medium mb-4">
           {offerData?.description?.en}
-        </div>
+        </div> */}
 
         <div>
           <div className="font-semibold text-base mb-2">Details</div>

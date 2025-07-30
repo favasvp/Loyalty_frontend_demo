@@ -32,7 +32,7 @@ const CouponDetails = () => {
         <img
           src={offerData?.posterImage}
           alt="Sneaker"
-          className="w-full h-76 contain rounded-t-lg"
+          className="w-full h-76 object-cover"
         />
       </div>
 

@@ -13,7 +13,7 @@ const UserOffers = () => {
   const [activeCategory, setActiveCategory] = useState("");
   const [offerData, setOfferData] = useState([]);
   const [page, setPage] = useState(1);
-  const [rows] = useState(10);
+  const [rows] = useState(100);
   const [hasMore, setHasMore] = useState(true);
   const [searchParams] = useSearchParams();
   const [categories, setCategories] = useState([]);

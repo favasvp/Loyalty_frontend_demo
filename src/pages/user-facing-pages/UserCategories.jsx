@@ -11,7 +11,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 const UserCategories = () => {
   const [categories, setCategories] = useState([]);
   const [page, setPage] = useState(1);
-  const [rows, setRows] = useState(10);
+  const [rows, setRows] = useState(100);
   const [hasMore, setHasMore] = useState(true);
   const { customerID, apiKey, customerData } = useCustomerAuth();
   const navigate = useNavigate();

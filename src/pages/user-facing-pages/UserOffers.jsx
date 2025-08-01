@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCustomerAuth } from "../../hooks/useCustomerAuth";
 import sdkApi from "../../api/sdk";
-import InfiniteScroll from "react-infinite-scroll-component";
 import OfferView from "../../components/User-Facing/OfferView";
 
 const UserOffers = () => {
@@ -14,15 +13,17 @@ const UserOffers = () => {
   const [offerData, setOfferData] = useState([]);
   const [page, setPage] = useState(1);
   const [rows] = useState(100);
-  const [hasMore, setHasMore] = useState(true);
   const [searchParams] = useSearchParams();
   const [categories, setCategories] = useState([]);
-
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  
   const { customerID, apiKey } = useCustomerAuth();
   const navigate = useNavigate();
 
   const fetchOfferData = async () => {
     try {
+      setLoading(true);
       const offers = await sdkApi.getMerchantOffers(customerID, apiKey, {
         categoryId: activeCategory,
         page,
@@ -33,13 +34,15 @@ const UserOffers = () => {
 
       setOfferData((prev) => [...prev, ...newOffers]);
       if (newOffers.length < rows) {
-        setHasMore(false);
+        // No more data
       } else {
         setPage((prev) => prev + 1);
       }
     } catch (error) {
       console.error("Failed to fetch offers:", error);
-      setHasMore(false);
+    } finally {
+      setLoading(false);
+      setInitialLoading(false);
     }
   };
 
@@ -65,7 +68,7 @@ const UserOffers = () => {
   useEffect(() => {
     setOfferData([]);
     setPage(1);
-    setHasMore(true);
+    setInitialLoading(true);
   }, [activeCategory]);
 
   // Fetch offers when dependencies change
@@ -74,6 +77,22 @@ const UserOffers = () => {
       fetchOfferData();
     }
   }, [customerID, apiKey, activeCategory]);
+
+  const LoadingSpinner = () => (
+    <div className="flex justify-center items-center py-8">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#404040]"></div>
+    </div>
+  );
+
+  const NoOffersFound = () => (
+    <div className="flex flex-col items-center justify-center py-12 px-4">
+      <div className="text-6xl text-gray-300 mb-4">🔍</div>
+      <h3 className="text-lg font-medium text-gray-600 mb-2">No offers found</h3>
+      <p className="text-sm text-gray-500 text-center">
+        Try selecting a different category or check back later for new offers.
+      </p>
+    </div>
+  );
 
   return (
     <div className="max-w-md mx-auto bg-white min-h-screen">
@@ -88,7 +107,8 @@ const UserOffers = () => {
             </h1>
           </div>
         </div>
-      </div>{" "}
+      </div>
+      
       <div className="px-4 mb-4 mt-3">
         <div
           className="flex gap-3 overflow-x-auto scrollbar-hide pb-2"
@@ -109,6 +129,7 @@ const UserOffers = () => {
           ))}
         </div>
       </div>
+      
       <div className="px-4 py-3">
         <div className="relative">
           <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2  w-4 h-4" />
@@ -119,43 +140,46 @@ const UserOffers = () => {
           />
         </div>
       </div>
-      <InfiniteScroll
-        dataLength={offerData.length}
-        next={fetchOfferData}
-        hasMore={hasMore}
-        loader={<h4>Loading...</h4>}
-        endMessage={""}
-      >
-        <div className="grid grid-cols-1 gap-3 px-0 py-4">
-          {offerData?.length === 0 && (
-            <div className="col-span-2 text-center text-gray-500">
-              No offers found
-            </div>
-          )}
-          {offerData?.map((offer, index) => {
-            const params = new URLSearchParams(searchParams);
-            params.set("couponId", offer?._id);
-            const couponUrl = `/user/coupon?${params.toString()}`;
 
-            return (
-              <div key={index}>
-                <OfferView
-                  onClick={() => navigate(couponUrl)}
-                  product={offer}
-                />
-                {index !== offerData.length - 1 && (
-                  <div
-                    className="my-2"
-                    style={{
-                      borderBottom: "0.6px solid rgba(0, 0, 0, 0.15)",
-                    }}
-                  />
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </InfiniteScroll>
+      <div className="min-h-[400px]">
+        {initialLoading ? (
+          <LoadingSpinner />
+        ) : (
+          <div className="grid grid-cols-1 gap-3 px-0 py-4">
+            {offerData?.length === 0 ? (
+              <NoOffersFound />
+            ) : (
+              offerData?.map((offer, index) => {
+                const params = new URLSearchParams(searchParams);
+                params.set("couponId", offer?._id);
+                const couponUrl = `/user/coupon?${params.toString()}`;
+
+                return (
+                  <div key={index}>
+                    <OfferView
+                      onClick={() => navigate(couponUrl)}
+                      product={offer}
+                    />
+                    {index !== offerData.length - 1 && (
+                      <div
+                        className="my-2"
+                        style={{
+                          borderBottom: "0.6px solid rgba(0, 0, 0, 0.15)",
+                        }}
+                      />
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        )}
+        {loading && !initialLoading && (
+          <div className="px-4 pb-4">
+            <LoadingSpinner />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

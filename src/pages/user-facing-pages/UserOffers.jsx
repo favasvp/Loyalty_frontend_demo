@@ -45,8 +45,8 @@ const UserOffers = () => {
 
   const fetchCategories = async () => {
     try {
-      const categoriesData = await sdkApi.getCategories(customerID, apiKey,{
-        limit: 100
+      const categoriesData = await sdkApi.getCategories(customerID, apiKey, {
+        limit: 100,
       });
       const allCategory = { _id: "", title: { en: "All" } };
       setCategories([allCategory, ...categoriesData.data]);
@@ -54,23 +54,27 @@ const UserOffers = () => {
       console.error("Failed to fetch categories:", error);
     }
   };
+
   useEffect(() => {
     if (customerID && apiKey) {
       fetchCategories();
     }
   }, [customerID, apiKey]);
 
+  // Reset data when category changes
   useEffect(() => {
     setOfferData([]);
     setPage(1);
     setHasMore(true);
   }, [activeCategory]);
 
+  // Fetch offers when dependencies change
   useEffect(() => {
-    if (customerID && apiKey && page === 1 && offerData.length === 0) {
+    if (customerID && apiKey) {
       fetchOfferData();
     }
-  }, [customerID, apiKey, activeCategory, page]);
+  }, [customerID, apiKey, activeCategory]);
+
   return (
     <div className="max-w-md mx-auto bg-white min-h-screen">
       <div className="flex justify-between items-center p-4 ">

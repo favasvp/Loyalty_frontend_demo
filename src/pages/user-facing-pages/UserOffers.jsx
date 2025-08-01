@@ -45,7 +45,9 @@ const UserOffers = () => {
 
   const fetchCategories = async () => {
     try {
-      const categoriesData = await sdkApi.getCategories(customerID, apiKey);
+      const categoriesData = await sdkApi.getCategories(customerID, apiKey,{
+        limit: 100
+      });
       const allCategory = { _id: "", title: { en: "All" } };
       setCategories([allCategory, ...categoriesData.data]);
     } catch (error) {

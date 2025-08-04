@@ -1,0 +1,56 @@
+name: Deploy Loyalty Frontend to New Server
+
+on:
+  push:
+    branches:
+      - anjanavu  
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Project
+        run: npm run build
+
+      - name: Copy Build Files via SSH
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: "dist/*"
+          target: "~/deploy-temp"
+
+      - name: Move to production folder & restart Nginx
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            echo "Deploying to web root..."
+            sudo rm -rf /var/www/html/loyalty-frontend
+            sudo mkdir -p /var/www/html/loyalty-frontend
+            sudo cp -R ~/deploy-temp/* /var/www/html/loyalty-frontend
+            sudo chown -R www-data:www-data /var/www/html/loyalty-frontend
+            sudo chmod -R 755 /var/www/html/loyalty-frontend
+            sudo rm -rf ~/deploy-temp
+
+            # Clear nginx cache and restart
+            echo "Restarting Nginx..."
+            sudo rm -rf /var/cache/nginx/*
+            sudo systemctl restart nginx
+
+            echo "Deployment completed!"

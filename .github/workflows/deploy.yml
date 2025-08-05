@@ -1,4 +1,4 @@
-name: Deploy Loyalty Frontend to New Server
+name: Deploy Loyalty Frontend to Server
 
 on:
   push:
